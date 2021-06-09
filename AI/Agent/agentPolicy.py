@@ -46,7 +46,7 @@ class Policy:
             state = self.env.reset()
             ep_reward, done = 0, 0
             self.env.current_frame = 0
-            while done < 1:
+            while not done:
                 #print('Beginning of frame: ', self.env.current_frame)
                 action = self.select_epsilon_greedy_action(state)
                 next_state, reward, done = self.env.step(action)
@@ -79,7 +79,7 @@ class Policy:
                     loss = self.main_nn.train(self.target_nn, state, action, reward, next_state, next_done)
 
             # If not one of the last episodes lower epsilon
-            if episode < config.num_episodes * config.epsilon_discount:
+            if episode > config.num_explore and episode < config.num_episodes * config.epsilon_discount:
                 config.epsilon -= config.epsilon_discount / config.num_episodes
 
             # Update last 100 episodes

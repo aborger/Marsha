@@ -13,6 +13,7 @@ copy_rate = 100            # The number of frames before target rnn is copied to
 print_rate = 10             # Number of episodes before printing current results
 goal_reward = 1000          # The reward that will deem an episode successfull
 max_frames = 100             # Number of frames that will deem an episode unsuccessfull if the goal_reward is not reached
+num_explore = 10            # Number of episodes of completely random movements
 
 epsilon = 1
 

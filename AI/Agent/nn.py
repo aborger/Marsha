@@ -17,11 +17,11 @@ class Network(tf.keras.Model):
 
         super(Network, self).__init__()
         self.dense1 = tf.keras.layers.Dense(units=4,
-                                            input_shape=(1, 4), activation='sigmoid')
+                                            input_shape=(1, 4), activation='sigmoid', kernel_initializer='RandomUniform')
         self.dense2 = tf.keras.layers.Dense(units=4, activation='relu')
         self.dense3 = tf.keras.layers.Dense(units=15, activation='relu')
         self.dense4 = tf.keras.layers.Dense(units=20, activation='relu')
-        self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='softmax')
+        self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='softmax', kernel_initializer='RandomUniform')
 
     def call(self, input):
         #print('input:', input)
@@ -43,27 +43,27 @@ class Network(tf.keras.Model):
         return x
 
     def train(self, target_nn, state, action, reward, next_state, done):
-        DEBUG = False
+        DEBUG = True
         if DEBUG: print('-------------')
+        print('Reward:', reward)
+        print('Done:', done)
         next_qs = target_nn(next_state)
         if DEBUG: print('next_qs:', next_qs)
-        max_next_qs = tf.reduce_max(next_qs, axis=0)
+        max_next_qs = tf.reduce_max(next_qs, axis=1)
         if DEBUG: print('max next qs:', max_next_qs)
-        target = reward + (done) * config.discount_factor * max_next_qs
+        
+        target = reward + config.discount_factor * max_next_qs
+        target = target * (1 - done) - done
         if DEBUG: print('target:', target)
         with tf.GradientTape() as tape:
             qs = self.call(state)
             if DEBUG: print('qs:',qs)
-            # Create one hot
-            action_mask = tf.zeros([config.NUM_ACTIONS]).numpy()
-
-            action_mask[action] = 1
-            if DEBUG: print('action mask:', action_mask)
-            masked_qs = tf.reduce_sum(action_mask * qs, axis=0)
-            if DEBUG: print('masked qs:', masked_qs)
+            action_mask = tf.one_hot(action, config.NUM_ACTIONS)
+            masked_qs = tf.reduce_sum(tf.multiply(qs, action_mask), axis=1)
+            if DEBUG: print('masked_qs:',masked_qs)
             loss = config.mse(target, masked_qs)
             if DEBUG: print('loss:', loss)
         grads = tape.gradient(loss, self.trainable_variables)
         config.optimizer.apply_gradients(zip(grads, self.trainable_variables))
-        #time.sleep(5)
+        if DEBUG: time.sleep(5)
         return loss
