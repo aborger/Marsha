@@ -2,7 +2,7 @@ from collections import deque
 import numpy as np
 from config import train_config as config
 import tensorflow as tf
-from tensorflow.python.keras.backend import softmax
+from tensorflow.python.keras.backend import argmax
 
 
 class ReplayBuffer(object):
@@ -29,10 +29,5 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def select_action(network_output):
-    action_probs = softmax(network_output, axis=1).numpy()    # gets element with greatest probability
-            
-    probs = np.reshape(action_probs, newshape=(config.NUM_ACTIONS))
-    #print('probs: ', probs)
-    best_action = np.random.choice(a=config.NUM_ACTIONS, p=probs)
-    #print('Action:', best_action)
-    return best_action
+    best_action = argmax(network_output, axis=1).numpy()
+    return best_action[0]

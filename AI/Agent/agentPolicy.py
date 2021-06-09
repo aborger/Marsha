@@ -1,4 +1,5 @@
 from numpy.core.fromnumeric import reshape
+from tensorflow import random
 import numpy as np
 
 import tqdm
@@ -20,14 +21,14 @@ class Policy:
         self.main_nn = Network()
 
     def select_epsilon_greedy_action(self, state):
-        rand = np.random.uniform((1,))             # Picks random number between 0 and 1
+        rand = random.uniform((1,))             # Picks random number between 0 and 1
         if rand < config.epsilon:
             return self.env.random_action()     # Returns random action
 
         else:
             output = self.main_nn(state)                   # Returns array of probability each action should be picked
             best_action = util.select_action(output)
-            print('Chosen Action:', best_action)
+            print('Output', output, 'Chosen Action:', best_action)
             return best_action
 
     def train(self):

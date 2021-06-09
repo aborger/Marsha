@@ -34,7 +34,7 @@ class Network(tf.keras.Model):
         #print('scaledInput:', scaledInput)
         x = self.dense1(scaledInput)
         #print('dense1:', x)
-        x = self.dense2(x)
+        #x = self.dense2(x)
         #x = self.dense3(x)
         #x = self.dense4(x)
         x = self.dense5(x)
