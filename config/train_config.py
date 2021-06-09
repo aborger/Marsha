@@ -4,7 +4,7 @@ from tensorflow import keras
 NUM_ACTIONS = 4
 
 # These variables can be changed to get better results
-num_episodes = 1000           # Number of training sessions
+num_episodes = 120           # Number of training sessions
 initial_epsilon = 1         # Starting value of epsilon
 epsilon_discount = 0.95     # Epsilon is multiplied by this value after each episode (decreases rate of random actions)
 batch_size = 4             # Number of bars/frames to run before training

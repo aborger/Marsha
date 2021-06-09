@@ -26,9 +26,10 @@ class Policy:
 
         else:
             output = self.main_nn(state)                   # Returns array of probability each action should be picked
-            #print('Output: ', output)
+            print('Output: ', output)
             best_action = argmax(output, axis=1).numpy()    # gets element with greatest probability
-            #print('Action:', best_action)
+            print('Action:', best_action)
+            #print('Weights:', self.main_nn.weights)
             return best_action[0]
 
     def train(self):
@@ -49,7 +50,7 @@ class Policy:
                 #print('Beginning of frame: ', self.env.current_frame)
                 action = self.select_epsilon_greedy_action(state)
                 next_state, reward, done = self.env.step(action)
-                if reward is not 0:
+                if reward != 0:
                     ep_reward = reward
                 #print('Frame recieved reward of: ', ep_reward)
                 
@@ -97,9 +98,12 @@ class Policy:
                 print(f'Episode {episode}/{config.num_episodes}. Epsilon: {config.epsilon:.3f}. \n'
 				      f'Last 10 episodes: \n'
 				      f'Average Reward: {mean(avg_rewards):.3f}\n')
-                time.sleep(1)
 
         # Print once training is complete
+        print(f'Episode {episode}/{config.num_episodes}. Epsilon: {config.epsilon:.3f}. \n'
+				      f'Last 10 episodes: \n'
+				      f'Average Reward: {mean(avg_rewards):.3f}\n')
+
         print('Best Reward: ' + str(best_ep["reward"]))
         return best_ep
     

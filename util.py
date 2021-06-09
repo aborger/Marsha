@@ -19,3 +19,8 @@ class ReplayBuffer(object):
         state, action, reward, next_state, done = elem
 
         return state, action, reward, next_state, done
+
+# This is the equivalent function of Arduino's map() function
+def map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+

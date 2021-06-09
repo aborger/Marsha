@@ -5,7 +5,9 @@ from numpy.core.fromnumeric import shape
 import tensorflow as tf
 from tensorflow.python.eager.context import PhysicalDevice
 from config import train_config as config
+from config import env_config
 import time
+import util
 
 class Network(tf.keras.Model):
 
@@ -15,25 +17,24 @@ class Network(tf.keras.Model):
 
         super(Network, self).__init__()
         self.dense1 = tf.keras.layers.Dense(units=4,
-                                            input_shape=(1, 4), activation='relu')
-        self.dense2 = tf.keras.layers.Dense(units=15, activation='relu')
+                                            input_shape=(1, 4), activation='sigmoid')
+        self.dense2 = tf.keras.layers.Dense(units=4, activation='relu')
         self.dense3 = tf.keras.layers.Dense(units=15, activation='relu')
         self.dense4 = tf.keras.layers.Dense(units=20, activation='relu')
-        self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='sigmoid')
+        self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='softmax')
 
     def call(self, input):
         #print('input:', input)
         # normalize
         #print('input: ', input)
-        scaledInput = np.empty(shape=(1, 2))
-        scaledInput[0, 0] = (input[0,0] - 300) / (500 - 300)
-        scaledInput[0, 1] = (input[0,1] - 300) / (500 - 300)
+        scaledInput = util.map(input, 0, env_config.ENV_HEIGHT, 0, 1)
+
         #print('scaled:', scaledInput)
         #print('scaled input:', scaledInput)
         #print('scaledInput:', scaledInput)
         x = self.dense1(scaledInput)
         #print('dense1:', x)
-        x = self.dense2(x)
+        #x = self.dense2(x)
         #x = self.dense3(x)
         #x = self.dense4(x)
         x = self.dense5(x)
