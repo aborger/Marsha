@@ -22,17 +22,16 @@ class Environment:
         self.action_space(action)
         state, reward = self.observe_func()
 
-
+        done = 0
         if reward > config.goal_reward:
             print("=============== Finished ====================")
-            reward = 1
+            reward = 1000
+ 
+        if self.current_frame > config.max_frames:
             done = 1
-        else:
-            reward = reward/(config.goal_reward) # last time it worked this was * 2
-            done = 0
+        
 
         self.current_frame += 1
-        
         return state, reward, done
 
     def get_frame_num(self):

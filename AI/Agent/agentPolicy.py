@@ -1,10 +1,10 @@
-from tensorflow import random
-from tensorflow import argmax
-from numpy import mean
+from numpy.core.fromnumeric import reshape
+import numpy as np
+
 import tqdm
 from Environments.environment import Environment
 from AI.Agent.nn import Network
-from util import ReplayBuffer
+import util
 from config import train_config as config
 import time
 # This is the one that can be customized with a gui
@@ -15,22 +15,20 @@ class Policy:
     def __init__(self, action_space, observe, reset) -> None:
         self.policy = None      # The agent policy is how the experts are connected
         self.env = Environment(action_space, observe, reset)
-        self.buffer = ReplayBuffer(100000)
+        self.buffer = util.ReplayBuffer(100000)
         self.target_nn = Network()
         self.main_nn = Network()
 
     def select_epsilon_greedy_action(self, state):
-        rand = random.uniform((1,))             # Picks random number between 0 and 1
+        rand = np.random.uniform((1,))             # Picks random number between 0 and 1
         if rand < config.epsilon:
             return self.env.random_action()     # Returns random action
 
         else:
             output = self.main_nn(state)                   # Returns array of probability each action should be picked
-            print('Output: ', output)
-            best_action = argmax(output, axis=1).numpy()    # gets element with greatest probability
-            print('Action:', best_action)
-            #print('Weights:', self.main_nn.weights)
-            return best_action[0]
+            best_action = util.select_action(output)
+            print('Chosen Action:', best_action)
+            return best_action
 
     def train(self):
         avg_rewards = []
@@ -75,7 +73,7 @@ class Policy:
                         print('state:')
                         print(state)
                         raise
-                    action = argmax(output, axis=1).numpy()
+                    best_action = util.select_action(output)
                     loss = self.main_nn.train(self.target_nn, state, action, reward, next_state, next_done)
 
             # If not one of the last episodes lower epsilon
@@ -97,12 +95,12 @@ class Policy:
             if episode % config.print_rate == 0:
                 print(f'Episode {episode}/{config.num_episodes}. Epsilon: {config.epsilon:.3f}. \n'
 				      f'Last 10 episodes: \n'
-				      f'Average Reward: {mean(avg_rewards):.3f}\n')
+				      f'Average Reward: {np.mean(avg_rewards):.3f}\n')
 
         # Print once training is complete
         print(f'Episode {episode}/{config.num_episodes}. Epsilon: {config.epsilon:.3f}. \n'
 				      f'Last 10 episodes: \n'
-				      f'Average Reward: {mean(avg_rewards):.3f}\n')
+				      f'Average Reward: {np.mean(avg_rewards):.3f}\n')
 
         print('Best Reward: ' + str(best_ep["reward"]))
         return best_ep

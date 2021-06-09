@@ -1,5 +1,9 @@
 from collections import deque
-from numpy import random
+import numpy as np
+from config import train_config as config
+import tensorflow as tf
+from tensorflow.python.keras.backend import softmax
+
 
 class ReplayBuffer(object):
     def __init__(self, size):
@@ -13,7 +17,7 @@ class ReplayBuffer(object):
         
     def sample(self):
         states, actions, rewards, next_states, dones = [], [], [], [], []
-        idx = random.choice(len(self.buffer))
+        idx = np.random.choice(len(self.buffer))
 
         elem = self.buffer[idx]
         state, action, reward, next_state, done = elem
@@ -24,3 +28,11 @@ class ReplayBuffer(object):
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
+def select_action(network_output):
+    action_probs = softmax(network_output, axis=1).numpy()    # gets element with greatest probability
+            
+    probs = np.reshape(action_probs, newshape=(config.NUM_ACTIONS))
+    #print('probs: ', probs)
+    best_action = np.random.choice(a=config.NUM_ACTIONS, p=probs)
+    #print('Action:', best_action)
+    return best_action

@@ -18,7 +18,7 @@ class Network(tf.keras.Model):
         super(Network, self).__init__()
         self.dense1 = tf.keras.layers.Dense(units=4,
                                             input_shape=(1, 4), activation='sigmoid', kernel_initializer='RandomUniform')
-        self.dense2 = tf.keras.layers.Dense(units=4, activation='relu')
+        self.dense2 = tf.keras.layers.Dense(units=4, activation='sigmoid', kernel_initializer='RandomUniform')
         self.dense3 = tf.keras.layers.Dense(units=15, activation='relu')
         self.dense4 = tf.keras.layers.Dense(units=20, activation='relu')
         self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='softmax', kernel_initializer='RandomUniform')
@@ -34,7 +34,7 @@ class Network(tf.keras.Model):
         #print('scaledInput:', scaledInput)
         x = self.dense1(scaledInput)
         #print('dense1:', x)
-        #x = self.dense2(x)
+        x = self.dense2(x)
         #x = self.dense3(x)
         #x = self.dense4(x)
         x = self.dense5(x)
@@ -43,10 +43,10 @@ class Network(tf.keras.Model):
         return x
 
     def train(self, target_nn, state, action, reward, next_state, done):
-        DEBUG = True
+        DEBUG = False
         if DEBUG: print('-------------')
-        print('Reward:', reward)
-        print('Done:', done)
+        if DEBUG: print('Reward:', reward)
+        if DEBUG: print('Done:', done)
         next_qs = target_nn(next_state)
         if DEBUG: print('next_qs:', next_qs)
         max_next_qs = tf.reduce_max(next_qs, axis=1)
