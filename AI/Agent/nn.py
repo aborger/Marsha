@@ -17,11 +17,12 @@ class Network(tf.keras.Model):
 
         super(Network, self).__init__()
         self.dense1 = tf.keras.layers.Dense(units=4,
-                                            input_shape=(1, 4), activation='sigmoid', kernel_initializer='RandomUniform')
+                                            input_shape=env_config.input_shape, activation='sigmoid', kernel_initializer='RandomUniform')
+        self.flatten = tf.keras.layers.Flatten()
         self.dense2 = tf.keras.layers.Dense(units=4, activation='sigmoid', kernel_initializer='RandomUniform')
         self.dense3 = tf.keras.layers.Dense(units=15, activation='relu')
         self.dense4 = tf.keras.layers.Dense(units=20, activation='relu')
-        self.dense5 = tf.keras.layers.Dense(units=config.NUM_ACTIONS, activation='softmax', kernel_initializer='RandomUniform')
+        self.dense5 = tf.keras.layers.Dense(units=env_config.NUM_ACTIONS, activation='softmax', kernel_initializer='RandomUniform')
 
     def call(self, input):
         #print('input:', input)
@@ -33,6 +34,7 @@ class Network(tf.keras.Model):
         #print('scaled input:', scaledInput)
         #print('scaledInput:', scaledInput)
         x = self.dense1(scaledInput)
+        x = self.flatten(x)
         #print('dense1:', x)
         #x = self.dense2(x)
         #x = self.dense3(x)
@@ -58,7 +60,7 @@ class Network(tf.keras.Model):
         with tf.GradientTape() as tape:
             qs = self.call(state)
             if DEBUG: print('qs:',qs)
-            action_mask = tf.one_hot(action, config.NUM_ACTIONS)
+            action_mask = tf.one_hot(action, env_config.NUM_ACTIONS)
             masked_qs = tf.reduce_sum(tf.multiply(qs, action_mask), axis=1)
             if DEBUG: print('masked_qs:',masked_qs)
             loss = config.mse(target, masked_qs)

@@ -1,8 +1,5 @@
 from tensorflow import keras
 
-
-NUM_ACTIONS = 4
-
 # These variables can be changed to get better results
 num_episodes = 100           # Number of training sessions
 initial_epsilon = 1         # Starting value of epsilon

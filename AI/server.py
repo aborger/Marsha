@@ -22,9 +22,9 @@ class Server():
     def read(self):
         byte_data = self.client.recv(size)
         try:
-            json_data = byte_data.decode('utf8')
-            list_data = json.loads(json_data)
-            return list_data
+            str_data = byte_data.decode('utf8')
+            json_data = json.loads(str_data)
+            return json_data
         except Exception as e:
             pass
             #print("Error in server read: ", e)

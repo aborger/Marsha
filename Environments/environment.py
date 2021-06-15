@@ -1,4 +1,5 @@
 from config import train_config as config
+from config import env_config
 from numpy import random
 
 class Environment:
@@ -39,4 +40,4 @@ class Environment:
         
 
     def random_action(self):
-        return random.randint(0, config.NUM_ACTIONS)
+        return random.randint(0, env_config.NUM_ACTIONS)

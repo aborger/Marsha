@@ -1,7 +1,9 @@
 from collections import deque
 import numpy as np
 from config import train_config as config
+from config import env_config
 import tensorflow as tf
+from tensorflow.python.keras.backend import softmax
 from tensorflow.python.keras.backend import argmax
 
 
@@ -29,5 +31,12 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def select_action(network_output):
-    best_action = argmax(network_output, axis=1).numpy()
-    return best_action[0]
+    best_actions = argmax(network_output, axis=1).numpy()
+    best_action = best_actions[0]
+    
+    #action_probs = softmax(network_output, axis=1).numpy()
+    #probs = np.reshape(action_probs, newshape=(env_config.NUM_ACTIONS))
+    #best_action = np.random.choice(a=env_config.NUM_ACTIONS, p=probs)
+    #print(best_action)
+    return best_action
+
