@@ -8,8 +8,8 @@ class Environment:
     # observe: function to be called that will observe the environment
     # reset: function to be called that will reset the environment
 
-    def __init__(self, action_space, observe, reset):
-        self.action_space = action_space
+    def __init__(self, perform_actions, observe, reset):
+        self.perform_actions = perform_actions
         self.observe_func = observe
         self.reset_func = reset
         self.current_frame = 0
@@ -19,8 +19,8 @@ class Environment:
         self.current_frame = 0
         return initial_observation
 
-    def step(self, action):
-        self.action_space(action)
+    def step(self, actions):
+        self.perform_actions(actions)
         state, reward = self.observe_func()
 
         done = 0
@@ -38,6 +38,3 @@ class Environment:
     def get_frame_num(self):
         return self.current_frame
         
-
-    def random_action(self):
-        return random.randint(0, env_config.NUM_ACTIONS)

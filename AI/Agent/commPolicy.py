@@ -1,9 +1,10 @@
+# Comm policy, also known as the expert policy
+
 import numpy as np
-from numpy.lib.arraysetops import isin
 from AI.Agent.Expert import input_expert
 from AI.Agent.Expert import output_expert
 from AI.Agent.Expert import hidden_expert
-from AI.Agent.Expert.expert import Expert
+from AI.Agent.Expert.expert import Expert, Neural_Expert
 import util
   
     
@@ -21,7 +22,7 @@ class Comm_Policy:
     def load_maps(self, type_map: str, conn_map: str) -> None:
         type_map = np.load(file=type_map)
         self.conn_map = np.load(file=conn_map)
-        self.check_maps(type_map)
+        self._check_maps(type_map)
         
 
 
@@ -30,18 +31,18 @@ class Comm_Policy:
         type_map = np.empty(shape=(NUM_EXPERTS), dtype=Expert)
         self.conn_map = np.full(shape=(NUM_EXPERTS, NUM_EXPERTS), fill_value=False, dtype=bool)
 
-        type_map[0] = input_expert.Camera()
-        type_map[1] = hidden_expert.CNN()
-        type_map[2] = hidden_expert.Dense()
+        type_map[0] = input_expert.Camera((227, 512, 3))
+        type_map[1] = hidden_expert.CNN(type_map[0].out_shape)
+        type_map[2] = hidden_expert.Dense(type_map[1].out_shape)
         for i in range(3, NUM_EXPERTS):
-            type_map[i] = output_expert.Motor()
+            type_map[i] = output_expert.DC_Motor(type_map[2].out_shape)
 
         self.conn_map[0,1] = True
         self.conn_map[1, 2] = True
         self.conn_map[2, 3:] = True
-        self.check_maps(type_map)
+        self._check_maps(type_map)
 
-    def check_maps(self, type_map):
+    def _check_maps(self, type_map):
         # Error checking
         if type_map.shape[0] != self.conn_map.shape[0]:
             raise ValueError("'type_map' and 'conn_map' must contain the same number of elements: type_map =", type_map.shape, 'conn_map = ', self.conn_map.shape)
@@ -77,6 +78,25 @@ class Comm_Policy:
         output = []
         for expert in self.output_experts:
             output.append(expert.get_output())
+
+    def random_actions(self):
+        return np.random.rand(len(self.output_experts))
+
+    def outer_train(self):
+        pass
+
+    def inner_train(self, sarsa):
+        def check_expert(expert):
+            if isinstance(expert, Neural_Expert):
+                expert.train(sarsa)
+            else:
+                raise TypeError("Cannot train a non-neural expert.")
+
+        for expert in self.hidden_experts:
+            check_expert(expert)
+        for expert in self.output_experts:
+            check_expert(expert)
+            
             
 
 

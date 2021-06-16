@@ -1,5 +1,5 @@
 from numpy.core.fromnumeric import reshape
-from tensorflow import random
+import tensorflow as tf
 import numpy as np
 
 import tqdm
@@ -8,28 +8,31 @@ from AI.Agent.nn import Network
 import util
 from config import train_config as config
 import time
+from AI.Agent.commPolicy import Comm_Policy
 # This is the one that can be customized with a gui
 # An agent is the brain of a single arm
 
 
 class Policy:
     def __init__(self, action_space, observe, reset) -> None:
-        self.policy = None      # The agent policy is how the experts are connected
+        physical_devices = tf.config.list_physical_devices('GPU')
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        
         self.env = Environment(action_space, observe, reset)
         self.buffer = util.ReplayBuffer(100000)
-        self.target_nn = Network()
-        self.main_nn = Network()
+        self.comm_policy = Comm_Policy()
+        self.comm_policy.create_maps()
+
+
 
     def select_epsilon_greedy_action(self, state):
-        rand = random.uniform((1,))             # Picks random number between 0 and 1
+        rand = tf.random.uniform((1,))
         if rand < config.epsilon:
-            return self.env.random_action()     # Returns random action
+            return self.comm_policy.random_actions()
 
         else:
-            output = self.main_nn(state)                   # Returns array of probability each action should be picked
-            best_action = util.select_action(output)
-            print('Output', output, 'Chosen Action:', best_action)
-            return best_action
+            actions = self.comm_policy.execute_policy()
+            return actions
 
     def train(self):
         avg_rewards = []
@@ -62,20 +65,15 @@ class Policy:
 
                 state = next_state
 
+                """
                 if  self.env.get_frame_num() % config.copy_rate == 0:
                     self.target_nn.set_weights(self.main_nn.get_weights())
-
+                """
                 if len(self.buffer) >= config.batch_size:
-                    state, action, reward, next_state, next_done = self.buffer.sample()
+                    sarsa = self.buffer.sample()
 
-                    try:
-                        output = self.target_nn(state)
-                    except:
-                        print('state:')
-                        print(state)
-                        raise
-                    best_action = util.select_action(output)
-                    loss = self.main_nn.train(self.target_nn, state, action, reward, next_state, next_done)
+                    self.comm_policy.inner_train(sarsa)
+
 
             # If not one of the last episodes lower epsilon
             if episode > config.num_explore and episode < config.num_episodes * config.epsilon_discount:
@@ -90,7 +88,7 @@ class Policy:
             # Update best episode
             if ep_reward > best_ep["reward"]:
                 best_ep["reward"] = ep_reward
-                best_ep["model"] = self.main_nn
+                best_ep["comm_policy"] = self.comm_policy
 
             # Print every so often
             if episode % config.print_rate == 0:

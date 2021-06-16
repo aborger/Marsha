@@ -1,44 +1,50 @@
 from re import L
-from tensorflow import keras
-from tensorflow.python.keras import activations
-from tensorflow.python.keras.backend import softmax
 from .expert import Expert, Neural_Expert
 import numpy as np
 import tensorflow as tf
 from config import train_config as config
 
 class Hidden_Expert(Neural_Expert):
-    def __init__(self, input_shape, output_shape) -> None:
-        super().__init__(input_shape, output_shape)
+    def __init__(self) -> None:
+        super().__init__()
 
 
 class RNN(Hidden_Expert):
     pass
 
-class Dense(Hidden_Expert):
+class Dense(tf.keras.Model, Hidden_Expert):
     def __init__(self, input_shape):
-        super().__init__(input_shape)
-        num_layers = 4
-        units = [4, 15, 20, self.output_shape]
-        activators = ['sigmoid', 'sigmoid', 'softmax', softmax]
+        super(Dense, self).__init__()
+        self.in_shape = input_shape
+
+        num_layers = 3
+        self.out_shape = 15
+        units = [4, 15, self.out_shape]
+        activators = ['sigmoid', 'sigmoid', 'sigmoid']
         layer_type = [
             tf.keras.layers.Dense, 
-            tf.keras.layers.Dense,
             tf.keras.layers.Dense,
             tf.keras.layers.Dense]
 
         # Could possibly be refactored into hidden expert
-        self.layers = []
-        self.layers.append(tf.keras.layers.Input(shape=input_shape))
-        for i in num_layers:
-            layer = layer_type[i](units=units[i], activation=activators)
-            self.layers.append(layer)
+        self.expert_layers = []
+        self.expert_layers.append(tf.keras.layers.Input(shape=input_shape))
+        for i in range(0, num_layers):
+            layer = layer_type[i](units=units[i], activation=activators[i])
+            self.expert_layers.append(layer)
 
-class CNN(Hidden_Expert):
+    def call(self, input):
+        self.call_func(input)
+
+class CNN(tf.keras.Model, Hidden_Expert):
     def __init__(self, input_shape):
-        super().__init__(input_shape)
+        Hidden_Expert().__init__()
+        super(CNN, self).__init__()
+        self.in_shape = input_shape
+
         num_layers = 3
-        filters = [32, 64, 64]
+        self.out_shape = 64
+        filters = [32, 64, self.out_shape]
         activators = ['relu', 'relu', 'relu']
 
         layer_type = [
@@ -47,13 +53,17 @@ class CNN(Hidden_Expert):
             tf.keras.layers.Conv2D,
         ]
 
-        self.layers = []
-        self.layers.append(tf.keras.layers.Input(shape=input_shape))
-        for i in num_layers:
+        self.expert_layers = []
+        print('Input shape: ', input_shape)
+        self.expert_layers.append(tf.keras.layers.Input(shape=input_shape))
+        for i in range(0, num_layers):
             layer = layer_type[i](filters[i], (3,3), activation=activators[i])
-            self.layers.append(layer)
-            self.layers.append(tf.keras.layers.MaxPool2D())
-        self.layers.append(tf.keras.layers.Flatten())
+            self.expert_layers.append(layer)
+            self.expert_layers.append(tf.keras.layers.MaxPool2D())
+        self.expert_layers.append(tf.keras.layers.Flatten())
+
+    def call(self, input):
+        self.call_func(input)
 
 
 class AugTop():

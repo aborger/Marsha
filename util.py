@@ -25,8 +25,8 @@ class ReplayBuffer(object):
 
         elem = self.buffer[idx]
         state, action, reward, next_state, done = elem
-
-        return state, action, reward, next_state, done
+        sarsa = (state, action , reward, next_state, done)
+        return sarsa
 
 # This is the equivalent function of Arduino's map() function
 def map(x, in_min, in_max, out_min, out_max):

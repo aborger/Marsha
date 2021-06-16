@@ -3,7 +3,7 @@ from AI.Agent.agentPolicy import Policy
 
 
 agent = Agent()
-pol = Policy(agent.action, agent.observe, agent.reset)
+pol = Policy(agent.perform_actions, agent.observe, agent.reset)
 
 pol.train()
 

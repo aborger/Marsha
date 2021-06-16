@@ -1,51 +1,66 @@
 import threading
 import tensorflow as tf
-from tensorflow._api.v2 import config
-from config import train_config
+from config import train_config as config
 
 class Expert():
-    def __init__(self, input_shape, output_shape) -> None:
-        threading.Thread.__init__(self)
+    def __init__(self) -> None:
+        #threading.Thread.__init__(self)
         self.id = None
-        self.input_shape = None
-        self.output_shape = None
+        self.in_shape = None
+        self.out_shape = None
 
         self.memory = None
         self.state = None
         
-        self.input = None
-        self.output = None
+        self.inp = None
+        self.out = None
         self.output_ready = None
 
 
     def get_output(self):
-        self.calculate()
-        return self.output
+        if self.output is None:
+            raise ValueError("Expert output is None.")
+        else:
+            return self.output
 
     def calculate(self):
-        output = None
-        self.output = output
+        raise NotImplementedError
 
     def set_input(self, input):
         self.input = input
 
-class Neural_Expert(Expert, tf.keras.Model):
-    def __init__(self, input_shape, output_shape) -> None:
-        Expert().__init__(input_shape, output_shape)
-        tf.keras.Model(Neural_Expert, self).__init__()
+class Neural_Expert(Expert):
+    # Could be refactored, because every one of these has generally the same thing
+    def __init__(self) -> None:
+        super().__init__()
+        #tf.keras.Model(model, self).__init__()
 
-        physical_devices = tf.config.list_physical_devices('GPU')
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    def build(self):
+        # Necessary for saving the model
+        pass
 
-    def call(self, input):
+    def call_func(self, input):
+        print('call input: ', input)
+        print('input shape: ', input.shape)
+        print('type: ', input.dtype)
         x = input
         for layer in self.layers:
-            x = self.layer(x)
+            x = layer(x)
+            print(x)
         return x
 
+    def get_output(self):
+        return self.call(self.input)
 
-    def train(self, target_nn, state, action, reward, next_state, done):
-        next_qs = target_nn(next_state)
+    def train(self, sarsa):
+        print('TRAINING... type:', type(self))
+        state = sarsa[0]
+        action = sarsa[1]
+        reward = sarsa[2]
+        next_state = sarsa[3]
+        done = sarsa[4]
+
+        next_qs = self.call(next_state)
         max_next_qs = tf.reduce_max(next_qs, axis=1)
 
         target = reward + config.discount_factor * max_next_qs
@@ -60,6 +75,8 @@ class Neural_Expert(Expert, tf.keras.Model):
 
         grads = tape.gradient(loss, self.trainable_variables)
         config.optimizer.apply_gradient(zip(grads, self.trainable_variables))
+
+
 
 
         

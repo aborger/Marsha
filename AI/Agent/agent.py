@@ -1,20 +1,18 @@
+# This class is specifically how the agent interacts with the environment
+
 from AI.server import Server
 from enum import Enum
 import numpy as np
 import config.env_config as config
 from PIL import Image
 
+
 class Agent:
     def __init__(self):
         self.server = Server()
-        self.input_experts = []     # Camera, IMU, or Lidar
-        self.output_experts = []    # One for each joint
 
-    def action(self, action_num):
-        act = [0 for i in range(config.NUM_ACTIONS)]
-        act[action_num] = 1
-
-        json = {"actions": act}
+    def perform_actions(self, actions):
+        json = {"actions": actions.tolist()}
         self.server.write(json)
 
 
@@ -29,6 +27,8 @@ class Agent:
         #state = np.array(env["positions"])
         #state = np.reshape(state, newshape=config.input_shape)
         state = np.asarray(Image.open("../Unity/Rocksat/IMGS/img.jpg"))
+        state = np.expand_dims(state, axis=0)
+        state = state.astype(int)
         #print(state)
         #print(state.shape)
         reward = env["contact"]

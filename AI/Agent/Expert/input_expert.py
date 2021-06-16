@@ -14,10 +14,10 @@ class IMU(Input_Expert):
     pass
 
 class Camera(Input_Expert):
-    def __init__(self, image_file) -> None:
+    def __init__(self, in_shape) -> None:
         super().__init__()
-        self.image_file = image_file
+        self.in_shape = in_shape
+        self.out_shape = in_shape
 
     def get_output(self):
-        self.input = np.asarray(Image.open("../Unity/Rocksat/IMGS/img.jpg"))
-        return super().get_output()
+        return self.input
