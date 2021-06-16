@@ -1,4 +1,6 @@
 from collections import deque
+from threading import Thread
+import threading
 import numpy as np
 from config import train_config as config
 from config import env_config
@@ -39,4 +41,16 @@ def select_action(network_output):
     #best_action = np.random.choice(a=env_config.NUM_ACTIONS, p=probs)
     #print(best_action)
     return best_action
+
+def start_threads(threads):
+    if not all(isinstance(x, threading.Thread) for x in threads):
+        raise TypeError("thread list must be type 'Thread'")
+    for thread in threads:
+        thread.start()
+
+def join_threads(threads):
+    if not all(isinstance(x, threading.Thread) for x in threads):
+        raise TypeError("thread list must be type 'Thread'")
+    for thread in threads:
+        thread.join()
 

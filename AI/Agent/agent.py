@@ -4,17 +4,11 @@ import numpy as np
 import config.env_config as config
 from PIL import Image
 
-DISTANCE = 2
-class Action(Enum):
-    xUp = 0
-    xDown = 1
-    yUp = 2
-    yDown = 3
-    none = 4
-
 class Agent:
     def __init__(self):
         self.server = Server()
+        self.input_experts = []     # Camera, IMU, or Lidar
+        self.output_experts = []    # One for each joint
 
     def action(self, action_num):
         act = [0 for i in range(config.NUM_ACTIONS)]
