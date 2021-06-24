@@ -54,3 +54,7 @@ def join_threads(threads):
     for thread in threads:
         thread.join()
 
+def exists(cls, value):
+    if value is None:
+        raise ValueError(type(cls), ' has an empty value.')
+

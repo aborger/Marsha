@@ -35,5 +35,8 @@ class Server():
         msg = json.dumps(msg).encode('utf-8')
         self.client.send(msg)
 
+    def close(self):
+        self.s.close()
+
 
         #client.close()

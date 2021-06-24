@@ -16,8 +16,8 @@ class IMU(Input_Expert):
 class Camera(Input_Expert):
     def __init__(self, in_shape) -> None:
         super().__init__()
-        self.in_shape = in_shape
-        self.out_shape = in_shape
+        self.input_shape = in_shape
+        self.output_shape = in_shape
 
     def get_output(self):
-        return self.input
+        return self.inp

@@ -17,7 +17,7 @@ class Policy:
     def __init__(self, action_space, observe, reset) -> None:
         physical_devices = tf.config.list_physical_devices('GPU')
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
-        
+
         self.env = Environment(action_space, observe, reset)
         self.buffer = util.ReplayBuffer(100000)
         self.comm_policy = Comm_Policy()
@@ -31,7 +31,8 @@ class Policy:
             return self.comm_policy.random_actions()
 
         else:
-            actions = self.comm_policy.execute_policy()
+            actions = self.comm_policy.execute_policy(state)
+            print('Actions: ', actions)
             return actions
 
     def train(self):

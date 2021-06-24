@@ -12,7 +12,9 @@ class Agent:
         self.server = Server()
 
     def perform_actions(self, actions):
-        json = {"actions": actions.tolist()}
+        action_list = actions.tolist()
+        #print('Actions: ', action_list)
+        json = {"actions": action_list}
         self.server.write(json)
 
 
@@ -28,7 +30,7 @@ class Agent:
         #state = np.reshape(state, newshape=config.input_shape)
         state = np.asarray(Image.open("../Unity/Rocksat/IMGS/img.jpg"))
         state = np.expand_dims(state, axis=0)
-        state = state.astype(int)
+        state = state.astype('float32')
         #print(state)
         #print(state.shape)
         reward = env["contact"]
