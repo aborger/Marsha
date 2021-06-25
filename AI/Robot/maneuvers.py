@@ -21,10 +21,10 @@ def To_fold(c):
     c.activate(9, 0)
 
 def To_object(c):
-    pass
+    c.activate([(9, -45), (11, -110), (12, -300)])
 
 def From_object(c):
-    pass
+    c.activate([(9, -90), (11, -180), (12, -180)])
 
 def To_pass(c):
     c.activate(11, -90)
