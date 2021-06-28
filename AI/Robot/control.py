@@ -1,5 +1,6 @@
 from AI.server import Server
 import threading
+import math
 
 
 class Control:
@@ -7,6 +8,7 @@ class Control:
         self.server = Server()
         self.actions = [0] * 15
         self.observations = []
+        self.stop = False
 
     def write(self):
         json = {"actions": self.actions}
@@ -15,15 +17,14 @@ class Control:
     def get(self):
         try:
             self.observations = self.server.read()['positions']
-            print(self.observations)
+            #print(self.observations)
         except:
             pass
-        
 
-    def individual_activate(self, joint, angle):
-        error = angle - self.observations[joint]
-        self.actions[joint] = error
-        self.write()
+    def stop_maneuver(self):
+        print('===========stop===============')
+        self.stop = True
+        
 
     def deactivate(self, joint):
         self.actions[joint] = 0
@@ -32,14 +33,24 @@ class Control:
         BUFFER = 1
         while True:
             self.get()
+            # Control Theory
+            error = angle - self.observations[joint]
+            self.actions[joint] =  2/(1+math.exp(-0.2 *error)) -1
+            # This part works
+            #self.actions[joint] = error
             self.write()
             if self.observations[joint] < angle + BUFFER and self.observations[joint] > angle - BUFFER:
                 self.actions[joint] = 0
                 break
+            elif self.stop:
+                self.actions[joint] = 0
+                self.stop = False
+                break
 
     def activate(self, *args):
         # A list of commands was passed in
-        if len(args) == 1:
+        arg = args[0]
+        if isinstance(arg, list):
             # Send command
             for cmd in args[0]:
                 joint = cmd[0]
@@ -56,8 +67,9 @@ class Control:
             for wait in waits:
                 wait.join()
         # One command was passed in
-        elif len(args) == 2:
-            self.activate([(args[0], args[1])])
+        elif len(arg) == 2:
+            self.activate([(arg[0], arg[1])])
+
         else:
             raise ValueError("Incorrect Number of Arguments")
 

@@ -1,6 +1,6 @@
 import tkinter as tk
 from gui.manual import Manual
-from AI.Robot import maneuvers
+from AI.Robot import states
 import threading
 from AI.Robot.control import Control
 import time
@@ -18,8 +18,7 @@ class GUI(tk.Tk):
         self.manual = tk.Button(self.toolbar, text="Manual Control", command = self.manualCallBack)
         self.connect = tk.Button(self.toolbar, text="Connect", command=self.connectCallBack)
 
-        self.maneuver_list = maneuvers.LIST
-        list_items = tk.StringVar(value= [x.__name__ for x in self.maneuver_list])
+        list_items = tk.StringVar(value= [x for x in states.Ex])
         self.manuevers = tk.Listbox(self, listvariable=list_items)
         self.manuevers.bind('<<ListboxSelect>>', self.maneuver_selection)
         self.client = None
@@ -35,10 +34,12 @@ class GUI(tk.Tk):
 
         self.r = threading.Thread(target=self.run)
         self.r.start()
+        self.expert = None
 
 
     def connectCallBack(self):
         self.client = Control()
+        self.expert = states.Expert(self.client)
 
     def manualCallBack(self):
         manual = Manual(self.client)
@@ -58,15 +59,21 @@ class GUI(tk.Tk):
             else:
                 self.client.get()
                 self.client.write()
+                print('state: ', self.expert.state, '|command:', self.expert.command, '|move_state:', self.expert.move_state, '|move status:', self.expert.move_status, '|motion position:', self.expert.motion.position, '|motion direction:', self.expert.motion.direction)
+                # Start at beginning command
+                if self.expert.command is None: self.expert.command = states.Ex.Folded_Pos
+                self.expert.state_machine[self.expert.state]()
+                self.expert.move_sm[self.expert.move_state]()
+
 
     def maneuver_selection(self, event):
         index = self.manuevers.curselection()[0]
-
+        if self.expert.is_moving():
+            self.client.stop_maneuver()
         if self.client is None:
             print("Not Connected")
         else:
-            man = threading.Thread(target=self.maneuver_list[index], args=(self.client,))
-            man.start()
+            self.expert.command = index
 
     def close_window(self):
         print('Closing')
