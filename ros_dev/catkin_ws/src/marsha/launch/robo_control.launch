@@ -1,0 +1,19 @@
+<launch>
+
+    <env name="ROS_IP" value="192.168.155.16"/>
+    <env name="ROS_HOSTNAME" value="$(env ROS_IP)"/>
+    
+    <param name="ROS_IP" type="str" value="$(env ROS_IP)" />
+    <param name="ROS_TCP_PORT" type="int" value="10000" />
+    <param name="TCP_NODE_NAME" type="str" value="TCPServer" />
+    <param name="TCP_BUFFER_SIZE" type="int" value="1024" />
+    <param name="TCP_CONNECTIONS" type="int" value="10" />
+
+    <param name="UNITY_IP" type="str" value="192.168.1.105" />
+    <param name="UNITY_SERVER_PORT" type="int" value="5005" />
+
+
+    <node pkg="marsha" name="pid" type="pid.py"/>
+    <node pkg="marsha" name="server_endpoint" type="server_endpoint.py"/>
+
+</launch>

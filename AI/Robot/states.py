@@ -1,5 +1,6 @@
 from enum import Enum
 import threading
+from AI.Robot.control import Control
 
 class Ex(Enum):
     Home_Pos = 0
@@ -30,16 +31,29 @@ class MS(Enum):
     Moving = 2
     Waiting = 3
 
+class Fingers(Enum):
+    Thumb = 8
+    Index = 11
+    Middle = 14
+    Ring = 17
+    Pinky = 20
+
+
+
 
 class Expert:
-    def __init__(self, control):
+
+    def __init__(self, is_reverse, id):
         self.command = Ex.Folded_Pos
         self.state = Ex.Folded_Pos
 
-
         self.move_state = MS.SMStart
         self.move_status = MS.Waiting
-        self.control = control
+
+        self.is_reverse = is_reverse
+        self.id = id
+        self.control = Control(self.is_reverse, id)
+
 
         self.state_machine = {
             Ex.Home_Pos: self.Home,
@@ -56,27 +70,77 @@ class Expert:
             MS.Waiting: self.MS_Waiting
         }
 
+
+        close_hand = []
+        for digit in Fingers:
+            for joint in range(0, 3):
+                close_hand.append(self.close_finger(digit)[joint])
+
+        open_hand = []
+        for digit in Fingers:
+            for joint in range(0, 3):
+                open_hand.append(self.open_finger(digit)[joint])
+
+
+        
+
         self.Folded = Pos(state=Ex.Folded_Pos,
-                        To=[(8,0),
-                            (10, 0),
-                            [(11, 0), (12, 0), (14, 0)],
-                            (9, 0)],
-                        From=[(9, -90),
-                            [(11, -180), (12, -180), (14, -180)],
-                            (10, -90),
-                            (8, 110)])
+                        To=[(1,0),
+                            [(3, 0), (6, 0)],
+                            [(4, 0), (5, 0), (7, 0)],
+                            (2, 0)],
+                        From=[(2, -90),
+                            [(4, 150), (5, -180), (7, 130)],
+                            [(3, -90), (6, 90)],
+                            (1, -90)])
 
         self.Object = Pos(state=Ex.Object_Pos,
-                        To=[[(9, -45), (11, -110), (12, -300)]],
-                        From=[[(9, -90), (11, -180), (12, -180)]])
+                        To=[[(2, -45), (4, 110), (5, -300)]],
+                        From=[[(2, -90), (4, 150), (5, -180)]])
 
         self.Give = Pos(state=Ex.Pass_Pos,
-                        To=[(11, -90)],
-                        From=[(11, -180)])
+                        To=([(4, 60)]),
+                        From=[(4, 150)])
+
+        self.Pass_object = Pos(state=Ex.Pass,
+                            To=([close_hand]), From=())
+
+        self.Pick_up = Pos(state=Ex.Pick, To=([close_hand]), From=())
+
+        self.Place_object = Pos(state=Ex.Pick, To=([open_hand]), From=())
 
         self.motion = Motion(self.Folded, Motion.To)
 
 
+    def loop(self):
+        self.control.get()
+        self.control.write()
+        print('state: ', self.state, '|command:', self.command, '|move_state:', self.move_state, '|move status:', self.move_status, '|motion position:', self.motion.position, '|motion direction:', self.motion.direction)
+        # Start at beginning command
+        if self.command is None: self.command = Ex.Folded_Pos
+        self.state_machine[self.state]()
+        self.move_sm[self.move_state]()
+
+    def close_finger(self, digit):
+        if self.is_reverse:
+            return ((digit.value, -90), (digit.value + 1, -45), (digit.value + 2, -45))
+        else:
+            return ((digit.value, 90), (digit.value + 1, 45), (digit.value + 2, 45))
+
+    def open_finger(self, digit):
+        return ((digit.value, 0), (digit.value + 1, 0), (digit.value + 2, 0))
+
+    def stop(self):
+        self.control.stop_maneuver()
+
+    def close(self):
+        self.control.close()
+
+    def is_connected(self):
+        if self.expert.control is None:
+            return False
+        else:
+            return True
 
         
 
@@ -120,30 +184,45 @@ class Expert:
         if Ex(self.command) == Ex.Object_Pos:
             self.move_state = MS.Waiting
         elif Ex(self.command) == Ex.Pick:
-            self.state = Ex.Pick
+            self.motion.position = self.Pick_up
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         elif Ex(self.command) == Ex.Place:
-            self.state = Ex.Place
+            self.motion.position = self.Place_object
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         else:
             self.motion.position = self.Object
             self.motion.direction = Motion.From
             self.move_state = MS.Moving
+
         
 
     def Pick(self):
-        print("Picking...")
-        self.state = Ex.Object_Pos
+        if Ex(self.command) == Ex.Pick:
+            self.move_state = MS.Waiting
+        else:
+            self.motion.position = self.Object
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         
 
     def Place(self):
-        print("Placing")
-        self.state = Ex.Object_Pos
+        if Ex(self.command) == Ex.Place:
+            self.move_state = MS.Waiting
+        else:
+            self.motion.position = self.Object
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         
 
     def Pass_Pos(self):
         if Ex(self.command) == Ex.Pass_Pos:
             self.move_state = MS.Waiting
         elif Ex(self.command) == Ex.Pass:
-            self.state = Ex.Pass
+            self.motion.position = self.Pass_object
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         else:
             self.motion.position = self.Give
             self.motion.direction = Motion.From
@@ -151,8 +230,12 @@ class Expert:
         
 
     def Pass(self):
-        print("Passing")
-        self.state = Ex.Pass_Pos
+        if Ex(self.command) == Ex.Pass:
+            self.move_state = MS.Waiting
+        else:
+            self.motion.position = self.Give
+            self.motion.direction = Motion.To
+            self.move_state = MS.Moving
         
         
 
@@ -196,3 +279,4 @@ class Expert:
 
     def MS_Waiting(self):
         pass
+        #self.control.activate(0, 0)

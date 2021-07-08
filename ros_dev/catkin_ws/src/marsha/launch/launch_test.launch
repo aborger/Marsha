@@ -1,0 +1,13 @@
+<launch>
+    <machine name="nano" address="192.168.155.22" user="aaron" password="Broncoorange1!" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
+    
+    <env name="ROS_MASTER_URI" value="http://192.168.155.16:11311"/>
+    <env name="ROS_HOSTNAME" value="$(env ROS_IP)"/>
+    
+    <param name="ROS_IP" type="str" value="$(env ROS_IP)" />
+    <param name="ROS_TCP_PORT" type="int" value="10000" />
+
+
+    <node machine="nano" pkg="rospy_tutorials" name="talker" type="talker.py"/>
+
+</launch>

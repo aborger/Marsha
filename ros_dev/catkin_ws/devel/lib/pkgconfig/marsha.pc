@@ -1,0 +1,8 @@
+prefix=C:/Users/borge/MARSHA/ros_dev/catkin_ws/devel
+
+Name: marsha
+Description: Description of marsha
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

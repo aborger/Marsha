@@ -2,7 +2,7 @@ import tkinter as tk
 from gui.manual import Manual
 from AI.Robot import states
 import threading
-from AI.Robot.control import Control
+
 import time
 
 
@@ -21,7 +21,6 @@ class GUI(tk.Tk):
         list_items = tk.StringVar(value= [x for x in states.Ex])
         self.manuevers = tk.Listbox(self, listvariable=list_items)
         self.manuevers.bind('<<ListboxSelect>>', self.maneuver_selection)
-        self.client = None
 
         self.greeting.pack(side="top", fill="x")
         self.toolbar.pack(side="top")
@@ -32,53 +31,51 @@ class GUI(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.exit_all = False
 
+        self.experts = []
         self.r = threading.Thread(target=self.run)
         self.r.start()
-        self.expert = None
+
 
 
     def connectCallBack(self):
-        self.client = Control()
-        self.expert = states.Expert(self.client)
+        self.experts.append(states.Expert(False, 0))
+        self.experts.append(states.Expert(True, 1))
 
     def manualCallBack(self):
-        manual = Manual(self.client)
-        manual.mainloop()
-
-
+        for expert in self.experts:
+            manual = Manual(expert.control)
+            manual.mainloop()
 
 
     def run(self):
         while True:
             if self.exit_all:
                 break
-            if self.client is None:
+            if len(self.experts) < 1:
                 # say status not connected
                 #print("Not connected")
                 time.sleep(1)
             else:
-                self.client.get()
-                self.client.write()
-                print('state: ', self.expert.state, '|command:', self.expert.command, '|move_state:', self.expert.move_state, '|move status:', self.expert.move_status, '|motion position:', self.expert.motion.position, '|motion direction:', self.expert.motion.direction)
-                # Start at beginning command
-                if self.expert.command is None: self.expert.command = states.Ex.Folded_Pos
-                self.expert.state_machine[self.expert.state]()
-                self.expert.move_sm[self.expert.move_state]()
+                for expert in self.experts:
+                    expert.loop()
+
 
 
     def maneuver_selection(self, event):
         index = self.manuevers.curselection()[0]
-        if self.expert.is_moving():
-            self.client.stop_maneuver()
-        if self.client is None:
-            print("Not Connected")
-        else:
-            self.expert.command = index
+        for expert in self.experts:
+            if expert.is_moving():
+                expert.stop()
+            if not expert.is_connected:
+                print("Not Connected")
+            else:
+                expert.command = index
 
     def close_window(self):
         print('Closing')
         try:
-            self.client.close()
+            for expert in self.experts:
+                expert.close()
         except:
             pass
         self.exit_all = True

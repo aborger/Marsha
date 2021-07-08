@@ -1,0 +1,2 @@
+Invoking command in 'C:\Users\borge\MARSHA\ros_dev\colcon_ws\build\ros1_bridge': C:\Program Files\CMake\bin\cmake.EXE C:\Users\borge\MARSHA\ros_dev\colcon_ws\src\ros1_bridge -DCMAKE_INSTALL_PREFIX=C:\Users\borge\MARSHA\ros_dev\colcon_ws\install -G Visual Studio 16 2019
+Invoked command in 'C:\Users\borge\MARSHA\ros_dev\colcon_ws\build\ros1_bridge' returned '1': C:\Program Files\CMake\bin\cmake.EXE C:\Users\borge\MARSHA\ros_dev\colcon_ws\src\ros1_bridge -DCMAKE_INSTALL_PREFIX=C:\Users\borge\MARSHA\ros_dev\colcon_ws\install -G Visual Studio 16 2019
