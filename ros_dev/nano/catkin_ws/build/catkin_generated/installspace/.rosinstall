@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/aaron/MARSHA/ros_dev/nano/catkin_ws/install/setup.sh

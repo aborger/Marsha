@@ -1,0 +1,2 @@
+marsha
+-DCATKIN_DEVEL_PREFIX=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/install -G Unix Makefiles
