@@ -6,6 +6,6 @@ if "%1"=="" (
   echo "Calling env.bat without arguments is not supported anymore. Instead spawn a subshell and source a setup file manually."
   exit 1
 ) else (
-  call "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/setup_cached.bat"
+  call "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/setup_cached.bat"
   %*
 )

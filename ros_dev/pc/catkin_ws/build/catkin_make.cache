@@ -1,2 +1,2 @@
-ROS-TCP-Endpoint;marsha;ros_tutorials\ros_tutorials;ros_tutorials\roscpp_tutorials;ros_tutorials\rospy_tutorials;ros_tutorials\turtlesim
--DCMAKE_BUILD_TYPE=RelWithDebInfo -DCATKIN_DEVEL_PREFIX=C:\Users\borge\MARSHA\ros_dev\catkin_ws\devel -DCMAKE_INSTALL_PREFIX=C:\Users\borge\MARSHA\ros_dev\catkin_ws\install -G NMake Makefiles
+marsha
+-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCATKIN_DEVEL_PREFIX=C:\Users\borge\MARSHA\ros_dev\pc\catkin_ws\devel -DCMAKE_INSTALL_PREFIX=C:\Users\borge\MARSHA\ros_dev\pc\catkin_ws\install -G NMake Makefiles

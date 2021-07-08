@@ -1,4 +1,4 @@
-prefix=C:/Users/borge/MARSHA/ros_dev/catkin_ws/devel
+prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel
 
 Name: marsha
 Description: Description of marsha

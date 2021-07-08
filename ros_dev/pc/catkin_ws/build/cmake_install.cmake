@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/borge/MARSHA/ros_dev/catkin_ws/src
+# Install script for directory: C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install")
+  set(CMAKE_INSTALL_PREFIX "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,75 +44,70 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/_setup_util.py")
+   "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/_setup_util.py")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install" TYPE PROGRAM FILES "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/installspace/_setup_util.py")
+file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install" TYPE PROGRAM FILES "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/installspace/_setup_util.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/_setup_util.exe")
+   "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/_setup_util.exe")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install" TYPE EXECUTABLE FILES "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/windows_wrappers/Project__setup_util.py_exec_install_python/_setup_util.exe")
+file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install" TYPE EXECUTABLE FILES "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/windows_wrappers/Project__setup_util.py_exec_install_python/_setup_util.exe")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/env.bat")
+   "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/env.bat")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install" TYPE PROGRAM FILES "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/installspace/env.bat")
+file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install" TYPE PROGRAM FILES "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/installspace/env.bat")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/setup.bat;C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/local_setup.bat")
+   "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/setup.bat;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/local_setup.bat")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install" TYPE FILE FILES
-    "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/installspace/setup.bat"
-    "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/installspace/local_setup.bat"
+file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install" TYPE FILE FILES
+    "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/installspace/setup.bat"
+    "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/installspace/local_setup.bat"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install/.rosinstall")
+   "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install/.rosinstall")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/catkin_ws/install" TYPE FILE FILES "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/catkin_generated/installspace/.rosinstall")
+file(INSTALL DESTINATION "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install" TYPE FILE FILES "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/catkin_generated/installspace/.rosinstall")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/ros_tutorials/ros_tutorials/cmake_install.cmake")
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/marsha/cmake_install.cmake")
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/ROS-TCP-Endpoint/cmake_install.cmake")
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/ros_tutorials/roscpp_tutorials/cmake_install.cmake")
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/ros_tutorials/rospy_tutorials/cmake_install.cmake")
-  include("C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/ros_tutorials/turtlesim/cmake_install.cmake")
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/marsha/cmake_install.cmake")
 
 endif()
 
@@ -124,5 +119,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/borge/MARSHA/ros_dev/catkin_ws/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
