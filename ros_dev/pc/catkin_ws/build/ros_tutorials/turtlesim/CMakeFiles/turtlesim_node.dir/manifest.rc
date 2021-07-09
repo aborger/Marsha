@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/turtlesim/CMakeFiles/turtlesim_node.dir/embed.manifest"

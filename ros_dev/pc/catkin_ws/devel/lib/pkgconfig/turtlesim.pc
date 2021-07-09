@@ -1,0 +1,8 @@
+prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel
+
+Name: turtlesim
+Description: Description of turtlesim
+Version: 0.10.2
+Cflags: -IC:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: geometry_msgs message_runtime std_msgs std_srvs

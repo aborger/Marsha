@@ -107,7 +107,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/ros_tutorials/cmake_install.cmake")
   include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/marsha/cmake_install.cmake")
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ROS-TCP-Endpoint/cmake_install.cmake")
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/roscpp_tutorials/cmake_install.cmake")
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/rospy_tutorials/cmake_install.cmake")
+  include("C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/turtlesim/cmake_install.cmake")
 
 endif()
 

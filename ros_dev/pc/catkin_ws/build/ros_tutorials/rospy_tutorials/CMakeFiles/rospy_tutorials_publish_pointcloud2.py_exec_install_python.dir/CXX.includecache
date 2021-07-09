@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/rospy_tutorials/catkin_generated/add_python_executable/rospy_tutorials_publish_pointcloud2.py_exec_install_python/publish_pointcloud2.cpp
+fstream
+-
+iostream
+-
+string
+-
+windows.h
+-
+
