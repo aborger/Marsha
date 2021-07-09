@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/ros_tutorials/rospy_tutorials/catkin_generated/add_python_executable/rospy_tutorials_add_two_ints_server_exec_install_python/add_two_ints_server.cpp
+fstream
+-
+iostream
+-
+string
+-
+windows.h
+-
+
