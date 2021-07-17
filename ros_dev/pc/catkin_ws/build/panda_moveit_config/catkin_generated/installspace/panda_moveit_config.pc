@@ -1,8 +1,0 @@
-prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install
-
-Name: panda_moveit_config
-Description: Description of panda_moveit_config
-Version: 0.7.5
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

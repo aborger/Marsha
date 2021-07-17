@@ -1,8 +1,0 @@
-[0.000000] (-) TimerEvent: {}
-[0.000000] (ros1_bridge) JobQueued: {'identifier': 'ros1_bridge', 'dependencies': OrderedDict()}
-[0.000000] (ros1_bridge) JobStarted: {'identifier': 'ros1_bridge'}
-[0.079000] (ros1_bridge) JobProgress: {'identifier': 'ros1_bridge', 'progress': 'cmake'}
-[0.094000] (ros1_bridge) StderrLine: {'line': b'Traceback (most recent call last):\n  File "c:\\program files\\python38\\lib\\site-packages\\colcon_core\\executor\\__init__.py", line 91, in __call__\n    rc = await self.task(*args, **kwargs)\n  File "c:\\program files\\python38\\lib\\site-packages\\colcon_core\\task\\__init__.py", line 93, in __call__\n    return await task_method(*args, **kwargs)\n  File "c:\\program files\\python38\\lib\\site-packages\\colcon_ros\\task\\ament_cmake\\build.py", line 59, in build\n    rc = await extension.build(\n  File "c:\\program files\\python38\\lib\\site-packages\\colcon_cmake\\task\\cmake\\build.py", line 87, in build\n    rc = await self._reconfigure(args, env)\n  File "c:\\program files\\python38\\lib\\site-packages\\colcon_cmake\\task\\cmake\\build.py", line 153, in _reconfigure\n    raise RuntimeError(\nRuntimeError: VisualStudioVersion is not set, please run within a Visual Studio Command Prompt.\n'}
-[0.110000] (-) TimerEvent: {}
-[0.110000] (ros1_bridge) JobEnded: {'identifier': 'ros1_bridge', 'rc': 1}
-[0.110000] (-) EventReactorShutdown: {}
