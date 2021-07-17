@@ -1,0 +1,8 @@
+prefix=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel
+
+Name: Full_Arm_V1_2
+Description: Description of Full_Arm_V1_2
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,605 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<robot name="Robot">
+  <material name="Default-Diffuse">
+    <color rgba="1 1 1 0.5" />
+  </material>
+  <material name="Chrome">
+    <color rgba="1 1 1 1" />
+  </material>
+  <material name="Hand">
+    <texture filename="package://marsha_model/resources/NNU-Hand.png" />
+  </material>
+  <material name="Red Metal">
+    <color rgba="0.9057 0.029 0.029 1" />
+  </material>
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-3.5E-05 -0.015535 0.033018" />
+      <mass value="1" />
+      <inertia ixx="0.703779637813568" ixy="0" ixz="0" iyy="0.723889410495758" iyz="0" izz="1.42694199085236" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/marsha_model/meshes/base_link_0.stl" scale="1 1 1" />
+      </geometry>
+      <material name="Default-Diffuse">
+        <color rgba="1 1 1 0.5" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Mesh.stl" scale="0.1 0.1 0.1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_0">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.103431 0.02819 0.071842" />
+      <mass value="0.0290486813" />
+      <inertia ixx="8.05393756309059E-06" ixy="-3.00997925251068E-07" ixz="-4.33580733817969E-16" iyy="3.31282285515044E-06" iyz="-5.96240594670874E-15" izz="7.44656381357345E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/base_link.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/base_link.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_1">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.021586 0.000772" />
+      <mass value="0.0290486813" />
+      <inertia ixx="7.44656563256285E-06" ixy="-7.70886785937848E-14" ixz="-2.24130674957024E-12" iyy="3.31282444676617E-06" iyz="3.00997953672777E-07" izz="8.05393938207999E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_1.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_1.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_2">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.071468 -0.000304" />
+      <mass value="0.073705323" />
+      <inertia ixx="0.000155419213115238" ixy="3.0310321852238E-14" ixz="6.36067110440508E-12" iyy="7.45216811992577E-06" iyz="1.42563317240274E-06" izz="0.000158491500769742" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_2.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_2.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_3">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.000484" />
+      <mass value="0.0928107426" />
+      <inertia ixx="0.000319262471748516" ixy="-1.64324262520364E-19" ixz="-8.63519256100176E-11" iyy="8.75384012033464E-06" iyz="-3.24006294385261E-18" izz="0.000323433778248727" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_3.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_3.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_4">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.021586 0.000772" />
+      <mass value="0.0290486813" />
+      <inertia ixx="7.44656563256285E-06" ixy="-7.70886785937848E-14" ixz="-2.24130674957024E-12" iyy="3.31282444676617E-06" iyz="3.00997953672777E-07" izz="8.05393938207999E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_4.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_4.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_5">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.071468 -0.000304" />
+      <mass value="0.073705323" />
+      <inertia ixx="0.000155419213115238" ixy="3.0310321852238E-14" ixz="6.36067110440508E-12" iyy="7.45216811992577E-06" iyz="1.42563317240274E-06" izz="0.000158491500769742" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_5.STL" scale="1 1 1" />
+      </geometry>
+      <material name="Chrome">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_5.STL" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_6">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.001551 -0.01258 0.005978" />
+      <mass value="0.0431214459" />
+      <inertia ixx="3.29547256114893E-05" ixy="-1.32614502490469E-06" ixz="4.18024853843235E-07" iyy="9.39056008064654E-06" iyz="5.76764614379499E-06" izz="2.58697946264874E-05" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_6.STL" scale="1 1 0.999999" />
+      </geometry>
+      <material name="Hand">
+        <texture filename="package://marsha_model/resources/NNU-Hand.png" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_6.STL" scale="1 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_19">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.000291 -0.011341 -0.004726" />
+      <mass value="0.0025033322" />
+      <inertia ixx="9.99999997475243E-07" ixy="1.36098691690156E-15" ixz="-2.73019234038044E-14" iyy="9.99999997475243E-07" iyz="-1.10570571321415E-14" izz="1.00000011116208E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_19.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_19.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_20">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.009273 -0.003092" />
+      <mass value="0.0018384684" />
+      <inertia ixx="1.00000022484892E-06" ixy="2.9480466733154E-14" ixz="-2.84964001180665E-13" iyy="1.00000056590943E-06" iyz="1.32187284122148E-14" izz="1.00000022484892E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_20.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_20.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_21">
+    <inertial>
+      <origin rpy="0 0 0" xyz="1E-06 0.025711 0.001069" />
+      <mass value="0.0016350299" />
+      <inertia ixx="1.00000033853576E-06" ixy="-8.61813587480593E-15" ixz="-2.44471408178057E-13" iyy="1.00000045222259E-06" iyz="-1.69457597774944E-14" izz="1.00000022484892E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_21.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_21.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_16">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.001888 -0.001052" />
+      <mass value="0.0024646828" />
+      <inertia ixx="1.00000022484892E-06" ixy="-6.64251054093611E-19" ixz="-1.02332271337737E-19" iyy="1.00000011116208E-06" iyz="9.67034984803838E-15" izz="9.99999997475243E-07" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_16.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_16.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_17">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.021136 0.001552" />
+      <mass value="0.0008107831" />
+      <inertia ixx="1.00000022484892E-06" ixy="2.19813028862854E-14" ixz="-2.62332988448452E-13" iyy="1.00000045222259E-06" iyz="1.84003677637483E-14" izz="1.00000022484892E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_17.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_17.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_18">
+    <inertial>
+      <origin rpy="0 0 0" xyz="1E-06 0.034612 0.002049" />
+      <mass value="0.0008882572" />
+      <inertia ixx="1.00000011116208E-06" ixy="1.18483540409171E-15" ixz="-1.38908646412673E-13" iyy="1.00000033853576E-06" iyz="1.33068537200472E-15" izz="1.00000011116208E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_18.STL" scale="1.000003 0.999998 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_18.STL" scale="1.000003 0.999998 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_13">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.001434 -0.001334" />
+      <mass value="0.0035948628" />
+      <inertia ixx="9.99999997475243E-07" ixy="0" ixz="1.0842021724855E-19" iyy="9.99999997475243E-07" iyz="7.5427343746424E-15" izz="9.99999997475243E-07" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_13.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_13.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_14">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.02374 0.000734" />
+      <mass value="0.001328184" />
+      <inertia ixx="9.99999997475243E-07" ixy="2.01048161646079E-15" ixz="-2.41772629070965E-14" iyy="9.99999997475243E-07" iyz="-3.38073295622294E-15" izz="1.00000011116208E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_14.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_14.STL" scale="1.000001 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_15">
+    <inertial>
+      <origin rpy="0 0 0" xyz="1E-06 0.039372 0.001543" />
+      <mass value="0.0013140737" />
+      <inertia ixx="1.00000022484892E-06" ixy="2.23908035057343E-15" ixz="-1.4650207316811E-13" iyy="1.00000033853576E-06" iyz="2.17798598167035E-15" izz="1.00000022484892E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_15.STL" scale="1.000002 0.999998 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_15.STL" scale="1.000002 0.999998 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_10">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.001161 0.002314" />
+      <mass value="0.002931725" />
+      <inertia ixx="9.99999770101567E-07" ixy="-3.84064120160828E-19" ixz="-3.91499478666005E-20" iyy="9.99999883788405E-07" iyz="6.11538983786176E-15" izz="9.99999883788405E-07" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_10.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_10.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_11">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.021631 0.005578" />
+      <mass value="0.001219152" />
+      <inertia ixx="1.00000022484892E-06" ixy="-1.77697839217695E-14" ixz="-3.0608989735198E-13" iyy="1.00000067959627E-06" iyz="-1.33888930961535E-14" izz="1.00000033853576E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_11.STL" scale="1.000002 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_11.STL" scale="1.000002 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_12">
+    <inertial>
+      <origin rpy="0 0 0" xyz="1E-06 -0.037709 0.000595" />
+      <mass value="0.0012579251" />
+      <inertia ixx="9.99999883788405E-07" ixy="-3.91804962980268E-16" ixz="-2.29382790160274E-14" iyy="9.99999997475243E-07" iyz="1.19114082323019E-15" izz="1.00000011116208E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_12.STL" scale="1.000002 0.999999 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_12.STL" scale="1.000002 0.999999 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_7">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.00185 -0.000622" />
+      <mass value="0.0015258568" />
+      <inertia ixx="9.99999997475243E-07" ixy="0" ixz="5.42101086242752E-20" iyy="9.99999997475243E-07" iyz="-6.15535073473085E-15" izz="9.99999997475243E-07" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_7.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_7.STL" scale="1 1.000001 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_8">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.017016 0.00028" />
+      <mass value="0.0005158802" />
+      <inertia ixx="9.99999997475243E-07" ixy="3.38608451038369E-15" ixz="-4.38387763319458E-14" iyy="1.00000011116208E-06" iyz="1.61315730738687E-15" izz="1.00000011116208E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_8.STL" scale="1.000002 1 0.999999" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_8.STL" scale="1.000002 1 0.999999" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link_9">
+    <inertial>
+      <origin rpy="0 0 0" xyz="1E-06 0.028712 0.000438" />
+      <mass value="0.0007216244" />
+      <inertia ixx="1.00000045222259E-06" ixy="-5.52711359753238E-15" ixz="-3.20262615255765E-13" iyy="1.00000067959627E-06" iyz="-1.11208243135097E-14" izz="1.00000033853576E-06" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_9.STL" scale="1.000003 0.999998 1" />
+      </geometry>
+      <material name="Red Metal">
+        <color rgba="0.9057 0.029 0.029 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://marsha_model/meshes/Link_9.STL" scale="1.000003 0.999998 1" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_link_Link_0_joint" type="fixed">
+    <origin xyz="0.1844 0 0" />
+    <parent link="base_link" />
+    <child link="Link_0" />
+  </joint>
+  <joint name="base_link_Link_1_joint" type="revolute">
+    <origin rpy="-4.712385 0 -1.5708" xyz="-0.077204 -0.071842 0.076604" />
+    <parent link="Link_0" />
+    <child link="Link_1" />
+    <limit lower="1.5423474959767" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_1_Link_2_joint" type="revolute">
+    <origin rpy="-3.141585 0 -3.141585" />
+    <parent link="Link_1" />
+    <child link="Link_2" />
+    <limit lower="2.41379039007327" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_2_Link_3_joint" type="revolute">
+    <origin rpy="-3.141585 0 -2.8798" xyz="0.022 0.052896 -0.027" />
+    <parent link="Link_2" />
+    <child link="Link_3" />
+    <limit lower="1.77116016979333" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_3_Link_4_joint" type="revolute">
+    <origin rpy="0 0 -6.021385" xyz="-0.009059 -0.051193 -0.027" />
+    <parent link="Link_3" />
+    <child link="Link_4" />
+    <limit lower="1.75789563029667" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_4_Link_5_joint" type="revolute">
+    <origin rpy="0 1.570796 0" />
+    <parent link="Link_4" />
+    <child link="Link_5" />
+    <limit lower="0" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_5_Link_6_joint" type="revolute">
+    <origin rpy="-3.141585 0 -3.141585" xyz="0 0.12 -0.0285" />
+    <parent link="Link_5" />
+    <child link="Link_6" />
+    <limit lower="1.14388879887507" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_6_Link_19_joint" type="revolute">
+    <origin rpy="-4.876485 5.716365 -4.618485" xyz="0.000139 -0.03328 0.059828" />
+    <parent link="Link_6" />
+    <child link="Link_19" />
+    <limit lower="0.908443855310104" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_19_Link_20_joint" type="revolute">
+    <origin rpy="-0.021423 0 0" />
+    <parent link="Link_19" />
+    <child link="Link_20" />
+    <limit lower="1.05592418927699" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_20_Link_21_joint" type="revolute">
+    <origin rpy="-6.094725 0 0" xyz="0 0.000187 -0.003337" />
+    <parent link="Link_20" />
+    <child link="Link_21" />
+    <limit lower="1.68336999724531" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_6_Link_16_joint" type="revolute">
+    <origin rpy="-4.856986 1.2704 -1.5708" xyz="-0.002227 -0.070978 0.033927" />
+    <parent link="Link_6" />
+    <child link="Link_16" />
+    <limit lower="0.790634131713084" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_16_Link_17_joint" type="revolute">
+    <origin rpy="-6.186097 0 0" xyz="0 0.000387 -0.00162" />
+    <parent link="Link_16" />
+    <child link="Link_17" />
+    <limit lower="0.119031457060008" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_17_Link_18_joint" type="revolute">
+    <origin rpy="-6.081905 0 0" xyz="0 0.001269 -0.00568" />
+    <parent link="Link_17" />
+    <child link="Link_18" />
+    <limit lower="0.110828404978647" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_6_Link_13_joint" type="revolute">
+    <origin rpy="-4.822986 1.4316 -1.570801" xyz="-0.001857 -0.073005 0.018515" />
+    <parent link="Link_6" />
+    <child link="Link_13" />
+    <limit lower="2.40157313866717" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_13_Link_14_joint" type="revolute">
+    <origin rpy="-6.266069 0 0" />
+    <parent link="Link_13" />
+    <child link="Link_14" />
+    <limit lower="1.04807019438805" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_14_Link_15_joint" type="revolute">
+    <origin rpy="-6.003715 0 0" xyz="0 0.002364 -0.009144" />
+    <parent link="Link_14" />
+    <child link="Link_15" />
+    <limit lower="1.28578401802613" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_6_Link_10_joint" type="revolute">
+    <origin rpy="0 1.570796 -0.12075" xyz="-0.002427 -0.066955 0.002864" />
+    <parent link="Link_6" />
+    <child link="Link_10" />
+    <limit lower="1.49574710410931" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_10_Link_11_joint" type="revolute">
+    <origin rpy="-0.009583 0 0" />
+    <parent link="Link_10" />
+    <child link="Link_11" />
+    <limit lower="0.692546647152952" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_11_Link_12_joint" type="revolute">
+    <origin rpy="-6.224374 0 0" xyz="0 0.000164 0.008316" />
+    <parent link="Link_11" />
+    <child link="Link_12" />
+    <limit lower="0.850673500127179" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_6_Link_7_joint" type="fixed">
+    <origin rpy="-1.669299 1.478101 -4.712385" xyz="-0.002936 -0.059126 -0.012381" />
+    <parent link="Link_6" />
+    <child link="Link_7" />
+  </joint>
+  <joint name="Link_7_Link_8_joint" type="revolute">
+    <origin rpy="-6.253573 0 0" />
+    <parent link="Link_7" />
+    <child link="Link_8" />
+    <limit lower="0.777718732632628" upper="0" effort="0" velocity="7" />
+  </joint>
+  <joint name="Link_8_Link_9_joint" type="revolute">
+    <origin rpy="-6.113885 0 0" xyz="0 0.000657 -0.003925" />
+    <parent link="Link_8" />
+    <child link="Link_9" />
+    <limit lower="0.930085967161958" upper="0" effort="0" velocity="7" />
+  </joint>
+</robot>

@@ -218,6 +218,12 @@ EMPY_EXECUTABLE:FILEPATH=/usr/bin/empy
 //Empy script
 EMPY_SCRIPT:STRING=/usr/bin/empy
 
+//Value Computed by CMake
+Full_Arm_V1_2_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha_model/Full_Arm_V1_2
+
+//Value Computed by CMake
+Full_Arm_V1_2_SOURCE_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha_model/Full_Arm_V1_2
+
 //The directory containing a CMake configuration file for GMock.
 GMock_DIR:PATH=GMock_DIR-NOTFOUND
 
@@ -273,6 +279,9 @@ UBUNTU:BOOL=TRUE
 UBUNTU_BIONIC:BOOL=TRUE
 
 //Path to a file.
+_file_name:FILEPATH=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/rosbridge_suite-release/test/websocket/test_smoke.test
+
+//Path to a file.
 _gmock_INCLUDES:FILEPATH=/usr/include/gmock/gmock.h
 
 //Path to a file.
@@ -289,6 +298,24 @@ catkin_DIR:PATH=/opt/ros/melodic/share/catkin/cmake
 
 //The directory containing a CMake configuration file for cpp_common.
 cpp_common_DIR:PATH=/opt/ros/melodic/share/cpp_common/cmake
+
+//The directory containing a CMake configuration file for gencpp.
+gencpp_DIR:PATH=/opt/ros/melodic/share/gencpp/cmake
+
+//The directory containing a CMake configuration file for geneus.
+geneus_DIR:PATH=/opt/ros/melodic/share/geneus/cmake
+
+//The directory containing a CMake configuration file for genlisp.
+genlisp_DIR:PATH=/opt/ros/melodic/share/genlisp/cmake
+
+//The directory containing a CMake configuration file for genmsg.
+genmsg_DIR:PATH=/opt/ros/melodic/share/genmsg/cmake
+
+//The directory containing a CMake configuration file for gennodejs.
+gennodejs_DIR:PATH=/opt/ros/melodic/share/gennodejs/cmake
+
+//The directory containing a CMake configuration file for genpy.
+genpy_DIR:PATH=/opt/ros/melodic/share/genpy/cmake
 
 //Value Computed by CMake
 gmock_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/gtest/googlemock
@@ -348,8 +375,31 @@ marsha_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha
 //Value Computed by CMake
 marsha_SOURCE_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha
 
+//Value Computed by CMake
+marsha_model2_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha_model2
+
+//Value Computed by CMake
+marsha_model2_SOURCE_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha_model2
+
+//Value Computed by CMake
+marsha_model_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha_model
+
+//Value Computed by CMake
+marsha_model_SOURCE_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha_model
+
+//The directory containing a CMake configuration file for message_generation.
+message_generation_DIR:PATH=/opt/ros/melodic/share/message_generation/cmake
+
 //The directory containing a CMake configuration file for message_runtime.
 message_runtime_DIR:PATH=/opt/ros/melodic/share/message_runtime/cmake
+
+//Value Computed by CMake
+rosbridge_server_BINARY_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/rosbridge_suite-release
+
+rosbridge_server_DIR:PATH=
+
+//Value Computed by CMake
+rosbridge_server_SOURCE_DIR:STATIC=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/rosbridge_suite-release
 
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/melodic/share/rosconsole/cmake
@@ -366,8 +416,14 @@ roscpp_traits_DIR:PATH=/opt/ros/melodic/share/roscpp_traits/cmake
 //The directory containing a CMake configuration file for rosgraph_msgs.
 rosgraph_msgs_DIR:PATH=/opt/ros/melodic/share/rosgraph_msgs/cmake
 
+//The directory containing a CMake configuration file for roslaunch.
+roslaunch_DIR:PATH=/opt/ros/melodic/share/roslaunch/cmake
+
 //The directory containing a CMake configuration file for rospy.
 rospy_DIR:PATH=/opt/ros/melodic/share/rospy/cmake
+
+//The directory containing a CMake configuration file for rostest.
+rostest_DIR:PATH=/opt/ros/melodic/share/rostest/cmake
 
 //The directory containing a CMake configuration file for rostime.
 rostime_DIR:PATH=/opt/ros/melodic/share/rostime/cmake
@@ -488,7 +544,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

@@ -38,7 +38,48 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/marsha/msg" TYPE FILE FILES
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/msg/Floats.msg"
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/msg/TrainData.msg"
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/msg/Log.msg"
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/msg/TrainInfo.msg"
+    )
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/marsha/cmake" TYPE FILE FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha/catkin_generated/installspace/marsha-msg-paths.cmake")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/include/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/roseus/ros" TYPE DIRECTORY FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/share/roseus/ros/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/common-lisp/ros" TYPE DIRECTORY FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/share/common-lisp/ros/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/gennodejs/ros" TYPE DIRECTORY FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/share/gennodejs/ros/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  execute_process(COMMAND "/usr/bin/python2" -m compileall "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/lib/python2.7/dist-packages/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages" TYPE DIRECTORY FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/lib/python2.7/dist-packages/marsha")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha/catkin_generated/installspace/marsha.pc")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/marsha/cmake" TYPE FILE FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha/catkin_generated/installspace/marsha-msg-extras.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -50,5 +91,12 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/marsha" TYPE FILE FILES "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/package.xml")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/marsha" TYPE FILE FILES
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/motor_control.launch"
+    "/home/aaron/MARSHA/ros_dev/nano/catkin_ws/src/marsha/nnTrainer.launch"
+    )
 endif()
 

@@ -5,4 +5,7 @@
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
+subdirs("marsha_model")
+subdirs("marsha_model2")
 subdirs("marsha")
+subdirs("rosbridge_suite-release")

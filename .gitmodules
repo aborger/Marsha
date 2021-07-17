@@ -4,3 +4,7 @@
 [submodule "ros_dev/pc/catkin_ws/src/ros_tutorials"]
 	path = ros_dev/pc/catkin_ws/src/ros_tutorials
 	url = https://github.com/ros/ros_tutorials.git
+[submodule "ros_dev/nano/catkin_ws/src/rosbridge_suite-release"]
+	path = ros_dev/nano/catkin_ws/src/rosbridge_suite-release
+	url = https://github.com/aborger/rosbridge_suite-release.git
+	branch = debian/melodic/bionic/rosbridge_server

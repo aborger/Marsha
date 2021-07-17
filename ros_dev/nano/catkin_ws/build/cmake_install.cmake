@@ -131,7 +131,10 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/gtest/cmake_install.cmake")
+  include("/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha_model/cmake_install.cmake")
+  include("/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha_model2/cmake_install.cmake")
   include("/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/marsha/cmake_install.cmake")
+  include("/home/aaron/MARSHA/ros_dev/nano/catkin_ws/build/rosbridge_suite-release/cmake_install.cmake")
 
 endif()
 
