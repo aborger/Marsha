@@ -1,0 +1,7 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~slip_compliance_unitless_lateral" : \b [double] Unitless slip compliance (slip / friction) in the lateral direction. min: -1.0, default: -1.0, max: 20.0
+- \b "~slip_compliance_unitless_longitudinal" : \b [double] Unitless slip compliance (slip / friction) in the longitudinal direction. min: -1.0, default: -1.0, max: 20.0
+

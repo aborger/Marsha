@@ -1,0 +1,11 @@
+# generated from genmsg/cmake/pkg-genmsg.context.in
+
+messages_str = "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/msg/Errors.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/msg/FrankaState.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryAction.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryActionGoal.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryActionResult.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryActionFeedback.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryGoal.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryResult.msg;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg/ErrorRecoveryFeedback.msg"
+services_str = "C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetCartesianImpedance.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetEEFrame.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetForceTorqueCollisionBehavior.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetFullCollisionBehavior.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetJointImpedance.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetKFrame.srv;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/srv/SetLoad.srv"
+pkg_name = "franka_msgs"
+dependencies_str = "std_msgs;actionlib_msgs"
+langs = "gencpp;geneus;genlisp;gennodejs;genpy"
+dep_include_paths_str = "franka_msgs;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/src/franka_ros/franka_msgs/msg;franka_msgs;C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/share/franka_msgs/msg;std_msgs;C:/opt/ros/melodic/x64/share/std_msgs/cmake/../msg;actionlib_msgs;C:/opt/ros/melodic/x64/share/actionlib_msgs/cmake/../msg"
+PYTHON_EXECUTABLE = "C:/opt/ros/melodic/x64/python.exe"
+package_has_static_sources = '' == 'TRUE'
+genmsg_check_deps_script = "C:/opt/ros/melodic/x64/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py"

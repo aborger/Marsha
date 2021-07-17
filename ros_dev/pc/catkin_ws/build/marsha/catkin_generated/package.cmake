@@ -1,6 +1,6 @@
 set(_CATKIN_CURRENT_PACKAGE "marsha")
 set(marsha_VERSION "0.0.0")
-set(marsha_MAINTAINER "borge <borge@todo.todo>")
+set(marsha_MAINTAINER "borge <borger.aaron@gmail.com>")
 set(marsha_PACKAGE_FORMAT "2")
 set(marsha_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
 set(marsha_BUILD_EXPORT_DEPENDS "roscpp" "rospy" "std_msgs")

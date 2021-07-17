@@ -1,8 +1,0 @@
-<launch>
-    <machine name="nano" address="192.168.155.22" user="aaron" password="Broncoorange1!" env-loader="/home/aaron/MARSHA/ros_dev/nano/catkin_ws/devel/env.sh"/>
-    
-
-    <node pkg="rospy_tutorials" name="listener" type="listener.py"/>
-    <node machine="nano" pkg="rospy_tutorials" name="talker" type="talker.py"/>
-
-</launch>

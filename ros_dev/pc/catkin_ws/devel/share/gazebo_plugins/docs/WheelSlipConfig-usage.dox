@@ -1,0 +1,8 @@
+\subsubsection usage Usage
+\verbatim
+<node name="wheel_slip" pkg="gazebo_plugins" type="wheel_slip">
+  <param name="slip_compliance_unitless_lateral" type="double" value="-1.0" />
+  <param name="slip_compliance_unitless_longitudinal" type="double" value="-1.0" />
+</node>
+\endverbatim
+
