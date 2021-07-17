@@ -1,5 +1,5 @@
-[submodule "ros_dev/nano/catkin_ws/src/rosbridge_suite-release"]
-	path = ros_dev/nano/catkin_ws/src/rosbridge_suite-release
+[submodule "src/rosbridge_suite-release"]
+	path = src/rosbridge_suite-release
 	url = https://github.com/aborger/rosbridge_suite-release.git
 	branch = debian/melodic/bionic/rosbridge_server
 
