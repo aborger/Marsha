@@ -1,0 +1,8 @@
+prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel
+
+Name: gazebo_dev
+Description: Description of gazebo_dev
+Version: 2.8.7
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

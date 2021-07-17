@@ -1,0 +1,8 @@
+prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel
+
+Name: franka_description
+Description: Description of franka_description
+Version: 0.7.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: xacro

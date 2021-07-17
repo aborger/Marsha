@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/build/marsha/catkin_generated/add_python_executable/marsha_nn_trainer.py_exec_install_python/nn_trainer.cpp
+fstream
+-
+iostream
+-
+string
+-
+windows.h
+-
+
