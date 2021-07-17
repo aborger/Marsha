@@ -1,6 +1,0 @@
-
-ENV_WIDTH = 800
-ENV_HEIGHT = 800
-
-input_shape = (227, 512, 3)
-NUM_ACTIONS = 14
