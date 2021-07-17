@@ -1,4 +1,8 @@
 # MARSHA
-### (Multi-Agent Reinforcement Simulated Hand Apparatus)
+### (Multi-Agent Reinforcement Self-supervised Heuristic Algorithm)
 
-Note: This repository actually needs to be renamed because MARSHA is the project name. The AI will be under a seperate name because the AI way more than a hand apparatus.
+This repository is meant for a multi-device network composed of embedded system platforms (Jetson Nano or Raspberry Pi), GPU Trainer Platforms, and Auxilary platforms (remote control and simulation). The repository also includes many ROS submodules. To clone please use the following command:
+```
+git clone -b <PLATFORM BRANCH> --single-branch --recurse-submodules https://github.com/aborger/MARSHA
+```
+Where <PLATFORM BRANCH> is the repository branch which represents the system you are cloning onto.
