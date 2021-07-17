@@ -1,8 +1,0 @@
-prefix=/home/aaron/MARSHA/ros_dev/nano/catkin_ws/install
-
-Name: marsha_model2
-Description: Description of marsha_model2
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
