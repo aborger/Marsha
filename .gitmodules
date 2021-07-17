@@ -1,25 +1,5 @@
-[submodule "ros_dev/pc/catkin_ws/src/ROS-TCP-Endpoint"]
-	path = ros_dev/pc/catkin_ws/src/ROS-TCP-Endpoint
-	url = https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
-[submodule "ros_dev/pc/catkin_ws/src/ros_tutorials"]
-	path = ros_dev/pc/catkin_ws/src/ros_tutorials
-	url = https://github.com/ros/ros_tutorials.git
-[submodule "ros_dev/nano/catkin_ws/src/rosbridge_suite-release"]
-	path = ros_dev/nano/catkin_ws/src/rosbridge_suite-release
-	url = https://github.com/aborger/rosbridge_suite-release.git
-	branch = debian/melodic/bionic/rosbridge_server
-[submodule "ros_dev/pc/catkin_ws/src/-b"]
-	path = ros_dev/pc/catkin_ws/src/-b
-	url = https://github.com/ros-planning/moveit_tutorials.git
 [submodule "ros_dev/pc/catkin_ws/src/moveit_tutorials"]
 	path = ros_dev/pc/catkin_ws/src/moveit_tutorials
 	url = https://github.com/ros-planning/moveit_tutorials.git
 	branch = melodic-devel
-[submodule "ros_dev/pc/catkin_ws/src/panda_moveit_config"]
-	path = ros_dev/pc/catkin_ws/src/panda_moveit_config
-	url = https://github.com/ros-planning/panda_moveit_config.git
-	branch = melodic-devel
-[submodule "ros_dev/pc/catkin_ws/src/franka_ros"]
-	path = ros_dev/pc/catkin_ws/src/franka_ros
-	url = https://github.com/frankaemika/franka_ros.git
-	branch = melodic-devel
+
