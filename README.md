@@ -5,4 +5,5 @@ This repository is meant for a multi-device network composed of embedded system 
 ```
 git clone -b <PLATFORM BRANCH> --single-branch --recurse-submodules https://github.com/aborger/MARSHA
 ```
-Where <PLATFORM BRANCH> is the repository branch which represents the system you are cloning onto.
+Where ```<PLATFORM BRANCH>``` is the repository branch which represents the system you are cloning onto.
+
