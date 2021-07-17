@@ -1,8 +1,0 @@
-prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel
-
-Name: ros_tcp_endpoint
-Description: Description of ros_tcp_endpoint
-Version: 0.4.0
-Cflags: -IC:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/devel/include
-Libs: -L${prefix}/lib 
-Requires: message_runtime

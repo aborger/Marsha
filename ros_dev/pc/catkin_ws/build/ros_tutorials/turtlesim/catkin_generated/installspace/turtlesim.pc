@@ -1,8 +1,0 @@
-prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install
-
-Name: turtlesim
-Description: Description of turtlesim
-Version: 0.10.2
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: geometry_msgs message_runtime std_msgs std_srvs

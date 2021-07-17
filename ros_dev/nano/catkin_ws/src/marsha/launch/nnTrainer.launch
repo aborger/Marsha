@@ -1,8 +1,0 @@
-<launch>
-    <arg name="machine" />
-
-    
-    <node pkg="marsha" name="nn_trainer" type="nn_trainer.py" machine="$(arg machine)"/>
-    <node pkg="marsha" name="random_generator" type="random_generator.py" machine="$(arg machine)"/>
-
-</launch>
