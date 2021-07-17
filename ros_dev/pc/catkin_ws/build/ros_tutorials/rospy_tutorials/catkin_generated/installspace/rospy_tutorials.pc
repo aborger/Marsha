@@ -1,8 +1,0 @@
-prefix=C:/Users/borge/MARSHA/ros_dev/pc/catkin_ws/install
-
-Name: rospy_tutorials
-Description: Description of rospy_tutorials
-Version: 0.10.2
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: message_runtime std_msgs

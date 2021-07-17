@@ -1,0 +1,12 @@
+Source: ros-melodic-rosbridge-server
+Section: misc
+Priority: optional
+Maintainer: Russell Toris <rctoris@wpi.edu>
+Build-Depends: debhelper (>= 9.0.0), ros-melodic-catkin, ros-melodic-rostest
+Homepage: http://ros.org/wiki/rosbridge_server
+Standards-Version: 3.9.2
+
+Package: ros-melodic-rosbridge-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python-autobahn, python-backports.ssl-match-hostname, python-tornado, python-twisted-core, ros-melodic-rosapi, ros-melodic-rosauth, ros-melodic-rosbridge-library, ros-melodic-rosbridge-msgs, ros-melodic-rospy
+Description: A WebSocket interface to rosbridge.
