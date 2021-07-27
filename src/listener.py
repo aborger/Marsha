@@ -2,6 +2,7 @@
 import rospy
 import os
 from marsha.msg import TrainInfo
+from std_msgs.msg import Int32
 
 
 def msgCallBack(msg):
@@ -10,7 +11,7 @@ def msgCallBack(msg):
 
 def listener():
     rospy.init_node('listener', log_level=rospy.DEBUG)
-    rospy.Subscriber('train_info', TrainInfo, msgCallBack) # change this to listen to any topic
+    rospy.Subscriber('drive', Int32, msgCallBack) # change this to listen to any topic
 
     rospy.spin()
 
@@ -18,3 +19,4 @@ def listener():
 if __name__ == "__main__":
 
     listener()
+    

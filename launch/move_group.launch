@@ -1,0 +1,7 @@
+<launch>
+
+  <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch"/>
+
+  <node name="move_group_node" pkg="marsha" type="move" respawn="false" output="screen"></node>
+
+</launch>
