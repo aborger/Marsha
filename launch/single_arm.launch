@@ -1,0 +1,24 @@
+<launch>
+    <arg name="machine" default=""/>
+    <arg name="ns" default=""/>
+    <arg name="launch_rviz" default="true"/>
+    <arg name="x_pos" default="1"/>
+
+    <group ns="$(arg ns)">
+        <include file="$(find ar3_gazebo)/launch/ar3_gazebo_bringup.launch">
+            <arg name="launch_world" value="false"/>
+            <arg name="ns" value="$(arg ns)"/>
+        </include>
+
+        <node name="world_transform" pkg="ar3_gazebo" type="tf_world_transform.py"/>
+
+        <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch">
+            <arg name="launch_rviz" value="$(arg launch_rviz)"/>
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="ns" value="$(arg ns)"/>
+        </include>
+
+        <!--<node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="1 1 1 0 0 0 /world /$(arg ns)/world 100"/>-->
+        <node name="move_group_node" pkg="marsha" type="move" respawn="false" output="screen" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>
+    </group>
+</launch>
