@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     target_pose1.orientation.x = -0.5;
     target_pose1.orientation.y = -0.5;
     target_pose1.orientation.z = 0.5;
-    target_pose1.position.x = 0.0;
+    target_pose1.position.x = 0.50;
     target_pose1.position.y = -0.40;
     target_pose1.position.z = 0.30;
     move_group.setPoseTarget(target_pose1);
