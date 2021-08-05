@@ -1,5 +1,12 @@
-[submodule "src/rosbridge_suite-release"]
-	path = src/rosbridge_suite-release
-	url = https://github.com/aborger/rosbridge_suite-release.git
-	branch = debian/melodic/bionic/rosbridge_server
-
+[submodule "marsha_ai/src/rllab"]
+	path = marsha_ai/src/rllab
+	url = https://github.com/rll/rllab.git
+[submodule "marsha_ai/src/garage"]
+	path = marsha_ai/src/garage
+	url = https://github.com/rlworkgroup/garage.git
+[submodule "marsha_ai/src/maml"]
+	path = marsha_ai/src/maml
+	url = https://github.com/cbfinn/maml.git
+[submodule "marsha_ai/src/maml_rl"]
+	path = marsha_ai/src/maml_rl
+	url = https://github.com/cbfinn/maml_rl.git
