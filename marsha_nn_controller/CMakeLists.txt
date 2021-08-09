@@ -49,7 +49,6 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
   LIBRARIES marsha_nn_controller
   CATKIN_DEPENDS roscpp rospy std_msgs
   DEPENDS system_lib
