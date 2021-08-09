@@ -2,10 +2,27 @@ cmake_minimum_required(VERSION 3.0.2)
 project(marsha_ai)
 
 
-find_package(catkin REQUIRED COMPONENTS
-  rospy
-  std_msgs
-  message_generation
+find_package(catkin REQUIRED
+  COMPONENTS
+    message_generation
+    roscpp
+    rospy
+    std_msgs
+    rosbridge_server
+    interactive_markers
+    moveit_core
+    moveit_visual_tools
+    moveit_ros_planning
+    moveit_ros_planning_interface
+    moveit_ros_perception
+    pluginlib
+    geometric_shapes
+    pcl_ros
+    pcl_conversions
+    rosbag
+    tf2_ros
+    tf2_eigen
+    tf2_geometry_msgs
 )
 
 
@@ -44,10 +61,16 @@ generate_messages(
  )
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES marsha_ai
-#  CATKIN_DEPENDS rospy std_msgs
-#  DEPENDS system_lib
+  LIBRARIES
+  INCLUDE_DIRS
+  CATKIN_DEPENDS
+    moveit_core
+    moveit_visual_tools
+    moveit_ros_planning_interface
+    interactive_markers
+    tf2_geometry_msgs
+  DEPENDS
+    EIGEN3
 )
 
 ###########
@@ -81,9 +104,12 @@ include_directories(
 
 catkin_install_python(PROGRAMS
    scripts/ai_node
-   scripts/move_interface
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+add_executable(move_interface nodes/move_interface.cpp)
+target_link_libraries(move_interface ${catkin_LIBRARIES})
+install(TARGETS move_interface DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 

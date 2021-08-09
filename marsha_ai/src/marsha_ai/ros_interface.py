@@ -12,7 +12,7 @@ class RosInterface():
         rospy.init_node('AI_ros_interface')
         rospy.loginfo('Interface starting...')
 
-        self.pos_pub = rospy.Publisher('AI_pos', Pos, queue_size=10)
+        self.pos_pub = rospy.Publisher('pos_cmd', Pos, queue_size=10)
         self.rate = rospy.Rate(10)
 
 
