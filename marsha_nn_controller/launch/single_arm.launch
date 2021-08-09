@@ -1,6 +1,6 @@
 <launch>
     <arg name="machine" default=""/>
-    <arg name="ns" default=""/>
+    <arg name="ns" default="left"/>
     <arg name="launch_rviz" default="true"/>
     <arg name="x_pos" default="1"/>
 
@@ -19,6 +19,7 @@
         </include>
 
         <!--<node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="1 1 1 0 0 0 /world /$(arg ns)/world 100"/>-->
-        <node name="move_group_node" pkg="marsha" type="move" respawn="false" output="screen" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>
+        <node name="move_group_node" pkg="marsha_ai" type="move_interface" respawn="false" output="screen" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>
+        <node name="ai_node" pkg="marsha_ai" type="ai_node" output="screen" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>
     </group>
 </launch>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(marsha)
+project(marsha_nn_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -50,7 +50,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES marsha
+  LIBRARIES marsha_nn_controller
   CATKIN_DEPENDS roscpp rospy std_msgs
   DEPENDS system_lib
 )
