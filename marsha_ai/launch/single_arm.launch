@@ -1,5 +1,6 @@
 <launch>
     <arg name="machine" default=""/>
+    <arg name="display_machine" default=""/>
     <arg name="ns" default="left"/>
     <arg name="launch_rviz" default="true"/>
     <arg name="x_pos" default="1"/>
@@ -15,6 +16,7 @@
         <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch">
             <arg name="launch_rviz" value="$(arg launch_rviz)"/>
             <arg name="machine" value="$(arg machine)"/>
+            <arg name="display_machine" value="$(arg display_machine)"/>
             <arg name="ns" value="$(arg ns)"/>
         </include>
 
