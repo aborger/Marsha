@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "move_interface");
     ros::NodeHandle nh;
-    ros::AsyncSpinner spinner(4);
+    ros::AsyncSpinner spinner(1);
     spinner.start();
     MarshaMoveInterface interface = MarshaMoveInterface(&nh);
     //interface.setPose();
