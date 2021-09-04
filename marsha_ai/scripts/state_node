@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import rospy
+from marsha_ai.msg import Pos
+
+def main():
+    rospy.init_node('Web_ros_interface', log_level=rospy.DEBUG)
+
+    pos_pub = rospy.Publisher('/left/pos_cmd', Pos, queue_size=10)
+    rate = rospy.Rate(0.5)
+
+    msg = Pos()
+    msg.x = 0.0
+    msg.y = -0.4
+    msg.z = 0.3
+
+    i = 0
+    while i < 2:
+        pos_pub.publish(msg)
+        rospy.logdebug("Sending message")
+        rate.sleep()
+        i += 1
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
