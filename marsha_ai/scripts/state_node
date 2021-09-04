@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 
 import rospy
-from marsha_ai.msg import Pos
+from marsha_ai.msg import Pose
+from marsha_ai.msg import Position
+from marsha_ai.msg import Orientation
 
 def main():
     rospy.init_node('Web_ros_interface', log_level=rospy.DEBUG)
 
-    pos_pub = rospy.Publisher('/left/pos_cmd', Pos, queue_size=10)
+    pos_pub = rospy.Publisher('pos_cmd', Pose, queue_size=10)
     rate = rospy.Rate(0.5)
 
-    msg = Pos()
-    msg.x = 0.0
-    msg.y = -0.4
-    msg.z = 0.3
+    msg = Pose()
+    pos = Position()
+    pos.x = 0.0
+    pos.y = -0.4
+    pos.z = 0.3
+    msg.pos = pos
+    orient = Orientation()
+    orient.w = 0.5
+    orient.x = -0.5
+    orient.y = -0.5
+    orient.z = 0.5
+    msg.orient = orient
+
 
     i = 0
-    while i < 2:
+    while i < 20:
         pos_pub.publish(msg)
         rospy.logdebug("Sending message")
         rate.sleep()
