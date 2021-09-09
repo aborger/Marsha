@@ -15,12 +15,12 @@ def main():
 
     msg = Pose()
     pos = Position()
-    pos.x = 0.23
+    pos.x = 0.27
     pos.y = -0.4
     pos.z = 0.3
     msg.pos = pos
 
-    quaternion = quaternion_from_euler(1.5707, 0, 1.5707)
+    quaternion = quaternion_from_euler(1.5707, 0, -1.5707)
 
     orient = Orientation()
     orient.x = quaternion[0]
