@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import rospy
+from marsha_ai.msg import Pose
+from marsha_ai.msg import Position
+from marsha_ai.msg import Orientation
+
+
+from tf.transformations import quaternion_from_euler
+
+def handoff():
+    msg = Pose()
+    pos = Position()
+    pos.x = 0.23
+    pos.y = -0.4
+    pos.z = 0.3
+    msg.pos = pos
+
+    quaternion = quaternion_from_euler(1.5707, 0, 1.5707)
+
+    orient = Orientation()
+    orient.x = quaternion[0]
+    orient.y = quaternion[1]
+    orient.z = quaternion[2]
+    orient.w = quaternion[3]
+    msg.orient = orient
+
+    return msg
+
+def pickup():
+    msg = Pose()
+    pos = Position()
+    pos.x = -0.251
+    pos.y = 0.006
+    pos.z = 0.179
+    msg.pos = pos
+
+    orient = Orientation()
+    orient.x = 0.682
+    orient.y = 0.724
+    orient.z = -0.048
+    orient.w = 0.094
+    msg.orient = orient
+
+    return msg
+
+def command(msg, pos_pub, rate):
+    i = 0
+    while i < 4:
+        pos_pub.publish(msg)
+        rospy.logdebug("Sending message")
+        rate.sleep()
+        i += 1
+
+def main():
+    rospy.init_node('Web_ros_interface', log_level=rospy.DEBUG)
+
+    pos_pub = rospy.Publisher('pos_cmd', Pose, queue_size=10)
+    rate = rospy.Rate(0.5)
+
+    msg = pickup()
+
+    command(msg, pos_pub, rate)
+
+    msg = handoff()
+
+    command(msg, pos_pub, rate)
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
