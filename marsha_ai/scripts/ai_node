@@ -16,6 +16,7 @@ obs = env.reset()
 
 try:
     for i in range(1000):
+        # Note: Random reachable pose: moveGroupInterface::getRandomPose()
         action, _states = model.predict(obs, deterministic=True)
         obs, reward, done, info = env.step(action)
         if done:

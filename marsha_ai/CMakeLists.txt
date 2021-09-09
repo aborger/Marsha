@@ -107,7 +107,8 @@ include_directories(
 
 catkin_install_python(PROGRAMS
    scripts/ai_node
-   scripts/state_node
+   scripts/cmd_state
+   scripts/get_state
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
