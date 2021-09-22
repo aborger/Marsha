@@ -27,6 +27,9 @@ def handoff():
 
     return msg
 
+# This pickup is just moving to a pickup location
+# The real pickup will be handled by a deep grasp
+# https://github.com/PickNikRobotics/deep_grasp_demo
 def pickup():
     msg = Pose()
     pos = Position()
@@ -63,6 +66,10 @@ def main():
     command(msg, pos_pub, rate)
 
     msg = handoff()
+
+    command(msg, pos_pub, rate)
+
+    msg = pickup()
 
     command(msg, pos_pub, rate)
 
