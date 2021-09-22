@@ -4,45 +4,34 @@ import rospy
 from marsha_ai.msg import Pose
 from marsha_ai.msg import Position
 from marsha_ai.msg import Orientation
+import sys
 
 
 from tf.transformations import quaternion_from_euler
 
-def handoff():
+def get_pose_msg(pose_param):
     msg = Pose()
     pos = Position()
-    pos.x = 0.27
-    pos.y = -0.4
-    pos.z = 0.3
+
+    pos_param = pose_param + "/position/"
+
+
+    pos.x = rospy.get_param(pos_param + "x")
+    pos.y = rospy.get_param(pos_param + "y") 
+    pos.z = rospy.get_param(pos_param + "z")
     msg.pos = pos
 
-    quaternion = quaternion_from_euler(1.5707, 0, -1.5707)
-
+    orient_param = pose_param + "/orientation/"
     orient = Orientation()
-    orient.x = quaternion[0]
-    orient.y = quaternion[1]
-    orient.z = quaternion[2]
-    orient.w = quaternion[3]
+    orient.x = rospy.get_param(orient_param + "x")
+    orient.y = rospy.get_param(orient_param + "y")
+    orient.z = rospy.get_param(orient_param + "z")
+    orient.w = rospy.get_param(orient_param + "w")
     msg.orient = orient
 
     return msg
 
-def pickup():
-    msg = Pose()
-    pos = Position()
-    pos.x = -0.251
-    pos.y = 0.006
-    pos.z = 0.179
-    msg.pos = pos
 
-    orient = Orientation()
-    orient.x = 0.682
-    orient.y = 0.724
-    orient.z = -0.048
-    orient.w = 0.094
-    msg.orient = orient
-
-    return msg
 
 def command(msg, pos_pub, rate):
     i = 0
@@ -58,18 +47,28 @@ def main():
     pos_pub = rospy.Publisher('pos_cmd', Pose, queue_size=10)
     rate = rospy.Rate(0.5)
 
-    msg = pickup()
+    pose_param = rospy.get_namespace() + "pose/"
+
+    # This pickup is just moving to a pickup location
+    # The real pickup will be handled by a deep grasp
+    # https://github.com/PickNikRobotics/deep_grasp_demo
+    msg = get_pose_msg(pose_param + "pickup")
 
     command(msg, pos_pub, rate)
 
-    msg = handoff()
+
+    msg = get_pose_msg(pose_param + "handoff")
+
+    command(msg, pos_pub, rate)
+
+
+    msg = get_pose_msg(pose_param + "pickup")
 
     command(msg, pos_pub, rate)
 
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
 
 
 
