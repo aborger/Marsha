@@ -1,25 +1,29 @@
 #!/usr/bin/env python
 
+# This file could possibly just be split into smach and move_interface
+
 import rospy
-from marsha_ai.msg import Pose
+from marsha_ai.srv import MoveCmd
 from marsha_ai.msg import Position
 from marsha_ai.msg import Orientation
 import sys
+import time
 
 
 from tf.transformations import quaternion_from_euler
 
 def get_pose_msg(pose_param):
-    msg = Pose()
     pos = Position()
+<<<<<<< HEAD
 
+=======
+>>>>>>> c0bd0ce74ca899b217495d3010ccf107ff7e8b46
     pos_param = pose_param + "/position/"
 
 
     pos.x = rospy.get_param(pos_param + "x")
     pos.y = rospy.get_param(pos_param + "y") 
     pos.z = rospy.get_param(pos_param + "z")
-    msg.pos = pos
 
     orient_param = pose_param + "/orientation/"
     orient = Orientation()
@@ -27,44 +31,50 @@ def get_pose_msg(pose_param):
     orient.y = rospy.get_param(orient_param + "y")
     orient.z = rospy.get_param(orient_param + "z")
     orient.w = rospy.get_param(orient_param + "w")
-    msg.orient = orient
-
-    return msg
 
 
+    return pos, orient
 
-def command(msg, pos_pub, rate):
-    i = 0
-    while i < 4:
-        pos_pub.publish(msg)
-        rospy.logdebug("Sending message")
-        rate.sleep()
-        i += 1
+
+
+def command(pos, orient):
+    rospy.wait_for_service('pos_cmd')
+
+    try:
+        cmd = rospy.ServiceProxy('pos_cmd', MoveCmd)
+        response = cmd(pos, orient)
+        return response.done
+    except rospy.ServiceException as e:
+        rospy.logerr(e)
 
 def main():
     rospy.init_node('Web_ros_interface', log_level=rospy.DEBUG)
+    rospy.wait_for_service('pos_cmd')
 
-    pos_pub = rospy.Publisher('pos_cmd', Pose, queue_size=10)
-    rate = rospy.Rate(0.5)
+    cmd = rospy.ServiceProxy('pos_cmd', MoveCmd)
 
-    pose_param = rospy.get_namespace() + "pose/"
+    #pos_pub = rospy.Publisher('pos_cmd', Pose, queue_size=10)
+    #rate = rospy.Rate(0.5)
+
+    #pose_param = rospy.get_namespace() + "pose/"
 
     # This pickup is just moving to a pickup location
     # The real pickup will be handled by a deep grasp
     # https://github.com/PickNikRobotics/deep_grasp_demo
-    msg = get_pose_msg(pose_param + "pickup")
-
-    command(msg, pos_pub, rate)
 
 
-    msg = get_pose_msg(pose_param + "handoff")
+    done = cmd("pickup")
+    rospy.logwarn(done)
 
-    command(msg, pos_pub, rate)
+
+    done = cmd("handoff")
+    rospy.logwarn(done)
+
+    time.sleep(2)
 
 
-    msg = get_pose_msg(pose_param + "pickup")
-
-    command(msg, pos_pub, rate)
+    done = cmd("pickup")
+    rospy.logwarn(done)
 
 
 

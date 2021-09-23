@@ -57,11 +57,17 @@ add_message_files(
   Pose.msg
 )
 
+add_service_files(
+  FILES
+  MoveCmd.srv
+)
+
 generate_messages(
    DEPENDENCIES
    std_msgs
    marsha_ai
  )
+ 
 
 catkin_package(
   LIBRARIES
@@ -109,6 +115,7 @@ catkin_install_python(PROGRAMS
    scripts/ai_node
    scripts/cmd_state
    scripts/get_state
+   scripts/smach_test
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
