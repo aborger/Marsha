@@ -4,6 +4,9 @@ import rospy
 import smach
 
 from marsha_ai.srv import MoveCmd
+from marsha_ai.srv import StateComm
+from std_msgs.msg import Empty
+
 
 def command(pose_name):
     rospy.wait_for_service('pos_cmd')
@@ -13,14 +16,17 @@ def command(pose_name):
     success = cmd(pose_name)
     return success
 
-# define state Foo
+# this state should be refactored to a moving to pickup state
 class Pickup(smach.State):
-    def __init__(self):
+    def __init__(self, state_comm):
         smach.State.__init__(self, outcomes=['outcome1','outcome2'])
         self.counter = 0
 
+        self.read_state_comm = state_comm
+
     def execute(self, userdata):
         rospy.loginfo('Executing state Pickup')
+        self.read_state_comm()
         command("pickup")
         if self.counter < 3:
             self.counter += 1
@@ -29,38 +35,61 @@ class Pickup(smach.State):
             return 'outcome2'
 
 
-# define state Bar
+# this state should be refactored to a moving to handoff state
 class Handoff(smach.State):
-    def __init__(self):
+    def __init__(self, state_comm):
         smach.State.__init__(self, outcomes=['outcome2'])
 
+        self.read_state_comm = state_comm
+
     def execute(self, userdata):
+        self.read_state_comm()
         rospy.loginfo('Executing state Handoff')
         command("handoff")
         return 'outcome2'
         
+class Node:
+    def __init__(self):
 
+        rospy.init_node('smach_example_state_machine')
 
+        # Create a stateComm server for this arm
+        self.stateComm = rospy.Service('stateComm', StateComm, state_comm_callback)
 
-# main
-def main():
-    rospy.init_node('smach_example_state_machine')
+        # Create the client for the other arm's stateComm
+        other_arm = None
+        rospy.logwarn(rospy.get_namespace())
+        if rospy.get_namespace() == "left":
+            other_arm = "right"
+        else:
+            other_arm = "left"
 
-    # Create a SMACH state machine
-    sm = smach.StateMachine(outcomes=['outcome4', 'outcome5'])
+        rospy.wait_for_service(other_arm + '/stateComm')
+        self.read_state_comm = rospy.ServiceProxy(other_arm + '/stateComm', StateComm)
 
-    # Open the container
-    with sm:
-        # Add states to the container
-        smach.StateMachine.add('Pickup', Pickup(), 
+        # Create a SMACH state machine
+        self.sm = smach.StateMachine(outcomes=['outcome4', 'outcome5'])
+
+        # Open the container
+        with self.sm:
+            # Add states to the container
+            smach.StateMachine.add('Pickup', Pickup(self.read_state_comm), 
                                transitions={'outcome1':'Handoff', 
                                             'outcome2':'outcome4'})
-        smach.StateMachine.add('Handoff', Handoff(), 
+            smach.StateMachine.add('Handoff', Handoff(self.read_state_comm), 
                                transitions={'outcome2':'Pickup'})
 
-    # Execute SMACH plan
-    outcome = sm.execute()
+    def state_comm_callback(self, req):
+        rospy.logwarn(self.sm.get_active_states())
 
+
+    def run(self):
+        # Execute SMACH plan
+        outcome = self.sm.execute()
+
+def main():
+    node = Node()
+    node.run()
 
 if __name__ == '__main__':
     main()
