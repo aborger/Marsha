@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# This file could possibly just be split into smach and move_interface
+# This file is not currently used as it has been split into cmd_state_machine
+# and move interface
 
 import rospy
 from marsha_ai.srv import MoveCmd
