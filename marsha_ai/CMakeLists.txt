@@ -60,6 +60,7 @@ add_message_files(
 add_service_files(
   FILES
   MoveCmd.srv
+  StateComm.srv
 )
 
 generate_messages(
