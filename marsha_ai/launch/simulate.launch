@@ -1,28 +1,32 @@
 
 <launch>
+
+    <arg name="manual_left" default="false"/>
+    <arg name="manual_right" default="false"/>
+
     <machine name="jet1" address="jet" user="aaron" password="Broncoorange1!" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
     <machine name="jet2" address="nnu-engineering" user="jet" password="Rocksat" env-loader="/home/jet/catkin_ws/devel/env.sh"/>
-    <machine name="satlab" address="nnu-satlab" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
+    <machine name="satlab" address="NNU-satlab" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
 
+    <rosparam file="$(find marsha_ai)/config/poses.yaml" command="load"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch" />
     
+    
     <include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet1"/>
-        <arg name="display_machine" value="satlab"/>
+        <arg name="display_machine" value=""/>
         <arg name="ns" value="left"/>
-        <arg name="launch_rviz" value="false"/>
+        <arg name="launch_rviz" value="$(arg manual_left)"/>
     </include>
 
-    <!--
+    
     <include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet2"/>
-        <arg name="display_machine" value="satlab"/>
+        <arg name="display_machine" value=""/>
         <arg name="ns" value="right"/>
-        <arg name="launch_rviz" value="false"/>
-        <arg name="x_pos" value="0.5"/>
+        <arg name="launch_rviz" value="$(arg manual_right)"/>
     </include>
-    -->
     <!--<node pkg="tf" type="static_transform_publisher" name="ime_slam_camera_tf" args="0 0 0 -3.14 -0 -1.55 /world /camera_link 100"/>-->
 
  

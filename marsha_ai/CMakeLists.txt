@@ -71,7 +71,7 @@ catkin_package(
 ## Build ##
 ###########
 
-include_directories(
+include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -82,4 +82,5 @@ include_directories(
 #############
 
 
-
+#add_executable(task_test src/task_test.cpp)
+#target_link_libraries(task_test ${catkin_LIBRARIES} MoveitTasks)

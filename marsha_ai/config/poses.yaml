@@ -1,0 +1,46 @@
+left:
+  pose/handoff:
+    position:
+      x: 0.23
+      y: -0.4
+      z: 0.3
+    orientation:
+      x: 0.5
+      y: 0.5
+      z: 0.5
+      w: 0.5
+
+  pose/pickup:
+    position:
+      x: -0.251
+      y: 0.006
+      z: 0.179
+    orientation:
+      x: 0.682
+      y: 0.724
+      z: -0.048
+      w: 0.094
+
+
+right:
+  pose/handoff:
+    position:
+      x: 0.27
+      y: -0.4
+      z: 0.3
+    orientation:
+      x: 0.5
+      y: -0.5
+      z: -0.5
+      w: 0.5
+
+  pose/pickup:
+    position:
+      x: 0.834
+      y: -0.034
+      z: 0.087
+    orientation:
+      x: 0.679
+      y: -0.733
+      z: -0.042
+      w: 0.033
