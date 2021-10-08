@@ -3,21 +3,30 @@
 
     <include file="$(find panda_moveit_config)/launch/demo_gazebo.launch" />
     
+    <param name="box1_description" command="$(find xacro)/xacro.py '$(find marsha_description)/urdf/box.urdf.xacro'
+    box_name:=box1 mass:=1.0 origin:='0.5 0 0.2' x:=0.2 y:=0.4 z:=0.4"/>
+
+    <param name="box2_description" command="$(find xacro)/xacro.py '$(find marsha_description)/urdf/box.urdf.xacro'
+    box_name:=box2 mass:=1.0 origin:='0 0.5 0.2' x:=0.4 y:=0.2 z:=0.4"/>
+
+    <param name="pickup_box_description" command="$(find xacro)/xacro.py '$(find marsha_description)/urdf/box.urdf.xacro'
+    box_name:=pickup_box mass:=0.5 origin:='0.5 0 0.5' x:=0.04 y:=0.04 z:=0.2"/>
+
 
     <node name="spawn_box1" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find marsha_description)/urdf/box1.urdf -urdf -z 0 -model box1" />
+        args="-urdf -param box1_description -z 0 -model box1" respawn="false" output="screen"/>
 
     <node name="spawn_box2" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find marsha_description)/urdf/box2.urdf -urdf -z 0 -model box2" />
+        args="-urdf -param box2_description -z 0 -model box2" respawn="false" output="screen"/>
 
-    <node name="spawn_pickup_object" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find marsha_description)/urdf/pickup_object.urdf -urdf -z 1 -model object1" />
+    <node name="spawn_pickup_box" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param pickup_box_description -z 0.5 -model pickup_box" respawn="false" output="screen"/>
 
     <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
 
-    <arg name="node_start_delay" default="1.0" />  
+    <arg name="node_start_delay" default="2.0" />  
     <node name="listener" pkg="roscpp_tutorials" type="listener" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
 
-    <!--<node name="pick_and_place" pkg="moveit_tutorials" type="pick_place_tutorial"/>-->
+    <node name="pick_and_place" pkg="marsha_ai" type="pick_place"/>
 
 </launch>

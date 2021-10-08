@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(marsha_ai)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED
   COMPONENTS
@@ -22,30 +24,22 @@ find_package(catkin REQUIRED
     tf2_ros
     tf2_eigen
     tf2_geometry_msgs
+    #gazebo_grasp_plugin_ros
 )
 
 
+find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED system filesystem date_time thread)
 
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-
-
-###################################
-## catkin specific configuration ##
-###################################
 
 add_message_files(
   FILES
   #Pos.msg
+)
+
+add_service_files(
+  FILES
+  GetAttachedState.srv
 )
 
 generate_messages(
@@ -71,8 +65,11 @@ catkin_package(
 ## Build ##
 ###########
 
-include_directories(include
+include_directories(
+  ${THIS_PACKAGE_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR} 
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 
@@ -82,5 +79,7 @@ include_directories(include
 #############
 
 
-#add_executable(task_test src/task_test.cpp)
-#target_link_libraries(task_test ${catkin_LIBRARIES} MoveitTasks)
+add_executable(pick_place src/pick_place.cpp)
+target_link_libraries(pick_place ${catkin_LIBRARIES})
+add_dependencies(pick_place ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+install(TARGETS pick_place DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
