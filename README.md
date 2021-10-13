@@ -1,5 +1,5 @@
 # MARSHA
-### (Multi-Agent Reinforcement Self-supervised Heuristic Algorithm)
+### (Meta AI Robotic Spacecraft Handy Arm)
 
 MARSHA is part of a research project at Northwest Nazarene University studying the use of Meta-Reinforcement Learning for robotics to account for inaccuracies between simulation and real-world, zero-gravity physics. The project includes developing a pair of robotic arms that will use Multi-Agent communication to maneuver objects in space by throwing and catching them. The use of meta-learning allows the robotic arms to complete the task after training in a simulated environment and after a few training attempts in the real-world zero-gravity environment. Therefore, once the robotic arms have been fully trained, they can be used in space to move objects large distances while using electric motors instead of propellant.
 
