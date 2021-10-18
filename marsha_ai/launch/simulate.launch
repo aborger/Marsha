@@ -18,15 +18,19 @@
         <arg name="display_machine" value=""/>
         <arg name="ns" value="left"/>
         <arg name="launch_rviz" value="$(arg manual_left)"/>
+        <arg name="x_pos" value="0"/>
     </include>
-
+    
     
     <include file="$(find marsha_ai)/launch/single_arm.launch">
-        <arg name="machine" value="jet2"/>
+        <arg name="machine" value="jet1"/>
         <arg name="display_machine" value=""/>
         <arg name="ns" value="right"/>
         <arg name="launch_rviz" value="$(arg manual_right)"/>
+        <arg name="x_pos" value="0.5"/>
     </include>
+    
+    
     <!--<node pkg="tf" type="static_transform_publisher" name="ime_slam_camera_tf" args="0 0 0 -3.14 -0 -1.55 /world /camera_link 100"/>-->
 
  

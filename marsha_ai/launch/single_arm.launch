@@ -3,11 +3,13 @@
     <arg name="display_machine" default=""/>
     <arg name="ns" default="left"/>
     <arg name="launch_rviz" default="true"/>
+    <arg name="x_pos" default="0"/>
 
     <group ns="$(arg ns)">
         <include file="$(find ar3_gazebo)/launch/ar3L_gazebo_bringup.launch">
             <arg name="launch_world" value="false"/>
             <arg name="ns" value="$(arg ns)"/>
+            <arg name="x_pos" value="$(arg x_pos)"/>
         </include>
 
         <node name="world_transform" pkg="ar3_gazebo" type="tf_world_transform.py"/>
@@ -19,7 +21,7 @@
             <arg name="ns" value="$(arg ns)"/>
         </include>
 
-        <node name="move_group_node" pkg="marsha_ai" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+        <node name="move_interface" pkg="marsha_ai" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
 
 

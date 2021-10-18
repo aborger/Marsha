@@ -32,10 +32,10 @@ find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED system filesystem date_time thread)
 
 
-add_message_files(
-  FILES
-  #Pos.msg
-)
+#add_message_files(
+#  FILES
+#  #Pos.msg
+#)
 
 add_service_files(
   FILES
