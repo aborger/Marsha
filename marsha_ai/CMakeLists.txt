@@ -37,16 +37,16 @@ find_package(Boost REQUIRED system filesystem date_time thread)
 #  #Pos.msg
 #)
 
-add_service_files(
-  FILES
-  GetAttachedState.srv
-)
+#add_service_files(
+#  FILES
+#  #GetAttachedState.srv
+#)
 
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-   marsha_ai
- )
+#generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   marsha_ai
+# )
 
 catkin_package(
   LIBRARIES
@@ -79,7 +79,7 @@ include_directories(
 #############
 
 
-add_executable(pick_place src/pick_place.cpp)
-target_link_libraries(pick_place ${catkin_LIBRARIES})
-add_dependencies(pick_place ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-install(TARGETS pick_place DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+#add_executable(pick_place src/pick_place.cpp)
+#target_link_libraries(pick_place ${catkin_LIBRARIES})
+#add_dependencies(pick_place ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#install(TARGETS pick_place DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
