@@ -1,7 +1,18 @@
 left:
+  pose/preHandoff:
+    position:
+      x: 0.1
+      y: -0.4
+      z: 0.3
+    orientation:
+      x: 0.5
+      y: 0.5
+      z: 0.5
+      w: 0.5
+
   pose/handoff:
     position:
-      x: 0.2
+      x: 0.19
       y: -0.4
       z: 0.3
     orientation:
@@ -12,22 +23,45 @@ left:
 
   pose/pickup:
     position:
-      x: -0.251
-      y: 0.006
-      z: 0.179
+      x: -0.25677
+      y: -0.0545
+      z: 0.115
     orientation:
-      x: 0.682
-      y: 0.724
-      z: -0.048
-      w: 0.094
+      x: -0.999911
+      y: 0.006463
+      z: -0.007255
+      w: -0.009191
+
+  pose/preGrasp:
+    position:
+      x: -0.25677
+      y: -0.0545
+      z: 0.25
+    orientation:
+      x: -0.999911
+      y: 0.006463
+      z: -0.007255
+      w: -0.009191
+      
 
 
 right:
+  pose/preHandoff:
+    position:
+      x: 0.38
+      y: -0.4
+      z: 0.35
+    orientation:
+      x: 0.5
+      y: -0.5
+      z: -0.5
+      w: 0.5
+
   pose/handoff:
     position:
-      x: 0.27
+      x: 0.28
       y: -0.4
-      z: 0.3
+      z: 0.35
     orientation:
       x: 0.5
       y: -0.5
@@ -38,9 +72,21 @@ right:
     position:
       x: 0.834
       y: -0.034
-      z: 0.087
+      z: 0.15
     orientation:
       x: 0.679
       y: -0.733
       z: -0.042
       w: 0.033
+
+gripper:
+  open:
+    left:
+      0.02
+    right:
+      -0.02
+  close:
+    left:
+      0
+    right:
+      0

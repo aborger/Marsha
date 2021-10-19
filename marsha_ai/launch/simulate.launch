@@ -12,6 +12,7 @@
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch" />
     
+    <include file="$(find marsha_gazebo)/launch/pickup_setup.launch"/>
     
     <include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet1"/>
