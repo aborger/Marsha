@@ -7,11 +7,22 @@ from marsha_ai.srv import MoveCmd
 from marsha_ai.srv import StateComm
 from std_msgs.msg import Empty
 
+def graspCommand(pose_name):
+    rospy.wait_for_service('grasp_cmd')
+
+    cmd = rospy.ServiceProxy('grasp_cmd', MoveCmd)
+
+    rospy.loginfo('starting grasp...')
+    success = cmd(pose_name)
+
+    rospy.loginfo('completed grasp!')
+    return success
 
 def command(pose_name):
     rospy.wait_for_service('pos_cmd')
 
     cmd = rospy.ServiceProxy('pos_cmd', MoveCmd)
+
 
     success = cmd(pose_name)
     return success
@@ -26,6 +37,8 @@ class Pickup(smach.State):
         rospy.loginfo('Executing state Pickup')
         command("pickup")
 
+        graspCommand("close")
+
         # Simulating failure
         if self.counter < 3:
             self.counter += 1
@@ -33,6 +46,18 @@ class Pickup(smach.State):
         else:
             return 'Success'
 
+class PreGrasp(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state PreGrasp')
+        command("preGrasp")
+
+        
+        graspCommand("open")
+
+        return 'Success'
 
 # this state should be refactored to a moving to handoff state
 class Handoff_Transition(smach.State):
@@ -42,6 +67,7 @@ class Handoff_Transition(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('Executing transition to Handoff')
+        command("preHandoff")
         command("handoff")
         return 'Standby'
 
@@ -54,6 +80,8 @@ class Handoff_Standby(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Standing by for handoff...')
         other_state = self.read_state_comm().current_state
+
+        graspCommand("open")
 
         if other_state == 'Handoff':
             return 'Ready'
@@ -71,10 +99,22 @@ class Handoff(smach.State):
 
         other_state = self.read_state_comm().current_state
 
+        graspCommand("open")
+
         if other_state == 'Place':
             return 'Handoff_Success'
         else:
             return 'Handoff_Fail'
+
+class Post_Handoff(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success'])
+
+    def execute(self, userdata):
+        rospy.loginfo("Returning from handoff..")
+
+        command("preHandoff")
+        return "Success"
 
 class Handoff_Recieve(smach.State):
     def __init__(self):
@@ -82,6 +122,8 @@ class Handoff_Recieve(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('Recieving handoff...')
+
+        graspCommand("close")
         return 'Handoff_Success'
 
 class Place(smach.State):
@@ -93,6 +135,8 @@ class Place(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Performing place...')
         command('pickup')
+
+        graspCommand('open')
 
         try:
             other_state = self.read_state_comm().current_state
@@ -140,6 +184,9 @@ class Arm_SM:
         # Open the container
         with self.sm:
             # Add states to the container
+            smach.StateMachine.add('PreGrasp', PreGrasp(),
+                                transitions={'Success':'Pickup'})
+
             smach.StateMachine.add('Pickup', Pickup(), 
                                transitions={'Fail':'Handoff_Transition', 
                                             'Success':'Mission_Success'})
@@ -148,8 +195,12 @@ class Arm_SM:
                                transitions={'Standby': 'Handoff'})
 
             smach.StateMachine.add('Handoff', Handoff(self.read_state_comm),
-                                transitions={'Handoff_Success': 'Pickup',
+                                transitions={'Handoff_Success': 'PostHandoff',
                                              'Handoff_Fail': 'Handoff'})
+            
+            smach.StateMachine.add('PostHandoff', Post_Handoff(),
+                                transitions={'Success': 'PreGrasp'})
+
 
 
     def get_recieve_sm(self):
