@@ -61,6 +61,7 @@ add_service_files(
   FILES
   MoveCmd.srv
   StateComm.srv
+  GraspedState.srv
 )
 
 generate_messages(
