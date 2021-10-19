@@ -5,6 +5,7 @@ import smach
 
 from marsha_ai.srv import MoveCmd
 from marsha_ai.srv import StateComm
+from marsha_ai.srv import GraspedState
 from std_msgs.msg import Empty
 
 def graspCommand(pose_name):
@@ -26,6 +27,16 @@ def command(pose_name):
 
     success = cmd(pose_name)
     return success
+
+def isGrasped():
+    rospy.wait_for_service(rospy.get_namespace() + '/is_grasped')
+    
+    call_server = rospy.ServiceProxy(rospy.get_namespace() + '/is_grasped', GraspedState)
+
+    grasped = call_server()
+
+    return grasped
+
 
 # this state should be refactored to a moving to pickup state
 class Pickup(smach.State):
@@ -138,6 +149,9 @@ class Place(smach.State):
 
         graspCommand('open')
 
+        while(isGrasped()):
+            rospy.loginfo('Waiting to ungrasp...')
+            
         try:
             other_state = self.read_state_comm().current_state
         except:
@@ -174,6 +188,8 @@ class Arm_SM:
         rospy.loginfo('Waiting for service...')
         rospy.wait_for_service(other_arm + 'stateComm')
         self.read_state_comm = rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
+        
+
 
         if rospy.get_namespace() == "/left/":
             self.get_transfer_sm()
