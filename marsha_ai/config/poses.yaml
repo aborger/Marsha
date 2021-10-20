@@ -42,6 +42,17 @@ left:
       y: 0.006463
       z: -0.007255
       w: -0.009191
+
+  pose/postGrasp:
+    position:
+      x: -0.25677
+      y: -0.0545
+      z: 0.25
+    orientation:
+      x: -0.999911
+      y: 0.006463
+      z: -0.007255
+      w: -0.009191
       
 
 
@@ -82,9 +93,9 @@ right:
 gripper:
   open:
     left:
-      0.02
+      0.03
     right:
-      -0.02
+      -0.03
   close:
     left:
       0

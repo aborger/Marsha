@@ -37,6 +37,11 @@ install(PROGRAMS
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+catkin_install_python(PROGRAMS
+    nodes/reset
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 add_executable(grasped_state_server nodes/grasped_state_server.cpp)
 target_link_libraries(grasped_state_server ${catkin_LIBRARIES})
 add_dependencies(grasped_state_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
