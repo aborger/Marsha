@@ -9,3 +9,9 @@ git clone -b <PLATFORM BRANCH> --single-branch --recurse-submodules https://gith
 ```
 Where ```<PLATFORM BRANCH>``` is the repository branch which represents the system you are cloning onto.
 
+Check out the [Wiki](https://github.com/aborger/Marsha/wiki) for documentation and further instructions.
+
+## Current ToDo List
+
+- [ ] Create single msgs package shared amongst platforms
+
