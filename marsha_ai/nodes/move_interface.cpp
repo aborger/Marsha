@@ -24,8 +24,13 @@
 #include <ros/ros.h>
 #include "marsha_ai/Pose.h" // Replace with geometry_msgs/Pose.msg
 #include "marsha_ai/MoveCmd.h"
+#include "marsha_ai/PositionCmd.h"
+#include "marsha_ai/GetPose.h"
+
 #include <std_msgs/Empty.h>
 #include <string>
+
+#include <geometry_msgs/Pose.h>
 
 
 #include <vector>
@@ -38,8 +43,10 @@ class MarshaMoveInterface {
         moveit::planning_interface::MoveGroupInterface* move_group;
         moveit::planning_interface::MoveGroupInterface* hand_group;
         
+        ros::ServiceServer poseService;
         ros::ServiceServer positionService;
         ros::ServiceServer graspService;
+        ros::ServiceServer getPosService;
         //ros::Subscriber position_sub;
         ros::Subscriber get_pose_sub;
 
@@ -76,6 +83,35 @@ class MarshaMoveInterface {
             return true;            
         }
 
+        bool positionCmd(marsha_ai::PositionCmd::Request &req,
+                         marsha_ai::PositionCmd::Response &res) {
+
+            geometry_msgs::Pose target_pose;
+
+            ros::param::get("/left/pose/pickup/orientation/x", target_pose.orientation.x);
+            ros::param::get("/left/pose/pickup/orientation/y", target_pose.orientation.y);
+            ros::param::get("/left/pose/pickup/orientation/z", target_pose.orientation.z);
+            ros::param::get("/left/pose/pickup/orientation/w", target_pose.orientation.w);
+
+            target_pose.position = req.position;
+
+            move_group->setPoseTarget(target_pose);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+
+            if (success) {
+                move_group->move();
+            }
+
+            res.done = success;
+            return true;            
+            
+
+        }
+
         bool graspCmd(marsha_ai::MoveCmd::Request &req,
                     marsha_ai::MoveCmd::Response &res)
         {
@@ -104,7 +140,8 @@ class MarshaMoveInterface {
         }
 
         // Return current pose
-        void getPose(const std_msgs::Empty::ConstPtr& msg)
+        bool getPose(marsha_ai::GetPose::Request &req,
+                     marsha_ai::GetPose::Response &res)
         {
             geometry_msgs::Pose pose = move_group->getCurrentPose().pose;
             geometry_msgs::Point position = pose.position;
@@ -114,6 +151,9 @@ class MarshaMoveInterface {
                       position.x, position.y, position.z, 
                       orientation.x, orientation.y, orientation.z, orientation.w
             );
+
+            res.position = position;
+            return true;
         }
 
     public:
@@ -121,12 +161,15 @@ class MarshaMoveInterface {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
             hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
             
-            positionService = nh->advertiseService("pos_cmd", &MarshaMoveInterface::poseCmd, this);
+            poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
+
+            positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 
             graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
 
+            getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
-            get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
+            //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
 
             pose_param = ros::this_node::getNamespace() + "/pose/";
         }
