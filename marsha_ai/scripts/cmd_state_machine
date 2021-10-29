@@ -2,6 +2,7 @@
 
 import rospy
 import smach
+import smach_ros
 
 from marsha_ai.srv import MoveCmd
 from marsha_ai.srv import StateComm
@@ -22,9 +23,9 @@ def graspCommand(pose_name):
     return success.done
 
 def command(pose_name):
-    rospy.wait_for_service('pos_cmd')
+    rospy.wait_for_service('pose_cmd')
 
-    cmd = rospy.ServiceProxy('pos_cmd', MoveCmd)
+    cmd = rospy.ServiceProxy('pose_cmd', MoveCmd)
 
 
     success = cmd(pose_name)
@@ -254,7 +255,11 @@ class Arm_SM:
         if rospy.get_namespace() == "/left/":
             self.get_transfer_sm()
         else:
-            self.get_recieve_sm()   
+            self.get_recieve_sm()  
+
+        sis = smach_ros.IntrospectionServer(rospy.get_namespace() + 'server_name', self.sm, rospy.get_namespace() + 'SM_ROOT')
+        sis.start()
+
 
 
 

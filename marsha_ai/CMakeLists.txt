@@ -8,6 +8,8 @@ find_package(catkin REQUIRED
     roscpp
     rospy
     std_msgs
+    geometry_msgs
+    trajectory_msgs
     rosbridge_server
     interactive_markers
     moveit_core
@@ -27,27 +29,9 @@ find_package(catkin REQUIRED
 
 
 
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
 
-################################################
-## Declare ROS messages, services and actions ##
-################################################
 
-
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-
-
-###################################
-## catkin specific configuration ##
-###################################
 
 add_message_files(
   DIRECTORY msg
@@ -57,17 +41,22 @@ add_message_files(
   Pose.msg
 )
 
+
 add_service_files(
   FILES
   MoveCmd.srv
   StateComm.srv
   GraspedState.srv
+  PositionCmd.srv
+  GetPose.srv
 )
 
 generate_messages(
    DEPENDENCIES
    std_msgs
    marsha_ai
+   geometry_msgs
+   trajectory_msgs
  )
  
 
@@ -88,24 +77,12 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
+
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/marsha_ai.cpp
-# )
 
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
 
 #############
 ## Install ##
