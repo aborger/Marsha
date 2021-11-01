@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+    
+    <machine name="jet1" address="jet" user="aaron" password="Broncoorange1!" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
+    
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+    
+    <include file="$(find marsha_gazebo)/launch/pickup_setup.launch"/>
+
+    <include file="$(find marsha_ai)/launch/single_arm.launch">
+        <arg name="machine" value="jet1"/>
+        <arg name="display_machine" value=""/>
+        <arg name="ns" value="left"/>
+        <arg name="launch_rviz" value="true"/>
+        <arg name="x_pos" value="0"/>
+    </include>
+    <!--
+    <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
+
+    <arg name="node_start_delay" default="2.0" />  
+    <node name="listener" pkg="roscpp_tutorials" type="listener" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+    -->
+
+    <node name="pick_and_place" pkg="marsha_ai" type="pick_place" ns="left"/>
+    
+</launch>

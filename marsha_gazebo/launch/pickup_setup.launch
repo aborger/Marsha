@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+
+
+    <param name="box2_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/box.urdf.xacro'
+    box_name:=box2 mass:=1.0 origin:='0.83 -0.03 0' x:=0.4 y:=0.2 z:=0.05"/>
+
+    
+
+    
+
+    <!--<node name="spawn_box2" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param box2_description -z 0 -model box2" respawn="false" output="screen"/>-->
+
+    <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
+
+</launch>
