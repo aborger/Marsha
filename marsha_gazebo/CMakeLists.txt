@@ -6,18 +6,7 @@ find_package(catkin REQUIRED
         message_generation
         roscpp
         std_msgs
-        #gazebo_grasp_plugin_ros
-)
-
-add_service_files(
-    FILES
-    GraspedState.srv
-)
-
-generate_messages(
-    DEPENDENCIES
-    std_msgs
-    marsha_gazebo
+        marsha_msgs
 )
 
 
@@ -39,6 +28,7 @@ install(PROGRAMS
 
 catkin_install_python(PROGRAMS
     nodes/reset
+    nodes/object_location
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

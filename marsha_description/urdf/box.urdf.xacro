@@ -13,6 +13,8 @@
   <xacro:arg name="y" default="1"/>
   <xacro:arg name="z" default="1"/>
 
+  <xacro:arg name="static" default="false"/>
+
   <xacro:arg name="color" default="Gazebo/Blue"/>
 
   <xacro:property name="size" value="$(arg x) $(arg y) $(arg z)"/>
@@ -44,5 +46,8 @@
     <xacro:if value="${box_name != 'pickup_box'}">
       <material>Gazebo/Blue</material>
     </xacro:if>
+  </gazebo>
+  <gazebo>
+    <static>"$(arg static)"</static>
   </gazebo>
 </robot>

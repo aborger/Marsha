@@ -30,8 +30,11 @@
         <arg name="launch_rviz" value="$(arg manual_right)"/>
         <arg name="x_pos" value="0.5"/>
     </include>
+    
 
     <node pkg="marsha_gazebo" type="reset" name="reset"/>
+
+    <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
     
     
     <!--<node pkg="tf" type="static_transform_publisher" name="ime_slam_camera_tf" args="0 0 0 -3.14 -0 -1.55 /world /camera_link 100"/>-->
