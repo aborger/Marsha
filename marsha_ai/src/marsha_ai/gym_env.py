@@ -32,7 +32,7 @@ class MarshaGym(gym.Env):
         done, reward = self.ros_interface.perform_action(action)
         self.current_step += 1
         obs = self.ros_interface.observe()
-        if self.current_step > 10:
+        if self.current_step > 15:
             done = True
 
 

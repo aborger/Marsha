@@ -42,6 +42,7 @@ class MarshaMoveInterface {
     private:
         moveit::planning_interface::MoveGroupInterface* move_group;
         moveit::planning_interface::MoveGroupInterface* hand_group;
+
         
         ros::ServiceServer poseService;
         ros::ServiceServer positionService;
@@ -98,6 +99,8 @@ class MarshaMoveInterface {
             move_group->setPoseTarget(target_pose);
 
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            
 
             bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
             ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
@@ -160,6 +163,8 @@ class MarshaMoveInterface {
         MarshaMoveInterface(ros::NodeHandle *nh) {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
             hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
+
+            move_group->setPlanningTime(0.5);
             
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
 

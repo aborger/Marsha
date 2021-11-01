@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node pkg="rosservice" type="rosservice" name="global_loc" args="call /gazebo/delete_model pickup_box"/>
+
+    <param name="pickup_box_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/box.urdf.xacro'
+        box_name:=pickup_box mass:=0.5 origin:='-0.25 -0.1 0.3' x:=0.04 y:=0.2 z:=0.04"/>
+
+    <node name="spawn_pickup_box" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param pickup_box_description -z 0.5 -model pickup_box" respawn="false" output="screen"/>
+
+</launch>
