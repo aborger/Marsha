@@ -25,6 +25,7 @@ find_package(catkin REQUIRED
     tf2_ros
     tf2_eigen
     tf2_geometry_msgs
+    marsha_msgs
 )
 
 
@@ -33,31 +34,7 @@ catkin_python_setup()
 
 
 
-add_message_files(
-  DIRECTORY msg
-  FILES
-  Orientation.msg
-  Position.msg
-  Pose.msg
-)
 
-
-add_service_files(
-  FILES
-  MoveCmd.srv
-  StateComm.srv
-  GraspedState.srv
-  PositionCmd.srv
-  GetPose.srv
-)
-
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-   marsha_ai
-   geometry_msgs
-   trajectory_msgs
- )
  
 
 catkin_package(
