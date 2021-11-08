@@ -68,10 +68,10 @@ include_directories(
 
 
 catkin_install_python(PROGRAMS
-   scripts/ai_node
+   nodes/ai_node
+   nodes/handoff_sm
    scripts/cmd_state
    scripts/get_state
-   scripts/cmd_state_machine
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

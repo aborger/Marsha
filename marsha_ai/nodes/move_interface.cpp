@@ -164,7 +164,10 @@ class MarshaMoveInterface {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
             hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
 
-            move_group->setPlanningTime(0.5);
+            float ik_timeout;
+
+            ros::param::get(ros::this_node::getNamespace() + "/IK_timeout", ik_timeout);
+            move_group->setPlanningTime(ik_timeout);
             
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
 

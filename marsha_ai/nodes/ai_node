@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import gym
+from stable_baselines3 import PPO
+from marsha_ai.gym_env import MarshaGym
+from marsha_ai.catch_interface import CatchInterface
+from stable_baselines3.common.env_checker import check_env
+
+interface = CatchInterface()
+env = MarshaGym(interface)
+
+check_env(env)
+
+
+
+
+
+model = PPO("MlpPolicy", env, verbose=1, device="cuda")
+print("Learning..........")
+model.learn(total_timesteps=50*1000, log_interval=10)
+print("Done Learning!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+model.save("Pickup")
+
+obs = env.reset()
+
+"""
+for i in range(1000):
+    # Note: Random reachable pose: moveGroupInterface::getRandomPose()
+    action, _states = model.predict(obs, deterministic=True)
+    obs, reward, done, info = env.step(action)
+    if done:
+        obs = env.reset()
+"""
+    
+
+env.close()
+
+
