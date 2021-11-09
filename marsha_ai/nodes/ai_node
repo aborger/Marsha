@@ -5,35 +5,62 @@ from stable_baselines3 import PPO
 from marsha_ai.gym_env import MarshaGym
 from marsha_ai.catch_interface import CatchInterface
 from stable_baselines3.common.env_checker import check_env
+import sys
+import rospy
 
-interface = CatchInterface()
-env = MarshaGym(interface)
+def train():
+    interface = CatchInterface()
+    env = MarshaGym(interface)
 
-check_env(env)
+    rospy.loginfo("Checking env...")
+    check_env(env)
+    rospy.loginfo("Env check complete!")
+
+    model = PPO("MlpPolicy", env, verbose=1, device="cuda")
+    rospy.loginfo("Learning..........")
+    model.learn(total_timesteps=50*1000, log_interval=10)
+    rospy.loginfo("Done Learning!")
+
+    model.save("PPO_Pickup")
+
+    env.close()
+
+def eval():
+    interface = CatchInterface()
+    env = MarshaGym(interface)
+    obs = env.reset()
+
+    model = PPO.load("PPO_Pickup", env=env)
+
+    rospy.loginfo("Evaluating...")
+
+    for i in range(100):
+        # Note: Random reachable pose: moveGroupInterface::getRandomPose()
+        action, _states = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        if done:
+            obs = env.reset()
+
+    rospy.loginfo("Done Evaluating!")
+
+    env.close()
 
 
-
-
-
-model = PPO("MlpPolicy", env, verbose=1, device="cuda")
-print("Learning..........")
-model.learn(total_timesteps=50*1000, log_interval=10)
-print("Done Learning!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-model.save("Pickup")
-
-obs = env.reset()
-
-"""
-for i in range(1000):
-    # Note: Random reachable pose: moveGroupInterface::getRandomPose()
-    action, _states = model.predict(obs, deterministic=True)
-    obs, reward, done, info = env.step(action)
-    if done:
-        obs = env.reset()
-"""
-    
-
-env.close()
+if __name__ == '__main__':
+    # Arguments in form of bool(train) bool(continue) bool(eval)
+    print(sys.argv)
+    if len(sys.argv) == 6 or len(sys.argv) == 4:
+        if sys.argv[1]:
+            if sys.argv[2]:
+                rospy.loginfo("Continuing to train model...")
+                train()
+            else:
+                rospy.loginfo("You are about to train a new model, this will override the current model.")
+                train()
+        if sys.argv[3]:
+            rospy.loginfo("Beginning evaluation...")
+            eval()
+    else:
+        raise ValueError("Arguments must be in form of three bools representing 'train', 'continue', and 'eval' options")
 
 

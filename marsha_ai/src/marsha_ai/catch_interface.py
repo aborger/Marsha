@@ -18,7 +18,7 @@ from time import sleep
 
 import math
 
-STEP_SIZE = 0.05
+STEP_SIZE = 0.04
 
 def calculateDistance(p1, p2):
     distance = math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2 + (p2.z - p1.z)**2)
@@ -49,7 +49,8 @@ class CatchInterface(RosInterface):
         rospy.wait_for_service('/left/is_grasped')
         self.isGrasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
 
-        self.last_100_rewards = []
+        self.last_50_rewards = []
+        self.grasp_successful = False # Tracks if a grasp was succesfull during the episode
         self.progress_pub = rospy.Publisher('/ai_progress', String, queue_size=10)
 
 
@@ -119,13 +120,14 @@ class CatchInterface(RosInterface):
 
         if grasped:
             reward *= 10
+            self.grasp_successful = True
 
         rospy.logdebug("Reward: " + str(reward))
 
-        self.last_100_rewards.append(reward)
+        self.last_50_rewards.append(reward)
 
-        if len(self.last_100_rewards) > 100:
-            self.last_100_rewards.pop(0)
+        if len(self.last_50_rewards) > 50:
+            self.last_50_rewards.pop(0)
 
         done = grasped
         return done, reward
@@ -146,16 +148,21 @@ class CatchInterface(RosInterface):
         rospy.logdebug("Resetting...")
         success = self.poseCmd("preGrasp")
         self.graspCmd("open")
+        self.grasp_successful = False
 
         self.reset(TriggerRequest())
 
     def log_progress(self):
         sum = 0
-        for reward in self.last_100_rewards:
+        for reward in self.last_50_rewards:
             sum += reward
-        avg = sum / len(self.last_100_rewards)
-        rospy.logdebug("Average Reward" + str(reward))
-        self.progress_pub.publish("Average Reward: " + str(reward))
+        avg = sum / len(self.last_50_rewards)
+        rospy.logdebug("Average Reward" + str(avg))
+
+        if self.grasp_successful:
+            self.progress_pub.publish("Average Reward: " + str(avg))
+        else:
+            self.progress_pub.publish("Object Grasped! Average Reward: " + str(avg))
 
         
     

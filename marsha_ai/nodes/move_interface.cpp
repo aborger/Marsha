@@ -58,7 +58,7 @@ class MarshaMoveInterface {
                      marsha_ai::MoveCmd::Response &res)
         { 
             //std::string pose_name = req.pose_name;
-            ROS_INFO("Going to pose: %s", req.pose_name.c_str());
+            ROS_DEBUG("Going to pose: %s", req.pose_name.c_str());
 
             std::string param = pose_param + req.pose_name + "/";
             geometry_msgs::Pose target_pose;
@@ -77,7 +77,7 @@ class MarshaMoveInterface {
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
 
             bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+            ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
             move_group->move();
 
             res.done = success;
@@ -94,7 +94,13 @@ class MarshaMoveInterface {
             ros::param::get("/left/pose/pickup/orientation/z", target_pose.orientation.z);
             ros::param::get("/left/pose/pickup/orientation/w", target_pose.orientation.w);
 
+            // Do not allow gripper to collide with ground
+            if (req.position.z < 0.07) {
+                ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
+                req.position.z = 0.07;
+            }
             target_pose.position = req.position;
+
 
             move_group->setPoseTarget(target_pose);
 
@@ -119,7 +125,7 @@ class MarshaMoveInterface {
                     marsha_ai::MoveCmd::Response &res)
         {
 
-            ROS_INFO("Gripping pose: %s", req.pose_name.c_str());
+            ROS_DEBUG("Gripping pose: %s", req.pose_name.c_str());
             std::string param = "/gripper/" + req.pose_name + "/";
             std::vector<double> joint_targets(2);
 
@@ -135,7 +141,7 @@ class MarshaMoveInterface {
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
 
             bool success = (hand_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+            ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
             hand_group->move();
 
             res.done = success;
@@ -150,7 +156,7 @@ class MarshaMoveInterface {
             geometry_msgs::Point position = pose.position;
             geometry_msgs::Quaternion orientation = pose.orientation;
 
-            ROS_INFO("Position [x: %f y: %f z: %f] Orientation [x: %f y: %f z: %f w: %f]", 
+            ROS_DEBUG("Position [x: %f y: %f z: %f] Orientation [x: %f y: %f z: %f w: %f]", 
                       position.x, position.y, position.z, 
                       orientation.x, orientation.y, orientation.z, orientation.w
             );
