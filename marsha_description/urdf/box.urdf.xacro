@@ -23,7 +23,7 @@
     <inertial>
       <origin xyz="$(arg origin)" /> 
       <mass value="$(arg mass)" />
-      <box_inertia m="$(arg mass)" x="$(arg x)" y="$(arg y)" z="$(arg z)"/>
+      <xacro:box_inertia m="$(arg mass)" x="$(arg x)" y="$(arg y)" z="$(arg z)"/>
     </inertial>
     <visual>
       <origin xyz="$(arg origin)"/>

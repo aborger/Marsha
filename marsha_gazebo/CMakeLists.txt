@@ -6,6 +6,7 @@ find_package(catkin REQUIRED
         message_generation
         roscpp
         std_msgs
+        gazebo_msgs
         marsha_msgs
 )
 

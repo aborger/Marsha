@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
-import rospy
+# -----------------------------
 
+# Broadcast the location of a Gazebo object such as one that needs to be picked up
+
+import rospy
+import sys
+
+# Msg and Srv
 from geometry_msgs.msg import Pose
 from marsha_msgs.srv import GetPose
 from gazebo_msgs.srv import GetModelState
@@ -9,32 +15,38 @@ from marsha_ai.srv import PositionCmd
 
 
 class LocationServer():
-    def __init__(self):
+    def __init__(self, relative_frame):
         rospy.init_node('object_publisher')
+        rospy.logwarn(relative_frame)
+
+        self.relative_frame = relative_frame
 
         self.pub = rospy.Publisher('object_pos', Pose, queue_size=10)
         self.prev_state = None
         self.service = rospy.Service('get_object_pos', GetPose, self.handleObjectPos)
-        self.rate = rospy.Rate(50)
+        self.rate = rospy.Rate(1)
 
         rospy.wait_for_service('/gazebo/get_model_state')
 
-
-        self.get_state = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+        try:
+            self.get_state = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+        except:
+            rospy.logdebug("Object does not currently exist")
 
     def handleObjectPos(self, req):
         state = None
         try:
-            state = self.get_state("pickup_box", "left_ar3::link_6")
-        except:
-            rospy.logwarn("couldnt get state!")
+            state = self.get_state("pickup_box", self.relative_frame) #"left_ar3::link_6"
+        except Exception as e:
+
+            rospy.logwarn("Service couldnt get state: " + str(e))
 
         if state != None:
-            rospy.loginfo(state.pose.position)
+            rospy.logdebug(state.pose.position)
             self.prev_state = state
             return state.pose.position
         else:
-            rospy.loginfo(self.prev_state.pose.position)
+            rospy.logdebug(self.prev_state.pose.position)
             return self.prev_state.pose.position
 
 
@@ -47,15 +59,23 @@ class LocationServer():
                 pose = object_state.pose
 
                 self.pub.publish(pose)
-            except:
-                rospy.logwarn("Couldnt get state!")
+            except Exception as e:
+                rospy.logwarn("Publisher couldnt get state: " + str(e))
 
 
             self.rate.sleep()
 
 if __name__ =='__main__':
 
-    server = LocationServer()
+    relative_frame = None
+    if len(sys.argv) > 1:
+        relative_frame = sys.argv[1]
+    else:
+        relative_frame = "world"
+
+    
+
+    server = LocationServer(relative_frame)
 
     server.run()
 

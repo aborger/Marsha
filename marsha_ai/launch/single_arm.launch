@@ -3,9 +3,13 @@
     <arg name="display_machine" default=""/>
     <arg name="ns" default="left"/>
     <arg name="launch_rviz" default="true"/>
+    <arg name="state_machine" default="true"/>
     <arg name="x_pos" default="0"/>
 
     <group ns="$(arg ns)">
+
+        <rosparam param="IK_timeout">0.07</rosparam>
+
         <include file="$(find ar3_gazebo)/launch/ar3L_gazebo_bringup.launch">
             <arg name="launch_world" value="false"/>
             <arg name="ns" value="$(arg ns)"/>
@@ -26,13 +30,14 @@
 
 
 
-        <node name="state_machine" pkg="marsha_ai" type="cmd_state_machine" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>
+        <node name="state_machine" pkg="marsha_ai" type="handoff_state_machine" machine="$(arg machine)" if="$(eval arg('state_machine') == true)"/>
 
         <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
         <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
         
 
         <node name="get_state" pkg="marsha_ai" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
-        <!--<node name="ai_node" pkg="marsha_ai" type="ai_node" output="screen" machine="$(arg machine)" if="$(eval arg('launch_rviz') == false)"/>-->
+        
+
     </group>
 </launch>

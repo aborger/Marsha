@@ -1,43 +1,30 @@
-
 <launch>
 
-    <arg name="manual_left" default="false"/>
-    <arg name="manual_right" default="false"/>
+    <arg name="train" default="false"/> <!-- Defaults to false to avoid training over model -->
+    <arg name="eval" default="true"/>
+    <arg name="cont" default="true"/>
 
     <machine name="jet1" address="jet" user="aaron" password="Broncoorange1!" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
     <machine name="jet2" address="nnu-engineering" user="jet" password="Rocksat" env-loader="/home/jet/catkin_ws/devel/env.sh"/>
     <machine name="satlab" address="NNU-satlab" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
 
     <rosparam file="$(find marsha_ai)/config/poses.yaml" command="load"/>
-
     <include file="$(find gazebo_ros)/launch/empty_world.launch" />
-    
+
     <include file="$(find marsha_gazebo)/launch/pickup_setup.launch"/>
-    
+
     <include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet1"/>
         <arg name="display_machine" value=""/>
         <arg name="ns" value="left"/>
-        <arg name="launch_rviz" value="$(arg manual_left)"/>
+        <arg name="launch_rviz" value="false"/>
+        <arg name="state_machine" value="false"/>
         <arg name="x_pos" value="0"/>
     </include>
-    
-    
-    <include file="$(find marsha_ai)/launch/single_arm.launch">
-        <arg name="machine" value="jet1"/>
-        <arg name="display_machine" value=""/>
-        <arg name="ns" value="right"/>
-        <arg name="launch_rviz" value="$(arg manual_right)"/>
-        <arg name="x_pos" value="0.5"/>
-    </include>
-    
 
     <node pkg="marsha_gazebo" type="reset" name="reset"/>
 
     <node pkg="marsha_gazebo" type="object_location" name="object_location" args="left_ar3::link_6"/>
-    
-    
-    <!--<node pkg="tf" type="static_transform_publisher" name="ime_slam_camera_tf" args="0 0 0 -3.14 -0 -1.55 /world /camera_link 100"/>-->
 
- 
+    <node name="ai_node" pkg="marsha_ai" type="ai_node" output="screen" ns="left" machine="jet1" args="$(arg train) $(arg cont) $(arg eval)"/>
 </launch>

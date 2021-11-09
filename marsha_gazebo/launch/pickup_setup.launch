@@ -2,9 +2,10 @@
 <launch>
 
 
-
-    <param name="box2_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/box.urdf.xacro'
-    box_name:=box2 mass:=1.0 origin:='0.83 -0.03 0' x:=0.4 y:=0.2 z:=0.05"/>
+    <!-- This launch file currently just calls another because sometimes the holder boxes may be wanted
+     and this launch is called by the reset service -->
+    <!--<param name="box2_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/box.urdf.xacro'
+    box_name:=box2 mass:=1.0 origin:='0.83 -0.03 0' x:=0.4 y:=0.2 z:=0.05"/>-->
 
     
 

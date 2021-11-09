@@ -1,22 +1,63 @@
 #!/usr/bin/env python
 
 import rospy
-import roslaunch
+import subprocess
 import os
+from gazebo_msgs.srv import DeleteModel
+from gazebo_msgs.srv import SpawnModel
+
+from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.msg import ModelState
+
+from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
+
+import time
+
 
 from std_srvs.srv import Trigger, TriggerResponse
+MODEL_NAME = "pickup_box"
+
+delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+# If change works well, reset and all its requirements can be deleted
+def change(req):
+    pose = Pose()
+    pose.position.z = 0.04
+    twist = Twist()
+
+    desired_state = ModelState('pickup_box', pose, twist, 'world')
+
+    resp = set_model(desired_state)
+
+    return(TriggerResponse(success = resp.success))
+
+
 
 def reset(req):
-    success = True
-    try:
-        os.system("roslaunch marsha_gazebo spawn_pickup.launch")
-    except:
-        success = False
+    print('----------------------------------------------')
+    t_start = time.time()
+    del_resp = delete_model(str(MODEL_NAME))
+    t_del = time.time()
+    print('Delete: ', str(t_del - t_start))
+
+    pose = Pose()
+    pose.position.z = 0.05
+
+    spawn_resp = spawn_model(str(MODEL_NAME), rospy.get_param('/pickup_box_description'), '', pose, '')
+    t_spawn = time.time()
+    print('Spawn: ', str(t_spawn - t_del))
+
+
+    success = del_resp.success and spawn_resp.success
+    
     return TriggerResponse(success=success)
 
 def server():
     rospy.init_node('reset_server')
-    s = rospy.Service('reset', Trigger, reset)
+    s = rospy.Service('reset', Trigger, change)
     rospy.spin()
 
 if __name__ == "__main__":
