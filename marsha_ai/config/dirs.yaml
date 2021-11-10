@@ -1,0 +1,3 @@
+training_dirs:
+  log_dir: /home/aaron/catkin_ws/src/marsha/marsha_ai/training/logs/
+  model_dir: /home/aaron/catkin_ws/src/marsha/marsha_ai/training/models/

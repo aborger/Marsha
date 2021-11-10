@@ -12,6 +12,8 @@ from gazebo_msgs.msg import ModelState
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 
+import random
+
 import time
 
 
@@ -23,8 +25,10 @@ spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
 set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
 # If change works well, reset and all its requirements can be deleted
-def change(req):
+def reset(req):
     pose = Pose()
+    pose.position.x = random.uniform(-0.25, 0.5)
+    pose.position.y = random.uniform(-0.25, 0.25)
     pose.position.z = 0.04
     twist = Twist()
 
@@ -35,29 +39,9 @@ def change(req):
     return(TriggerResponse(success = resp.success))
 
 
-
-def reset(req):
-    print('----------------------------------------------')
-    t_start = time.time()
-    del_resp = delete_model(str(MODEL_NAME))
-    t_del = time.time()
-    print('Delete: ', str(t_del - t_start))
-
-    pose = Pose()
-    pose.position.z = 0.05
-
-    spawn_resp = spawn_model(str(MODEL_NAME), rospy.get_param('/pickup_box_description'), '', pose, '')
-    t_spawn = time.time()
-    print('Spawn: ', str(t_spawn - t_del))
-
-
-    success = del_resp.success and spawn_resp.success
-    
-    return TriggerResponse(success=success)
-
 def server():
     rospy.init_node('reset_server')
-    s = rospy.Service('reset', Trigger, change)
+    s = rospy.Service('reset', Trigger, reset)
     rospy.spin()
 
 if __name__ == "__main__":

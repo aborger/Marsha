@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 
-# -----------------------------
+# object_location
 
 # Broadcast the location of a Gazebo object such as one that needs to be picked up
+
+# Creates a server to get object position
+
+# Server calls Gazebo server so embedded devices dont need to install gazebo msgs
+
+# Author: Aaron Borger <borger.aaron@gmail.com>
+
 
 import rospy
 import sys
@@ -15,11 +22,8 @@ from marsha_ai.srv import PositionCmd
 
 
 class LocationServer():
-    def __init__(self, relative_frame):
+    def __init__(self):
         rospy.init_node('object_publisher')
-        rospy.logwarn(relative_frame)
-
-        self.relative_frame = relative_frame
 
         self.pub = rospy.Publisher('object_pos', Pose, queue_size=10)
         self.prev_state = None
@@ -36,7 +40,7 @@ class LocationServer():
     def handleObjectPos(self, req):
         state = None
         try:
-            state = self.get_state("pickup_box", self.relative_frame) #"left_ar3::link_6"
+            state = self.get_state("pickup_box", req.relative_frame) #"left_ar3::link_6"
         except Exception as e:
 
             rospy.logwarn("Service couldnt get state: " + str(e))
@@ -54,7 +58,7 @@ class LocationServer():
     def run(self):
         while not rospy.is_shutdown():
             try:
-                object_state = self.get_state("pickup_box", "left_ar3::link_6")
+                object_state = self.get_state("pickup_box", "world")
 
                 pose = object_state.pose
 
@@ -66,16 +70,9 @@ class LocationServer():
             self.rate.sleep()
 
 if __name__ =='__main__':
+  
 
-    relative_frame = None
-    if len(sys.argv) > 1:
-        relative_frame = sys.argv[1]
-    else:
-        relative_frame = "world"
-
-    
-
-    server = LocationServer(relative_frame)
+    server = LocationServer()
 
     server.run()
 

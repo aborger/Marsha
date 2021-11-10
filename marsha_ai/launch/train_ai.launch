@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="train" default="false"/> <!-- Defaults to false to avoid training over model -->
+    <arg name="train" default="true"/> <!-- Defaults to false to avoid training over model -->
     <arg name="eval" default="true"/>
     <arg name="cont" default="true"/>
 
@@ -9,6 +9,9 @@
     <machine name="satlab" address="NNU-satlab" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
 
     <rosparam file="$(find marsha_ai)/config/poses.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/hyperparameters.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+    
     <include file="$(find gazebo_ros)/launch/empty_world.launch" />
 
     <include file="$(find marsha_gazebo)/launch/pickup_setup.launch"/>
@@ -24,7 +27,8 @@
 
     <node pkg="marsha_gazebo" type="reset" name="reset"/>
 
-    <node pkg="marsha_gazebo" type="object_location" name="object_location" args="left_ar3::link_6"/>
+    <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
 
+    <node name="tensorboard" pkg="marsha_ai" type="spawn_tensorboard" machine="jet1"/>
     <node name="ai_node" pkg="marsha_ai" type="ai_node" output="screen" ns="left" machine="jet1" args="$(arg train) $(arg cont) $(arg eval)"/>
 </launch>
