@@ -7,7 +7,7 @@ from geometry_msgs.msg import Point
 from marsha_ai.srv import MoveCmd
 from marsha_msgs.srv import GetPos
 from marsha_msgs.srv import GetPosFrame
-from marsha_ai.srv import PositionCmd
+from marsha_msgs.msg import PositionCmdAction, PositionCmdGoal
 import numpy as np
 from std_srvs.srv import Trigger, TriggerRequest
 from std_msgs.msg import String
