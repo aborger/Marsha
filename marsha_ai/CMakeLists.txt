@@ -70,6 +70,7 @@ include_directories(
 catkin_install_python(PROGRAMS
    nodes/ai_node
    nodes/handoff_sm
+   nodes/spawn_tensorboard
    scripts/cmd_state
    scripts/get_state
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -4,11 +4,26 @@ import gym
 from stable_baselines3 import PPO
 from marsha_ai.gym_env import MarshaGym
 from marsha_ai.catch_interface import CatchInterface
+from marsha_ai.callbacks import TensorboardCallback
 from stable_baselines3.common.env_checker import check_env
+from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.callbacks import EvalCallback
+
+from stable_baselines3.common.utils import get_device
+
+from marsha_ai.util import func_timer
+
 import sys
 import rospy
 
-def train():
+import os
+import time
+
+
+def train(cont):
+    MODEL_DIR = rospy.get_param("/training_dirs/model_dir")
+    LOG_DIR = rospy.get_param("/training_dirs/log_dir")
+
     interface = CatchInterface()
     env = MarshaGym(interface)
 
@@ -16,28 +31,56 @@ def train():
     check_env(env)
     rospy.loginfo("Env check complete!")
 
-    model = PPO("MlpPolicy", env, verbose=1, device="cuda")
+    callback_list = []
+
+    # Save 10 models evenly over the course of training session
+    if rospy.get_param("/hyperparameters/checkpoint_frequency") > 0: # Else not using checkpoints
+        checkpoint_callback = CheckpointCallback(save_freq=rospy.get_param("/hyperparameters/checkpoint_frequency"), save_path=MODEL_DIR)
+        callback_list.append(checkpoint_callback)
+        
+    # Evaluate the model 5 times during the course of training session and save the best model
+    if rospy.get_param("/hyperparameters/eval_frequency") > 0: # Else not evaluating
+        eval_callback = EvalCallback(env, best_model_save_path=MODEL_DIR, log_path=LOG_DIR, eval_freq=rospy.get_param("/hyperparameters/eval_frequency"))
+        callback_list.append(eval_callback)
+
+    callback_list.append(TensorboardCallback())
+
+    device = get_device(device='cuda') # Only uses CPU currently, needs to be fixed
+    print('Training device: ', device)
+
+    # Load or create model
+    if cont:
+        model = PPO.load(MODEL_DIR + 'best_model', env=env, tensorboard_log=LOG_DIR)
+    else:
+        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=LOG_DIR)
+
+    
     rospy.loginfo("Learning..........")
-    model.learn(total_timesteps=50*1000, log_interval=10)
+
+    model.learn(total_timesteps=rospy.get_param("/hyperparameters/total_timesteps"), 
+                                log_interval=rospy.get_param("/hyperparameters/log_freq"), callback=callback_list)
     rospy.loginfo("Done Learning!")
 
-    model.save("PPO_Pickup")
+    model.save(MODEL_DIR + "PPO_Pickup")
 
     env.close()
 
 def eval():
+    MODEL_DIR = rospy.get_param("/training_dirs/model_dir")
+    LOG_DIR = rospy.get_param("/training_dirs/log_dir")
+
     interface = CatchInterface()
     env = MarshaGym(interface)
     obs = env.reset()
 
-    model = PPO.load("PPO_Pickup", env=env)
+    model = PPO.load(MODEL_DIR + "best_model", env=env)
 
     rospy.loginfo("Evaluating...")
 
     for i in range(100):
         # Note: Random reachable pose: moveGroupInterface::getRandomPose()
-        action, _states = model.predict(obs, deterministic=True)
-        obs, reward, done, info = env.step(action)
+        action, _states = model.predict(obs, deterministic=True) # takes ~ 5ms
+        obs, reward, done, info = env.step(action) # takes ~ 200ms
         if done:
             obs = env.reset()
 
@@ -48,16 +91,10 @@ def eval():
 
 if __name__ == '__main__':
     # Arguments in form of bool(train) bool(continue) bool(eval)
-    print(sys.argv)
     if len(sys.argv) == 6 or len(sys.argv) == 4:
-        if sys.argv[1]:
-            if sys.argv[2]:
-                rospy.loginfo("Continuing to train model...")
-                train()
-            else:
-                rospy.loginfo("You are about to train a new model, this will override the current model.")
-                train()
-        if sys.argv[3]:
+        if sys.argv[1] == "true": # I only had to do this because sys.argv is a string with "true" which cant be easily converted to bool
+            train(sys.argv[2] == "true")
+        if sys.argv[3] == "true":
             rospy.loginfo("Beginning evaluation...")
             eval()
     else:

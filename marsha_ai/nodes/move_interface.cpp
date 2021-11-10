@@ -9,6 +9,8 @@
 
 */
 
+// THIS NEEDS TO BE MOVED OUT OF AI PACKAGE
+
 
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
@@ -25,7 +27,7 @@
 #include "marsha_ai/Pose.h" // Replace with geometry_msgs/Pose.msg
 #include "marsha_ai/MoveCmd.h"
 #include "marsha_ai/PositionCmd.h"
-#include "marsha_ai/GetPose.h"
+#include "marsha_msgs/GetPos.h"
 
 #include <std_msgs/Empty.h>
 #include <string>
@@ -149,8 +151,8 @@ class MarshaMoveInterface {
         }
 
         // Return current pose
-        bool getPose(marsha_ai::GetPose::Request &req,
-                     marsha_ai::GetPose::Response &res)
+        bool getPose(marsha_msgs::GetPos::Request &req,
+                     marsha_msgs::GetPos::Response &res)
         {
             geometry_msgs::Pose pose = move_group->getCurrentPose().pose;
             geometry_msgs::Point position = pose.position;

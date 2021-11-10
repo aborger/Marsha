@@ -6,17 +6,27 @@ find_package(catkin REQUIRED
         message_generation
         std_msgs
         geometry_msgs
+        genmsg
+        actionlib_msgs
 )
 
 add_service_files(
     FILES
-    GetPose.srv
+    GetPos.srv
+    GetPosFrame.srv
+)
+
+add_action_files(
+    DIRECTORY action
+    FILES
+    PositionCmd.action
 )
 
 generate_messages(
     DEPENDENCIES
     std_msgs
     geometry_msgs
+    actionlib_msgs
 )
 
 catkin_package(

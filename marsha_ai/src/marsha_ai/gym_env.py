@@ -2,6 +2,10 @@
 import gym
 from gym import spaces
 import numpy as np
+import rospy
+
+from marsha_ai.util import func_timer
+
 
 
 MAX_REWARD = 100
@@ -26,12 +30,14 @@ class MarshaGym(gym.Env):
         # Current observations: position of cuboid relative to link_6
         self.observation_space = spaces.Box(-1, 1, shape=(3,), dtype=np.float32)
 
+        self.episode_length = rospy.get_param('/hyperparameters/episode_length')
+
 
     def step(self, action):
         done, reward = self.ros_interface.perform_action(action)
         self.current_step += 1
         obs = self.ros_interface.observe()
-        if self.current_step > 50:
+        if self.current_step > self.episode_length:
             done = True
             self.ros_interface.log_progress()
 

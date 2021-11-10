@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="train" default="false"/>
+    <arg name="train" default="true"/>
     <arg name="continue" default="true"/>
     <arg name="eval" default="true"/>
 
