@@ -14,6 +14,7 @@ add_service_files(
     FILES
     GetPos.srv
     GetPosFrame.srv
+    PositionCmd.srv
 )
 
 add_action_files(

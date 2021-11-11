@@ -34,7 +34,7 @@ catkin_python_setup()
 
 
 
-
+include_directories(include)
  
 
 catkin_package(

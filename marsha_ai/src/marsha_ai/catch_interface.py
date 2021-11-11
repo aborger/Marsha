@@ -7,10 +7,12 @@ from geometry_msgs.msg import Point
 from marsha_ai.srv import MoveCmd
 from marsha_msgs.srv import GetPos
 from marsha_msgs.srv import GetPosFrame
-from marsha_msgs.msg import PositionCmdAction, PositionCmdGoal
+from marsha_msgs.srv import PositionCmd
+#from marsha_msgs.msg import PositionCmdAction, PositionCmdGoal
 import numpy as np
 from std_srvs.srv import Trigger, TriggerRequest
 from std_msgs.msg import String
+import actionlib
 
 from marsha_ai.util import func_timer
 
@@ -30,6 +32,9 @@ class CatchInterface(RosInterface):
         super(CatchInterface, self).__init__()
 
         # ---- These should be actions not services to speed it up
+        #self.position_client = actionlib.SimpleActionClient('/left/position_cmd', PositionCmdAction)
+        #self.position_client.wait_for_server()
+
         rospy.wait_for_service('/left/position_cmd')
         self.positionCmd = rospy.ServiceProxy('/left/position_cmd', PositionCmd)
 
@@ -63,6 +68,20 @@ class CatchInterface(RosInterface):
 
         rospy.logdebug('Interface Started!')
 
+    def _func_timer(self, func):
+        
+        def inner(*args, **kwargs):
+            begin = time.time()
+            output = func(*args, **kwargs)
+            end = time.time()
+
+            elapsed = end - begin
+            time_pub.publish(func.__name__ + ": " + str(elapsed))
+
+            return output
+
+        return inner
+
     def _get_object_position(self, relative_frame):
         object_pos = None
         while object_pos == None:
@@ -75,7 +94,7 @@ class CatchInterface(RosInterface):
                 sleep(1)
         return object_pos
 
-    @func_timer
+    #@func_timer
     def perform_action(self, action):
         STEP_SIZE = rospy.get_param("/hyperparameters/step_size")
 
@@ -87,8 +106,7 @@ class CatchInterface(RosInterface):
         # action[6] closes the gripper
         # action[7] opens the gripper
 
-        rospy.logdebug("Performing action...")
-        rospy.logdebug(action)
+
         position = self.getPos().position
         
         if action == 0:
@@ -111,20 +129,15 @@ class CatchInterface(RosInterface):
     
 
         # Move
+        #pos_goal = PositionCmdGoal(position)
+        #self.position_client.send_goal(pos_goal)
+
         success = self.positionCmd(position).done
 
-        rospy.logdebug("Action Success: " + str(success))
 
-        # I am idiot. This is why it only goes to this position
-        goal_position = self._get_object_position("world")
+        object_pos = self._get_object_position("world")
 
-
-        reward = 1 / calculateDistance(position, goal_position)
-
-        if success:
-            reward *= 2
-        else:
-            reward *= 0.5
+        reward = 1 / calculateDistance(position, object_pos)
 
         grasped = self.isGrasped().success
 
@@ -132,15 +145,13 @@ class CatchInterface(RosInterface):
             reward *= 10
             self.grasp_successful = True
 
-        rospy.logdebug("Reward: " + str(reward))
 
-        self.average_rewards.append(reward)
 
 
         done = grasped
         return done, reward
 
-    @func_timer
+    #@func_timer
     def observe(self):
         rospy.logdebug("Observing...")
         position = self._get_object_position("left_ar3::link_6")

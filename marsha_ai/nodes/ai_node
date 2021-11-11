@@ -65,6 +65,7 @@ def train(cont):
 
     env.close()
 
+
 def eval():
     MODEL_DIR = rospy.get_param("/training_dirs/model_dir")
     LOG_DIR = rospy.get_param("/training_dirs/log_dir")
@@ -81,6 +82,7 @@ def eval():
         # Note: Random reachable pose: moveGroupInterface::getRandomPose()
         action, _states = model.predict(obs, deterministic=True) # takes ~ 5ms
         obs, reward, done, info = env.step(action) # takes ~ 200ms
+
         if done:
             obs = env.reset()
 

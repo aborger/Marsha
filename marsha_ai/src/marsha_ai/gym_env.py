@@ -6,6 +6,8 @@ import rospy
 
 from marsha_ai.util import func_timer
 
+import time
+
 
 
 MAX_REWARD = 100
@@ -17,6 +19,8 @@ class MarshaGym(gym.Env):
         self.ros_interface = ros_interface
         self.reward_range = (0, MAX_REWARD)
         self.current_step = 0
+
+        self.info = {"action_time": 0, "observe_time": 0}
 
         # As stated in catch_interface.py CatchInterface.perform_action
         # Current actions has shape (8)
@@ -39,7 +43,7 @@ class MarshaGym(gym.Env):
         obs = self.ros_interface.observe()
         if self.current_step > self.episode_length:
             done = True
-            self.ros_interface.log_progress()
+        
 
 
         return obs, reward, done, {}
