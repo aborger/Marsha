@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="train" default="true"/> <!-- Defaults to false to avoid training over model -->
+    <arg name="train" default="true"/>
     <arg name="eval" default="true"/>
     <arg name="cont" default="true"/>
 

@@ -12,10 +12,10 @@ from gazebo_msgs.msg import ModelState
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 
-import random
+from marsha_msgs.srv import Reset
+
 
 import time
-
 
 from std_srvs.srv import Trigger, TriggerResponse
 MODEL_NAME = "pickup_box"
@@ -26,9 +26,12 @@ set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
 # If change works well, reset and all its requirements can be deleted
 def reset(req):
+
+
+
     pose = Pose()
-    pose.position.x = random.uniform(-0.25, 0.5)
-    pose.position.y = random.uniform(-0.25, 0.25)
+    pose.position.x = random.uniform(-0.15, 0.15)
+    pose.position.y = random.uniform(-0.15, 0.15)
     pose.position.z = 0.04
     twist = Twist()
 
@@ -41,7 +44,7 @@ def reset(req):
 
 def server():
     rospy.init_node('reset_server')
-    s = rospy.Service('reset', Trigger, reset)
+    s = rospy.Service('reset', Reset, reset)
     rospy.spin()
 
 if __name__ == "__main__":
