@@ -7,12 +7,12 @@ class TensorboardCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         reward = self.locals['rewards'][0]
-        print(type(self.training_env))
-        print('-- locals --')
-        print(self.locals)
-        print('-- gloabals --')
-        print(self.globals)
-        raise
+
+        info = self.locals['infos'][0]
+        #print(self.locals)
+        #print("Object position:", self.locals["new_obs"])
+
         self.logger.record('Reward', reward)
+        self.logger.record('Time: ' + info['func_name'], info['elapsed_time'])
         return True
 

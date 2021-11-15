@@ -14,7 +14,8 @@ def func_timer(func):
         end = time.time()
 
         elapsed = end - begin
-        time_pub.publish(func.__name__, elapsed)
+        msg = Timer(func.__name__, elapsed)
+        time_pub.publish(msg)
 
         return output
 

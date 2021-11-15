@@ -10,6 +10,11 @@ find_package(catkin REQUIRED
         actionlib_msgs
 )
 
+add_message_files(
+    FILES
+    Timer.msg
+)
+
 add_service_files(
     FILES
     GetPos.srv

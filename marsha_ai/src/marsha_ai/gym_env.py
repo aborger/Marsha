@@ -5,6 +5,10 @@ import numpy as np
 import rospy
 
 from marsha_ai.util import func_timer
+from marsha_msgs.msg import Timer
+from rospy_message_converter import message_converter
+
+msg_to_dict = message_converter.convert_ros_message_to_dictionary
 
 import time
 
@@ -36,6 +40,15 @@ class MarshaGym(gym.Env):
 
         self.episode_length = rospy.get_param('/hyperparameters/episode_length')
 
+        self.timing = {}
+
+        rospy.Subscriber("/func_timer", Timer, self.time_callback)
+
+    def time_callback(self, data):
+        data_dict = msg_to_dict(data)
+
+        self.timing.update(data_dict)
+
 
     def step(self, action):
         done, reward = self.ros_interface.perform_action(action)
@@ -44,9 +57,9 @@ class MarshaGym(gym.Env):
         if self.current_step > self.episode_length:
             done = True
         
+        info = self.timing
 
-
-        return obs, reward, done, {}
+        return obs, reward, done, info
 
     def reset(self):
         self.ros_interface.reset_simulation()

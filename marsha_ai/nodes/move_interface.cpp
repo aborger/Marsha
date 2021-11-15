@@ -114,8 +114,10 @@ class MarshaMoveInterface {
             ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
 
             if (success) {
-                move_group->execute(target_plan);
+                move_group->asyncExecute(target_plan);
             }
+            
+
 
             res.done = success;
             return true;            

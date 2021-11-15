@@ -68,19 +68,6 @@ class CatchInterface(RosInterface):
 
         rospy.logdebug('Interface Started!')
 
-    def _func_timer(self, func):
-        
-        def inner(*args, **kwargs):
-            begin = time.time()
-            output = func(*args, **kwargs)
-            end = time.time()
-
-            elapsed = end - begin
-            time_pub.publish(func.__name__ + ": " + str(elapsed))
-
-            return output
-
-        return inner
 
     def _get_object_position(self, relative_frame):
         object_pos = None
@@ -94,7 +81,7 @@ class CatchInterface(RosInterface):
                 sleep(1)
         return object_pos
 
-    #@func_timer
+    @func_timer
     def perform_action(self, action):
         STEP_SIZE = rospy.get_param("/hyperparameters/step_size")
 
@@ -131,8 +118,13 @@ class CatchInterface(RosInterface):
         # Move
         #pos_goal = PositionCmdGoal(position)
         #self.position_client.send_goal(pos_goal)
+        @func_timer
+        def positionCmd(position):
+            return self.positionCmd(position).done
+            
 
-        success = self.positionCmd(position).done
+        #success = self.positionCmd(position).done
+        success = positionCmd(position)
 
 
         object_pos = self._get_object_position("world")
@@ -148,10 +140,11 @@ class CatchInterface(RosInterface):
 
 
 
+
         done = grasped
         return done, reward
 
-    #@func_timer
+    @func_timer
     def observe(self):
         rospy.logdebug("Observing...")
         position = self._get_object_position("left_ar3::link_6")
