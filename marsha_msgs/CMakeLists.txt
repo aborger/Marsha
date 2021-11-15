@@ -20,6 +20,7 @@ add_service_files(
     GetPos.srv
     GetPosFrame.srv
     PositionCmd.srv
+    Reset.srv
 )
 
 add_action_files(

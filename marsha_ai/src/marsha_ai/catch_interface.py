@@ -11,6 +11,7 @@ from marsha_msgs.srv import PositionCmd
 #from marsha_msgs.msg import PositionCmdAction, PositionCmdGoal
 import numpy as np
 from std_srvs.srv import Trigger, TriggerRequest
+from marsha_msgs.srv import Reset
 from std_msgs.msg import String
 import actionlib
 
@@ -49,7 +50,7 @@ class CatchInterface(RosInterface):
         self.getPos = rospy.ServiceProxy('/left/get_pos', GetPos)
 
         rospy.wait_for_service('/reset')
-        self.reset = rospy.ServiceProxy('/reset', Trigger)
+        self.reset = rospy.ServiceProxy('/reset', Reset)
 
 
 
@@ -60,7 +61,7 @@ class CatchInterface(RosInterface):
         rospy.wait_for_service('/left/is_grasped')
         self.isGrasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
 
-        self.episode_reward = []
+        self.reward_sum = 0
         self.episode_num = 0
         self.grasp_successful = False # Tracks if a grasp was succesfull during the episode
         self.progress_pub = rospy.Publisher('/ai_progress', String, queue_size=10)
@@ -137,6 +138,7 @@ class CatchInterface(RosInterface):
             reward *= 10
             self.grasp_successful = True
 
+        self.reward_sum += reward
 
 
 
@@ -163,9 +165,10 @@ class CatchInterface(RosInterface):
         self.graspCmd("open")
         self.grasp_successful = False
         self.episode_num += 1
-        self.average_rewards = []
 
-        self.reset(TriggerRequest())
+        self.reset()
+
+        self.rewards_sum = 0
 
     def log_progress(self):
         sum = 0
