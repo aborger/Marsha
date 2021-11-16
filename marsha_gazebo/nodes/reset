@@ -14,6 +14,8 @@ from geometry_msgs.msg import Pose
 
 from marsha_msgs.srv import Reset
 
+from marsha_gazebo.auto_domain_randomization import DRandomizer
+
 
 import time
 
@@ -24,14 +26,16 @@ delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
 spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
 set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
+randomizer = DRandomizer((2), (-0.5, 0.5))
+
 # If change works well, reset and all its requirements can be deleted
 def reset(req):
 
-
+    domain, dar = randomizer.get_domain(req.reward)
 
     pose = Pose()
-    pose.position.x = random.uniform(-0.15, 0.15)
-    pose.position.y = random.uniform(-0.15, 0.15)
+    pose.position.x = domain[0]
+    pose.position.y = domain[1]
     pose.position.z = 0.04
     twist = Twist()
 
@@ -39,7 +43,7 @@ def reset(req):
 
     resp = set_model(desired_state)
 
-    return(TriggerResponse(success = resp.success))
+    return(resp.success, dar)
 
 
 def server():

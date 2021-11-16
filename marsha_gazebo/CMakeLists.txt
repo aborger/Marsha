@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
         marsha_msgs
 )
 
+catkin_python_setup()
 
 catkin_package(
     LIBRARIES
