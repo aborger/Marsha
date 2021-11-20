@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import os
+import rospy
+
+# This needs to be a rosparam
+logdir = rospy.get_param('/training_dirs/log_dir')
+CMD = "tensorboard --logdir " + logdir
+def main():
+    rospy.loginfo("Access tensorboard at: http://jet:6006/")
+    os.system(CMD)
+
+if __name__ == "__main__":
+    main()
+

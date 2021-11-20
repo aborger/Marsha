@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(marsha_msgs)
+
+find_package(catkin REQUIRED
+    COMPONENTS
+        message_generation
+        std_msgs
+        geometry_msgs
+        genmsg
+        actionlib_msgs
+)
+
+add_message_files(
+    FILES
+    Timer.msg
+)
+
+add_service_files(
+    FILES
+    GetPos.srv
+    GetPosFrame.srv
+    PositionCmd.srv
+    Reset.srv
+)
+
+add_action_files(
+    DIRECTORY action
+    FILES
+    PositionCmd.action
+)
+
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+    actionlib_msgs
+)
+
+catkin_package(
+    
+)

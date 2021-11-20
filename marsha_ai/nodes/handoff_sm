@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# THIS NEEDS TO BE MOVED OUT OF AI PACKAGE
+
 import rospy
 import smach
 import smach_ros
@@ -7,6 +9,7 @@ import smach_ros
 from marsha_ai.srv import MoveCmd
 from marsha_ai.srv import StateComm
 from marsha_ai.srv import GraspedState
+from std_srvs.srv import Trigger, TriggerRequest
 from std_msgs.msg import Empty
 
 
@@ -33,12 +36,13 @@ def command(pose_name):
 
 def isGrasped():
     rospy.wait_for_service(rospy.get_namespace() + '/is_grasped')
+
     
-    call_server = rospy.ServiceProxy(rospy.get_namespace() + '/is_grasped', GraspedState)
+    call_server = rospy.ServiceProxy(rospy.get_namespace() + '/is_grasped', Trigger)
 
-    grasped = call_server()
+    grasped = call_server().success
 
-    return grasped.state
+    return grasped
 
 # ---------------------------------------------------------------- #
 #                          States                                  #
@@ -164,7 +168,7 @@ class Reset(smach.State):
     def execute(self, userdata):
         rospy.wait_for_service('/reset')
         try:
-            service = rospy.ServiceProxy('/reset', GraspedState)
+            service = rospy.ServiceProxy('/reset', Trigger)
             success = service()
         except rospy.ServiceException as e:
             rospy.logwarn("Reset Service Failed!")
