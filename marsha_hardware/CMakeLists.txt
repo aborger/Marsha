@@ -18,3 +18,9 @@ generate_messages(
 )
 
 catkin_package()
+
+catkin_install_python(
+    PROGRAMS
+    src/pub_step
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

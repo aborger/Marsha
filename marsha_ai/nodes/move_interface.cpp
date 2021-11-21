@@ -26,7 +26,7 @@
 #include <ros/ros.h>
 #include "marsha_ai/Pose.h" // Replace with geometry_msgs/Pose.msg
 #include "marsha_ai/MoveCmd.h"
-#include "marsha_ai/PositionCmd.h"
+#include "marsha_msgs/PositionCmd.h"
 #include "marsha_msgs/GetPos.h"
 
 #include <std_msgs/Empty.h>
