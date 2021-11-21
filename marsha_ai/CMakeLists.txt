@@ -26,7 +26,8 @@ find_package(catkin REQUIRED
     tf2_eigen
     tf2_geometry_msgs
     marsha_msgs
-    #rospy_message_converter
+    rospy_message_converter
+    ros_numpy
 )
 
 
