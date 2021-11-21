@@ -1,0 +1,10 @@
+<launch>
+    <rosparam file="$(find marsha_hardware)/config/controllers.yaml" command="load"/>
+
+    <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+        args="/marsha/controllers/state
+              /marsha/controllers/position"/>
+
+</launch>

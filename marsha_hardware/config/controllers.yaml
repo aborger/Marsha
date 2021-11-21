@@ -12,3 +12,6 @@ marsha:
         joint_1:
           trajectory: 0.5
           goal: 0.02
+        joint_2:
+          trajectory: 0.5
+          goal: 0.02
