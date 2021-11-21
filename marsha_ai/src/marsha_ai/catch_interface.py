@@ -8,6 +8,10 @@ from marsha_ai.srv import MoveCmd
 from marsha_msgs.srv import GetPos
 from marsha_msgs.srv import GetPosFrame
 from marsha_msgs.srv import PositionCmd
+
+from sensor_msgs.msg import PointCloud2
+
+import ros_numpy
 #from marsha_msgs.msg import PositionCmdAction, PositionCmdGoal
 import numpy as np
 from std_srvs.srv import Trigger, TriggerRequest
@@ -60,6 +64,9 @@ class CatchInterface(RosInterface):
 
         rospy.wait_for_service('/left/is_grasped')
         self.isGrasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
+
+        # Subscribe to point cloud data
+        #rospy.Subscriber("/camera/depth/points", PointCloud2, self.point_cloud_callBack)
 
         self.reward_sum = 0
         self.episode_num = 0
@@ -149,6 +156,7 @@ class CatchInterface(RosInterface):
     @func_timer
     def observe(self):
         rospy.logdebug("Observing...")
+        # Get 3D point cloud data
         position = self._get_object_position("left_ar3::link_6")
 
         observation = np.zeros(shape=(3,))
@@ -166,9 +174,24 @@ class CatchInterface(RosInterface):
         self.grasp_successful = False
         self.episode_num += 1
 
-        self.reset()
+        resp = self.reset(self.reward_sum)
 
-        self.rewards_sum = 0
+        self.reward_sum = 0
+
+        return resp.DAR
+
+    def point_cloud_callBack(self, point_cloud):
+        #print('height:', data.height, 'width', data.width)
+        #print('Fields:', data.fields)
+        np_array = ros_numpy.numpify(point_cloud)
+        print('Point Cloud', type(np_array), np_array.dtype)
+        print('PC shape:', np_array.shape)
+        print('Single:', np_array[0, 0])
+    
+        min = np.amin(np_array)
+        max = np.amax(np_array)
+        print('Min:', np.amin(np_array), 'Max:', np.amax(np_array))
+        
 
     def log_progress(self):
         sum = 0

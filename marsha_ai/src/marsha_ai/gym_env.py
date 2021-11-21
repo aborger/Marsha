@@ -37,17 +37,18 @@ class MarshaGym(gym.Env):
 
         # Current observations: position of cuboid relative to link_6
         self.observation_space = spaces.Box(-1, 1, shape=(3,), dtype=np.float32)
+        #self.observation_space = spaces.Box(-1, 1, shape=(480,640), dtype=np.uint8)
 
         self.episode_length = rospy.get_param('/hyperparameters/episode_length')
 
-        self.timing = {}
+        self.info = {'timing':{}, 'difficulty':0}
 
         rospy.Subscriber("/func_timer", Timer, self.time_callback)
 
     def time_callback(self, data):
         data_dict = msg_to_dict(data)
 
-        self.timing.update(data_dict)
+        self.info['timing'].update(data_dict)
 
 
     def step(self, action):
@@ -57,12 +58,13 @@ class MarshaGym(gym.Env):
         if self.current_step > self.episode_length:
             done = True
         
-        info = self.timing
 
-        return obs, reward, done, info
+
+        return obs, reward, done, self.info
 
     def reset(self):
-        self.ros_interface.reset_simulation()
+        DAR = self.ros_interface.reset_simulation()
+        self.info['difficulty'] = DAR
         self.current_step = 0
 
         observation = self.ros_interface.observe()
