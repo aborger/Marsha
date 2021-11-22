@@ -20,6 +20,7 @@ void setup() {
 
 void loop() {
   while (Serial.available() > 0) {
+    digitalWrite(led, HIGH);
     char inChar = Serial.read();
     inString += (char)inChar;
 
