@@ -28,6 +28,7 @@
     <exec_depend>message_generation</exec_depend>
     <exec_depend>hardware_interface</exec_depend>
     <exec_depend>controller_manager</exec_depend>
+    <exec_depend>control_msgs</exec_depend>
 
     <export>
 

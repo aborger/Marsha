@@ -1,5 +1,5 @@
 #include <controller_manager/controller_manager.h>
-#include "marsha_hardware_interface.h"
+#include "marsha_hardware_interface.hpp"
 
 int main(int argc, char** argv)
 {

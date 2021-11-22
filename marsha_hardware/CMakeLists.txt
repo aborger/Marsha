@@ -31,6 +31,7 @@ catkin_package(
         hardware_interface
         controller_manager
         roscpp
+        control_msgs
 )
 
 include_directories(
@@ -41,6 +42,7 @@ include_directories(
 catkin_install_python(
     PROGRAMS
     src/pub_step
+    src/trajectory_test.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
