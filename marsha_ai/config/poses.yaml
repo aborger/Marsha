@@ -25,7 +25,7 @@ left:
     position:
       x: -0.25677
       y: -0.0545
-      z: 0.115
+      z: 0.087
     orientation:
       x: -0.999911
       y: 0.006463
@@ -36,7 +36,7 @@ left:
     position:
       x: -0.25677
       y: -0.0545
-      z: 0.25
+      z: 0.5
     orientation:
       x: -0.999911
       y: 0.006463

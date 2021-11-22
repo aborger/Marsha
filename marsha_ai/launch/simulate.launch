@@ -12,7 +12,7 @@
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch" />
     
-    <include file="$(find marsha_gazebo)/launch/pickup_setup.launch"/>
+    <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
     
     <include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet1"/>
@@ -23,13 +23,13 @@
     </include>
     
     
-    <include file="$(find marsha_ai)/launch/single_arm.launch">
+    <!--<include file="$(find marsha_ai)/launch/single_arm.launch">
         <arg name="machine" value="jet1"/>
         <arg name="display_machine" value=""/>
         <arg name="ns" value="right"/>
         <arg name="launch_rviz" value="$(arg manual_right)"/>
         <arg name="x_pos" value="0.5"/>
-    </include>
+    </include>-->
     
 
     <node pkg="marsha_gazebo" type="reset" name="reset"/>
@@ -37,7 +37,7 @@
     <node pkg="marsha_gazebo" type="object_location" name="object_location" args="left_ar3::link_6"/>
     
     
-    <!--<node pkg="tf" type="static_transform_publisher" name="ime_slam_camera_tf" args="0 0 0 -3.14 -0 -1.55 /world /camera_link 100"/>-->
+    <node pkg="tf" type="static_transform_publisher" name="depth_camera_tf" args="-0.75 0 0.25 -1.57 3.14 -1.57 left/world_base /left/camera_link 100"/>
 
  
 </launch>

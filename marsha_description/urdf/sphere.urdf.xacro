@@ -1,0 +1,50 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro"
+       name="box">
+  <xacro:macro name="sphere_inertia" params="m r">
+    <inertia  ixx="${2*m*r*r/5}" ixy = "0" ixz = "0"
+              iyy="${2*m*r*r/5}" iyz = "0"
+              izz="${2*m*r*r/5}" /> 
+  </xacro:macro>
+
+  <xacro:arg name="object_name" default="pickup_object"/>
+  <xacro:arg name="mass" default="1"/>
+  <xacro:arg name="origin" default="0 0 0"/>
+  <xacro:arg name="radius" default="1"/>
+
+  <xacro:arg name="static" default="false"/>
+
+  <xacro:arg name="color" default="Gazebo/Blue"/>
+
+
+  <link name="$(arg object_name)">
+    <inertial>
+      <origin xyz="$(arg origin)" /> 
+      <mass value="$(arg mass)" />
+      <xacro:sphere_inertia m="$(arg mass)" r="$(arg radius)"/>
+    </inertial>
+    <visual>
+      <origin xyz="$(arg origin)"/>
+      <geometry>
+        <sphere radius="$(arg radius)" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="$(arg origin)"/>
+      <geometry>
+        <sphere radius="$(arg radius)" />
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="$(arg object_name)">
+    <xacro:property name="object_name" value="$(arg object_name)"/>
+    <xacro:if value="${object_name == 'pickup_object'}">
+      <material>Gazebo/Red</material>
+    </xacro:if>
+    <xacro:if value="${object_name != 'pickup_object'}">
+      <material>Gazebo/Blue</material>
+    </xacro:if>
+  </gazebo>
+  <gazebo>
+    <static>"$(arg static)"</static>
+  </gazebo>
+</robot>

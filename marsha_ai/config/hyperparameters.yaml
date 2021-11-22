@@ -1,11 +1,14 @@
 hyperparameters:
   # Training Parameters
-  episode_length: 50 # Number of timesteps per episode
-  log_freq: 5 # How often tensorboard is updated (Tensorboard appears to only log evals)
-  total_timesteps: 100000 # Number of timesteps to train on
-  eval_frequency: 50 # How many timesteps before evaluating
+  episode_length: 200 # Number of timesteps per episode
+  total_timesteps: 500000 # Number of timesteps to train on
+  eval_frequency: 200 # How many timesteps before evaluating
   n_eval_ep: 1 # Number of evaluation episodes
+
+  # Logging parameters
+  log_freq: 5 # How often tensorboard is updated (Tensorboard appears to only log evals)
   checkpoint_frequency: 0 # How often a checkpoint model is saved
 
   # Robot parameters
   step_size: 0.03 # How many units the end effector moves each step
+  z_collision: 0.08 # The lowest z position before the gripper collides with the ground

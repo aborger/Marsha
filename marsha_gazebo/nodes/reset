@@ -20,13 +20,13 @@ from marsha_gazebo.auto_domain_randomization import DRandomizer
 import time
 
 from std_srvs.srv import Trigger, TriggerResponse
-MODEL_NAME = "pickup_box"
+MODEL_NAME = "pickup_object"
 
 delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
 spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
 set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
-randomizer = DRandomizer((2), (-0.5, 0.5))
+randomizer = DRandomizer((2), (-0.25, 0.25))
 
 # If change works well, reset and all its requirements can be deleted
 def reset(req):
@@ -39,10 +39,10 @@ def reset(req):
     pose.position.z = 0.04
     twist = Twist()
 
-    desired_state = ModelState('pickup_box', pose, twist, 'world')
+    desired_state = ModelState('pickup_object', pose, twist, 'world')
 
     resp = set_model(desired_state)
-
+    print('dar:', dar, type(dar))
     return(resp.success, dar)
 
 

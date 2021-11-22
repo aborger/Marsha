@@ -40,7 +40,7 @@ class LocationServer():
     def handleObjectPos(self, req):
         state = None
         try:
-            state = self.get_state("pickup_box", req.relative_frame) #"left_ar3::link_6"
+            state = self.get_state("pickup_object", req.relative_frame) #"left_ar3::link_6"
         except Exception as e:
 
             rospy.logwarn("Service couldnt get state: " + str(e))
@@ -58,7 +58,7 @@ class LocationServer():
     def run(self):
         while not rospy.is_shutdown():
             try:
-                object_state = self.get_state("pickup_box", "world")
+                object_state = self.get_state("pickup_object", "world")
 
                 pose = object_state.pose
 
