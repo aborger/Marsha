@@ -1,0 +1,17 @@
+marsha:
+  controllers:
+    state:
+      type: joint_state_controller/JointStateController
+      publish_rate: 50
+    position:
+      type: position_controller/JointTrajectoryController
+      joints:
+        - joint_1
+      constraints:
+        goal_time: 0.5
+        joint_1:
+          trajectory: 0.5
+          goal: 0.02
+        joint_2:
+          trajectory: 0.5
+          goal: 0.02

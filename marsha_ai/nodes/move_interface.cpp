@@ -26,7 +26,7 @@
 #include <ros/ros.h>
 #include "marsha_ai/Pose.h" // Replace with geometry_msgs/Pose.msg
 #include "marsha_ai/MoveCmd.h"
-#include "marsha_ai/PositionCmd.h"
+#include "marsha_msgs/PositionCmd.h"
 #include "marsha_msgs/GetPos.h"
 
 #include <std_msgs/Empty.h>
@@ -97,9 +97,11 @@ class MarshaMoveInterface {
             ros::param::get("/left/pose/pickup/orientation/w", target_pose.orientation.w);
 
             // Do not allow gripper to collide with ground
-            if (req.position.z < 0.07) {
+            float z_collision;
+            ros::param::get("/hyperparameters/z_collision", z_collision);
+            if (req.position.z < z_collision) {
                 ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
-                req.position.z = 0.07;
+                req.position.z = z_collision;
             }
             target_pose.position = req.position;
 

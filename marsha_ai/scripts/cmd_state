@@ -15,6 +15,10 @@ from tf.transformations import quaternion_from_euler
 
 def get_pose_msg(pose_param):
     pos = Position()
+<<<<<<< HEAD
+
+=======
+>>>>>>> c0bd0ce74ca899b217495d3010ccf107ff7e8b46
     pos_param = pose_param + "/position/"
 
 

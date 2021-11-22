@@ -10,3 +10,6 @@
 [submodule "marsha_ai/src/maml_rl"]
 	path = marsha_ai/src/maml_rl
 	url = https://github.com/cbfinn/maml_rl.git
+[submodule "marsha_hardware/diablo"]
+	path = marsha_hardware/diablo
+	url = https://github.com/piborg/diablo

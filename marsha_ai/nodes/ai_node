@@ -8,7 +8,7 @@ from marsha_ai.callbacks import TensorboardCallback
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
 from stable_baselines3.common.utils import get_device
 

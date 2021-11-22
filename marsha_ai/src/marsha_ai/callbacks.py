@@ -13,6 +13,7 @@ class TensorboardCallback(BaseCallback):
         #print("Object position:", self.locals["new_obs"])
 
         self.logger.record('Reward', reward)
-        self.logger.record('Time: ' + info['func_name'], info['elapsed_time'])
+        self.logger.record('Time: ' + info['timing']['func_name'], info['timing']['elapsed_time'])
+        self.logger.record('ADR Difficulty', info['difficulty'])
         return True
 
