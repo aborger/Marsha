@@ -3,6 +3,7 @@
     <rosparam file="$(find ar3_hardware_interface)/config/controllers.yaml" command="load"/>
     <rosparam file="$(find ar3_hardware_interface)/config/joint_offsets.yaml" command="load"/>
     <rosparam file="$(find ar3_moveit_config)/config/joint_limits.yaml" command="load" ns="ar3"/>
+    <rosparam file="$(find marsha_hardware)/config/stepper_calibration.yaml" command="load"/>
 
     <!-- Load universal robot description format (URDF) -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find ar3_description)/urdf/ar3.urdf.xacro"/>

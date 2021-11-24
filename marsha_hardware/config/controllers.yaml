@@ -1,8 +1,0 @@
-marsha:
-  controllers:
-    state:
-      type: joint_state_controller/JointStateController
-      publish_rate: 50
-    position:
-      type: position_controllers/JointPositionController
-      joint: joint_1

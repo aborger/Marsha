@@ -7,7 +7,7 @@
 #include <hardware_interface/robot_hw.h>
 #include <string.h>
 
-#include <std_msgs/Float64.h>
+#include <std_msgs/Int32MultiArray.h>
 
 class MarshaArm : public hardware_interface::RobotHW 
 {
@@ -17,17 +17,19 @@ class MarshaArm : public hardware_interface::RobotHW
 
         void read();
         void write();
+        void encoderCallBack(const std_msgs::Int32MultiArray &msg);
     private:
         ros::NodeHandle nh;
-        ros::Publisher step_pub_0;
-        ros::Publisher step_pub_1;
+        ros::Publisher step_pub;
 
         hardware_interface::JointStateInterface joint_state_interface;
         hardware_interface::PositionJointInterface joint_position_interface;
-        double cmd[2];
-        double pos[2];
-        double vel[2];
-        double eff[2];
+        double cmd[6];
+
+        double pos[6];
+        double vel[6];
+        double eff[6];
+
 
         std::string joint_names[6] = {
             "joint_1",
@@ -37,6 +39,9 @@ class MarshaArm : public hardware_interface::RobotHW
             "joint_5",
             "joint_6"
         };
+
+        double radToDeg(double rad);
+        double degToRad(double deg);
 };
 
 #endif
