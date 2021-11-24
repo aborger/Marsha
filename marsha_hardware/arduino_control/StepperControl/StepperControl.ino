@@ -1,8 +1,8 @@
 #include "Stepper.h"
 #include <ros.h>
-#include <control_msgs/FollowJointTrajectoryActionGoal.h>
+#include <control_msgs/FollowJointTrajectoryGoal.h>
 
-typedef control_msgs::FollowJointTrajectoryActionGoal TrajectoryGoal
+typedef control_msgs::FollowJointTrajectoryGoal TrajectoryGoal;
 
 ros::NodeHandle nh;
 
@@ -14,17 +14,18 @@ Stepper stepper_array[] = {Stepper(2, 3), Stepper(4, 5)};
 
 
 void trajectoryCallBack(const TrajectoryGoal &msg) {
-  float goal_position =  msg.trajectory.points.positions[0];
+  //float goal_position =  msg.trajectory.points[0].positions[0];
+  stepper_array[1].step(25000);
 }
 
 
 
 ros::Subscriber<TrajectoryGoal> trajectory_sub("/left/ar3/controllers/position/follow_joint_trajectory/goal", &trajectoryCallBack);
 
+
 void setup() {
   nh.initNode();
-  nh.subscribe(select_sub);
-  nh.subscribe(step_sub);
+  nh.subscribe(trajectory_sub);
 }
 
 
