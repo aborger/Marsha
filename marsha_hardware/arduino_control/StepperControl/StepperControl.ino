@@ -26,9 +26,11 @@ Stepper stepper_array[] = {Stepper(2, 3), Stepper(4, 5), Stepper(6,7), Stepper(8
 void callback(const std_msgs::Int32MultiArray &msg) {
   // data_offset == 69420 indicates this is a configuration header
   if (msg.layout.data_offset == 69420) {
-    int step_delay = msg.layout.dim->stride;
     // Initialize stepper configuration
-    stepper_array[0].init(step_delay);
+    for (int i = 0; i < NUM_JOINTS; i++) {
+      int step_delay = msg.data[i];
+      stepper_array[i].init(step_delay);
+    }
   }
 
   else {
@@ -65,16 +67,14 @@ void setup() {
 
 void loop() {
   nh.spinOnce();
-  //for (int i = 0; i < NUM_JOINTS; i++) {
-  stepper_array[0].control_step_pos();
-  //}
+  for (int i = 0; i < 2; i++) {
+    stepper_array[i].control_step_pos();
+  }
   
   if (num_loops > LOG_FREQ) {
     for(int i = 0; i < NUM_JOINTS; i++) {
       feedback_arr[i] = stepper_array[i].get_current_step();
     }
-    feedback_arr[0] = stepper_array[0].get_current_step();
-    //feedback_arr[1] = stepper_array[0].get_desired_step(); // debug
     feedback_pub.publish(&feedback_multiArray);
     num_loops = 0;
   }
