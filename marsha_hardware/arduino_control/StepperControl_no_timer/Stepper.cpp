@@ -7,12 +7,6 @@ Stepper::Stepper(int _step_pin, int _dir_pin) {
   // In degrees
   current_step = 0;
   desired_step = 0;
-  timer = 0;
-
-  current_dir = true;
-
-  on_time = DELAY;
-  off_time = DELAY;
 
   // defaults
   DELAY = 25;
@@ -23,29 +17,12 @@ Stepper::Stepper(int _step_pin, int _dir_pin) {
   
 }
 
-void Stepper::set_speed(int _on_time, int _off_time) {
+void Stepper::init(int step_delay) {
+  DELAY = step_delay;
   current_step = 0;
   desired_step = 0;
-
-  on_time = _on_time;
-  off_time = _off_time;
 }
 
-// For testing without ros
-void Stepper::set_bounds(int upper, int lower) {
-  upper_bound = upper;
-  lower_bound = lower;
-}
-
-void Stepper::watch_bounds() {
-  if (get_current_step() > upper_bound) {
-    set_point(lower_bound - 1);
-  }
-  if (get_current_step() < lower_bound) {
-    set_point(upper_bound + 1);
-  }
-}
-/*
 // num_steps is never higher than STEP_SIZE
 void Stepper::step(int num_steps) {
   bool dir = true;
@@ -73,30 +50,22 @@ void Stepper::step(int num_steps) {
   }
   digitalWrite(dir_pin, LOW);
 }
-*/
+
 void Stepper::step() {
-  if (digitalRead(step_pin) == HIGH && timer > on_time) {
-    digitalWrite(step_pin, LOW);
-    timer = 0;
-  }
+  if (current_step > desired_step && current_step < desired_step) {}
   else {
-    if (timer > off_time) {
-      if (current_step > desired_step - TOLERANCE && current_step < desired_step + TOLERANCE) {}
-      else {
-        if (current_dir) {
-          // Go forwards
-          current_step += 1;
-        }
-        else {
-          current_step -= 1;
-        }
-        digitalWrite(step_pin, HIGH);
-      }
-      timer = 0;
+    if (current_step < desired_step) {
+      // Go forwards
+      digitalWrite(dir_pin, LOW);
+      current_step += 1;
     }
     else {
-      timer++;
+      digitalWrite(dir_pin, HIGH);
+      current_step -= 1;
     }
+    digitalWrite(step_pin, HIGH);
+    delayMicroseconds(DELAY);
+    digitalWrite(step_pin, LOW); 
   }
 }
 
@@ -115,14 +84,6 @@ void Stepper::control_step_pos() {
 
 void Stepper::set_point(long int step_position) {
   desired_step = step_position;
-  if (current_step < desired_step) {
-    digitalWrite(dir_pin, LOW);
-    current_dir = true;
-  }
-  else {
-    digitalWrite(dir_pin, HIGH);
-    current_dir = false;
-  }
 }
 
 long int Stepper::get_current_step() {

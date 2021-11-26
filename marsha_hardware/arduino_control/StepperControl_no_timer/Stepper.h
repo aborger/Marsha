@@ -16,21 +16,10 @@ class Stepper {
     long int current_step = 0;
     long int desired_step = 0;
 
-    bool current_dir; // true if forward/dir_pin low
-
     int DELAY;
-    int timer;
-
-    int on_time;
-    int off_time;
-
-    int upper_bound;
-    int lower_bound;
   public:
     Stepper(int _step_pin, int _dir_pin);
-    void set_speed(int _on_time, int _off_time);
-    void set_bounds(int upper, int lower); // For testing without ros
-    void watch_bounds();
+    void init(int step_delay);
     void step(int num_steps);
     void step();
     void set_point(long int step_position);
