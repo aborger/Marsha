@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import rospy
+from std_msgs.msg import Int16MultiArray
+from time import sleep
+
+
+step_pub = rospy.Publisher('stepper_step', Int16MultiArray, queue_size=10)
+
+rospy.init_node('node_name')
+
+which = int(input("1 for repeat, 2 for select: "))
+
+if (which == 1):
+
+    while not rospy.is_shutdown():
+        print("------------------------")
+        
+        arr = Int16MultiArray(data=[0, 0, 0, 0, 0, -500])
+
+        step_pub.publish(arr)
+
+        sleep(5)
+
+        arr = Int16MultiArray(data=[0, 0, 0, 0, 0, 500])
+        step_pub.publish(arr)
+        sleep(5)
+
+else:
+
+    arr = Int16MultiArray(data=[0, 0, 0, 0, 0, 0])
+    deg_per_step = rospy.get_param("/ar3/stepper_config/deg_per_step")
+    while not rospy.is_shutdown():
+        print("------------------------")
+
+        joint_num = input("Which joint: ")
+        
+        if (joint_num == 0 or joint_num == 2 or joint_num == 4):
+            deg = input("Enter desired degree position: ")
+            steps = int(deg/deg_per_step[joint_num])
+        else:
+            steps = input("Enter desired step position:")
+
+        #steps = int(deg / 0.01125)
+
+        
+        
+
+        arr.data[joint_num] = steps
+
+        step_pub.publish(arr)
+
+        sleep(1)

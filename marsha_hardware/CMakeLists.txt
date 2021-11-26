@@ -15,6 +15,8 @@ add_message_files(
     StepControl.msg
 )
 
+catkin_python_setup()
+
 generate_messages(
     DEPENDENCIES
     std_msgs
@@ -41,15 +43,15 @@ include_directories(
 
 catkin_install_python(
     PROGRAMS
-    src/pub_step
-    src/trajectory_test.py
+    scripts/pub_step
+    nodes/diablo_controller
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 add_library(marsha_hardware_interface src/marsha_hardware_interface.cpp)
 target_link_libraries(marsha_hardware_interface ${catkin_LIBRARIES})
 
-add_executable(marsha_hardware_interface_node src/marsha_hardware_interface_node.cpp)
+add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_node.cpp)
 
 target_link_libraries(marsha_hardware_interface_node 
     marsha_hardware_interface

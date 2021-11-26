@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+import rospy
+from std_msgs.msg import Int16MultiArray
+from marsha_hardware.diablo import diabloStepper
+
+print("import succesfull")

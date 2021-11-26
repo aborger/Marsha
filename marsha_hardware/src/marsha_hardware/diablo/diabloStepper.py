@@ -15,9 +15,9 @@ from time import sleep
 from sys import exit
 
 # Tell the system how to drive the stepper
-voltageIn = 'donkey'
-stepperCurrent = 'badger'
-stepperResistance = 'llama'
+voltageIn = 12
+stepperCurrent = 2.8
+stepperResistance = 0.9
 
 driveLevel = 1.0
 holdLevel = 0.0
@@ -115,25 +115,3 @@ def HoldPosition():
         DIABLO.SetMotor1(drive[0])
         DIABLO.SetMotor2(drive[1])
 
-try:
-    # Start by turning all drives off
-    DIABLO.MotorsOff()
-    # Loop forever
-    while True:
-        # Ask the user how many steps to move
-        steps = int(input("Steps to move (-ve for reverse, 0 to quit): "))
-        if steps == 0:
-            # Turn off the drives and release the GPIO pins
-            DIABLO.MotorsOff()
-            print('Goodbye')
-            break
-        else:
-            # Move the specified amount of steps
-            MoveStep(steps)
-            # Turn the motor to holding power after we have finished moving
-            HoldPosition()
-except KeyboardInterrupt:
-    # CTRL+C exit, turn off the drives and release the GPIO pins
-    DIABLO.MotorsOff()
-    print()
-    print('Terminated')

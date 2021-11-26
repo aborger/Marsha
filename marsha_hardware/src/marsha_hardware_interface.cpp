@@ -6,7 +6,7 @@
 MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     nh = nh_;
 
-    step_pub = nh.advertise<std_msgs::Int32MultiArray>("stepper_step", 10);
+    step_pub = nh.advertise<std_msgs::Int16MultiArray>("stepper_step", 10);
     ros::Subscriber sub = nh.subscribe("encoder_feedback", 100, &MarshaArm::encoderCallBack, this);
 
     // Note: This should be put in a loop for each controller
@@ -23,9 +23,9 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     registerInterface(&joint_state_interface);
     registerInterface(&joint_position_interface);
 
-    //rostopic pub stepper_step std_msgs/Int32MultiArray '{layout: {data_offset: 69420, dim: [{stride: 25}]}, data: [0, 0, 0, 0, 0, 0]}'    std_msgs::Float64MultiArray arr;
+    //rostopic pub stepper_step std_msgs/Int16MultiArray '{layout: {data_offset: 69420, dim: [{stride: 25}]}, data: [0, 0, 0, 0, 0, 0]}'    std_msgs::Float64MultiArray arr;
     int step_delay;
-    std_msgs::Int32MultiArray arr;
+    std_msgs::Int16MultiArray arr;
     ros::param::get("ar3/stepper_config/step_delay", step_delay);
     arr.layout.data_offset = 69420; // Header key that indicates this message is the configuration header
     std_msgs::MultiArrayDimension dim;
@@ -51,7 +51,7 @@ void MarshaArm::read() {
 }
 
 void MarshaArm::write() {
-    std_msgs::Int32MultiArray array; // can probably use Int16
+    std_msgs::Int16MultiArray array; // can probably use Int16
     std::vector<float> deg_per_steps;
     ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
     for (int i = 0; i < NUM_JOINTS; i++) {
@@ -61,7 +61,7 @@ void MarshaArm::write() {
     step_pub.publish(array);
 }
 
-void MarshaArm::encoderCallBack(const std_msgs::Int32MultiArray &msg) {
+void MarshaArm::encoderCallBack(const std_msgs::Int16MultiArray &msg) {
     for(int i = 0; i < NUM_JOINTS; i++) {
         pos[i] = degToRad(msg.data[i] * 0.01125);
     }
