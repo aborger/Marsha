@@ -1,82 +1,148 @@
-/* Controls hardware robot, input is the radian it should go to, it currently steps that amount.
- *  
+/*
+ * Marsha Stepper Control System, currently configured for the AR3.
+ * 
+ * Takes Int16MultiArray as position input for each joint from ROS and moves steppers to desired position using a timer interrupt for exact step times.
+ * 
+ * Author: Aaron Borger
  */
-#include "Stepper.h"
+
 #include <ros.h>
-#include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Int16MultiArray.h>
+#include "Stepper.h"
+#include "TimerOne.h"
 
-#define NUM_JOINTS    6
+#define NUM_JOINTS      6
+#define TIMER_INTERVAL  50
+#define FEEDBACK_RATE   10000
+#define SPIN_RATE       1000
 
-#define LOG_FREQ      100
 
 
 
+// Declare ROS data types
 ros::NodeHandle nh;
-std_msgs::Int32MultiArray feedback_multiArray;
-long int feedback_arr[NUM_JOINTS];
-
-
-
+std_msgs::Int16MultiArray feedback_multiArr; // Msg that is transmitted to ROS (contains feedback_arr)
+int feedback_arr[NUM_JOINTS]; // Array that is updated on Arduino
 
 int led = 13;
-int num_loops = 0;
 
-Stepper stepper_array[] = {Stepper(2, 3), Stepper(4, 5), Stepper(6,7), Stepper(8, 9), Stepper(10, 11), Stepper(12, 13)};
+int feedbackCounter = 0;
+int spinCounter = 0;
+bool timerSetup = false;
 
-void callback(const std_msgs::Int32MultiArray &msg) {
-  // data_offset == 69420 indicates this is a configuration header
-  if (msg.layout.data_offset == 69420) {
-    int step_delay = msg.layout.dim->stride;
-    // Initialize stepper configuration
-    stepper_array[0].init(step_delay);
+
+// Creation of stepper array allows iteration through steppers
+// Stepper(step_pin, dir_pin)
+Stepper steppers[] = {Stepper(9, 8), Stepper(0, 0), Stepper(7, 6), Stepper(5, 4), Stepper(3, 2), Stepper(0, 0)};
+
+// Allows calling array element with stepper name
+// EX: steppers[J1]
+// AR3 J2 is not controlled by Arduino
+enum Stepper_name {J1, J2, J3, J4, J5, J6};
+
+void setupTimer() {
+  // Call timerCallBack ever TIMER_INTERVAL micro seconds
+  Timer1.initialize(TIMER_INTERVAL);
+  Timer1.attachInterrupt(timerCallBack);
+  timerSetup = true;
+}
+
+void rosCmdCallback(const std_msgs::Int16MultiArray &msg) {
+  // Cannot setup timer until connected
+  if (!timerSetup) {
+    setupTimer();
   }
-
-  else {
-    // Set control setpoint
-    for (int i = 0; i < NUM_JOINTS; i++) {
-      stepper_array[i].set_point(msg.data[i]);
-    }
+  // Should implement speed control here
+  
+  // Set control setpoint
+  
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    steppers[i].set_point(msg.data[i]);
   }
   
 }
 
-ros::Publisher feedback_pub("encoder_feedback", &feedback_multiArray);
-ros::Subscriber<std_msgs::Int32MultiArray> step_sub("stepper_step", &callback);
 
 
+ros::Publisher feedback_pub("encoder_feedback", &feedback_multiArr);
+ros::Subscriber<std_msgs::Int16MultiArray> step_sub("stepper_step", &rosCmdCallback);
 
-
-
+void sendFeedback() {
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    feedback_arr[i] = steppers[i].get_current_step();
+  }
+  feedback_pub.publish(&feedback_multiArr);
+}
 
 
 void setup() {
-  feedback_multiArray.data_length = NUM_JOINTS;
-  feedback_multiArray.data = feedback_arr;
-  
+  feedback_multiArr.data_length = NUM_JOINTS;
+  feedback_multiArr.data = feedback_arr;
+
+  nh.getHardware()->setBaud(57600);
   nh.initNode();
   nh.subscribe(step_sub);
   nh.advertise(feedback_pub);
+
+  // Setup Steppers
+  steppers[J1].set_speed(5, 30);
+  //steppers[J1].set_bounds(2000, -2000); // 3000, -3000
+  //steppers[J1].set_point(-3001);
+
+  steppers[J3].set_speed(5, 30);
+  //steppers[J3].set_bounds(1000, -1000); // 1500, -1500
+  //steppers[J3].set_point(3001);
+
+  steppers[J5].set_speed(5, 40);
+  //steppers[J5].set_bounds(100, -100); // 500, -500
+  //steppers[J5].set_point(501);
+
+  pinMode(led, OUTPUT);
+  digitalWrite(led, HIGH);
+
+ 
+    
+}
+
+void loop() {
+  
+  if (spinCounter > SPIN_RATE) {
+    nh.spinOnce();
+    spinCounter = 0;
+  } else {
+    if (!timerSetup) {
+      spinCounter++;
+    }
+    
+  }
   
   
+  
+  if (feedbackCounter > FEEDBACK_RATE) {
+      sendFeedback();
+      feedbackCounter = 0;
+  }
   
 }
 
+// Needs to be quick to ensure function is not running when next interrupt occurs.
+// Can implement indicator with LED that is On when timerCallBack is not running 
+// (therefore it will indicate function takes too long if it doesnt turn on)
+void timerCallBack() {
+    digitalWrite(led, LOW);
 
+    // Should be iterated as array
+    steppers[J1].step();
+    steppers[J3].step();
+    steppers[J5].step();
 
-void loop() {
-  nh.spinOnce();
-  //for (int i = 0; i < NUM_JOINTS; i++) {
-  stepper_array[0].control_step_pos();
-  //}
-  
-  if (num_loops > LOG_FREQ) {
-    for(int i = 0; i < NUM_JOINTS; i++) {
-      feedback_arr[i] = stepper_array[i].get_current_step();
-    }
-    feedback_arr[0] = stepper_array[0].get_current_step();
-    //feedback_arr[1] = stepper_array[0].get_desired_step(); // debug
-    feedback_pub.publish(&feedback_multiArray);
-    num_loops = 0;
-  }
-  num_loops++;
+    // Also iterated as array
+    //steppers[J1].watch_bounds();
+    //steppers[J3].watch_bounds();
+    //steppers[J5].watch_bounds();
+
+    feedbackCounter++;
+    spinCounter++;
+
+    digitalWrite(led, HIGH);
 }
