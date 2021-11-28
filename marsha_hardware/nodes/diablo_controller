@@ -1,7 +1,37 @@
 #!/usr/bin/env python
 
+# Unfortunately the AR3 has one stepper that requires a current higher than the big easy controllers can produce.
+
+# A diablo motor controller is being used instead.
+
+# This file replicates the Arduino StepperControl file, but for the diablo which was also unfortunately features drivers written in python.
+
+# Author: Aaron Borger unfortunately...
+
 import rospy
 from std_msgs.msg import Int16MultiArray
-from marsha_hardware.diablo import diabloStepper
+from marsha_hardware.diablo.diabloStepper import Stepper
+import time
 
-print("import succesfull")
+stepper = Stepper(12, 2.8, 0.9)
+
+def rosCmdCallback(msg):
+    stepper.set_point(msg.data[1])
+
+rospy.init_node('diablo_controller')
+
+rospy.Subscriber("stepper_step", Int16MultiArray, rosCmdCallback)
+
+
+def main():
+    while not rospy.is_shutdown():
+        stepper.step()
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
