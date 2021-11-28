@@ -15,13 +15,13 @@ from time import sleep
 from sys import exit
 
 # Tell the system how to drive the stepper
-voltageIn = 'donkey'
-stepperCurrent = 'badger'
-stepperResistance = 'llama'
+voltageIn = 12
+stepperCurrent = 2.8
+stepperResistance = 0.9
 
 driveLevel = 1.0
 holdLevel = 0.0
-stepDelay = 0.01
+stepDelay = 0.02
 
 # Calculate our maxPower and holdingPower
 if(type(voltageIn) is str or type(stepperCurrent) is str or type(stepperResistance) is str):
@@ -78,6 +78,7 @@ def MoveStep(count):
         count *= -1
     else:
         dir = 1
+    print("dir:", dir)
 
     # Loop through the steps
     while count > 0:

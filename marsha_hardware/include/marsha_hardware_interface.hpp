@@ -7,7 +7,7 @@
 #include <hardware_interface/robot_hw.h>
 #include <string.h>
 
-#include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Int16MultiArray.h>
 
 class MarshaArm : public hardware_interface::RobotHW 
 {
@@ -17,7 +17,7 @@ class MarshaArm : public hardware_interface::RobotHW
 
         void read();
         void write();
-        void encoderCallBack(const std_msgs::Int32MultiArray &msg);
+        void encoderCallBack(const std_msgs::Int16MultiArray &msg);
     private:
         ros::NodeHandle nh;
         ros::Publisher step_pub;

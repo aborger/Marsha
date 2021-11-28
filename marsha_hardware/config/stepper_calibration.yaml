@@ -2,11 +2,11 @@ ar3:
   stepper_config:
     # Unconfigured joints have a 1 because 0 would result in divide by 0 error
     deg_per_step:
-      - 0.01125
+      - 0.0225
       - 1
+      - 0.0375
       - 1
-      - 1
-      - 1
+      - 0.18
       - 1
 
     step_delay: 170
