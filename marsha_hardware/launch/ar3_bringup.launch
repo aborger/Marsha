@@ -1,0 +1,10 @@
+<launch>
+
+    <machine name="jet1" address="jet" user="aaron" password="Rocksat1" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
+    <include file="$(find marsha_hardware)/launch/marsha_hardware_bringup.launch">
+        <arg name="machine" value="jet1"/>
+    </include>
+
+    <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch"/>
+
+</launch>
