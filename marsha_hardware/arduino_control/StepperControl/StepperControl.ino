@@ -15,6 +15,7 @@
 #define TIMER_INTERVAL  50
 #define FEEDBACK_RATE   10000
 #define SPIN_RATE       1000
+#define BAUD_RATE       115200
 
 
 
@@ -33,7 +34,7 @@ bool timerSetup = false;
 
 // Creation of stepper array allows iteration through steppers
 // Stepper(step_pin, dir_pin)
-Stepper steppers[] = {Stepper(9, 8), Stepper(0, 0), Stepper(7, 6), Stepper(5, 4), Stepper(3, 2), Stepper(0, 0)};
+Stepper steppers[] = {Stepper(11, 10, true), Stepper(0, 0), Stepper(9, 8, true), Stepper(7, 6, true), Stepper(5, 4), Stepper(3, 2)};
 
 // Allows calling array element with stepper name
 // EX: steppers[J1]
@@ -79,23 +80,18 @@ void setup() {
   feedback_multiArr.data_length = NUM_JOINTS;
   feedback_multiArr.data = feedback_arr;
 
-  nh.getHardware()->setBaud(57600);
+  nh.getHardware()->setBaud(BAUD_RATE);
   nh.initNode();
   nh.subscribe(step_sub);
   nh.advertise(feedback_pub);
 
   // Setup Steppers
   steppers[J1].set_speed(5, 30);
-  //steppers[J1].set_bounds(2000, -2000); // 3000, -3000
-  //steppers[J1].set_point(-3001);
-
+  // J2 is controlled by diablo
   steppers[J3].set_speed(5, 30);
-  //steppers[J3].set_bounds(1000, -1000); // 1500, -1500
-  //steppers[J3].set_point(3001);
-
+  steppers[J4].set_speed(5, 30);
   steppers[J5].set_speed(5, 40);
-  //steppers[J5].set_bounds(100, -100); // 500, -500
-  //steppers[J5].set_point(501);
+  steppers[J6].set_speed(5, 35);
 
   pinMode(led, OUTPUT);
   digitalWrite(led, HIGH);
@@ -126,20 +122,12 @@ void loop() {
 }
 
 // Needs to be quick to ensure function is not running when next interrupt occurs.
-// Can implement indicator with LED that is On when timerCallBack is not running 
-// (therefore it will indicate function takes too long if it doesnt turn on)
 void timerCallBack() {
     digitalWrite(led, LOW);
-
-    // Should be iterated as array
-    steppers[J1].step();
-    steppers[J3].step();
-    steppers[J5].step();
-
-    // Also iterated as array
-    //steppers[J1].watch_bounds();
-    //steppers[J3].watch_bounds();
-    //steppers[J5].watch_bounds();
+    // Not controlling J6 currently
+    for (int i = 0; i < NUM_JOINTS - 1; i++) {
+      steppers[i].step();
+    }
 
     feedbackCounter++;
     spinCounter++;
