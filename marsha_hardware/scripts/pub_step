@@ -35,7 +35,7 @@ else:
 
         joint_num = input("Which joint: ")
         
-        if (joint_num == 0 or joint_num == 2 or joint_num == 4):
+        if (joint_num == 0 or joint_num == 1 or joint_num == 2 or joint_num == 4):
             deg = input("Enter desired degree position: ")
             steps = int(deg/deg_per_step[joint_num])
         else:

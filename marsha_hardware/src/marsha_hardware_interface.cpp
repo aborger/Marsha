@@ -55,15 +55,18 @@ void MarshaArm::write() {
     std::vector<float> deg_per_steps;
     ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
     for (int i = 0; i < NUM_JOINTS; i++) {
-        long int num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]); // deg/step for j1
+        int num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]); // deg/step for j1
         array.data.push_back(num_steps);
     }
     step_pub.publish(array);
 }
 
 void MarshaArm::encoderCallBack(const std_msgs::Int16MultiArray &msg) {
+    // msg.data contains number of steps
+    std::vector<float> deg_per_steps;
+    ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
     for(int i = 0; i < NUM_JOINTS; i++) {
-        pos[i] = degToRad(msg.data[i] * 0.01125);
+        pos[i] = msg.data[i] * deg_per_steps[i];
     }
 }
 
