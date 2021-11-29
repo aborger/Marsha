@@ -22,7 +22,7 @@ TOLERANCE = 1
 class Stepper:
     def __init__(self, voltageIn, stepperCurrent, stepperResistance):
 
-        self.stepDelay = 0.01 # Default, can be changed with set_speed()
+        self.stepDelay = 0.005 # Default, can be changed with set_speed()
         self.seq_step = -1
 
         self.current_step = 0
@@ -80,7 +80,7 @@ class Stepper:
         if error < TOLERANCE and error > TOLERANCE * -1:
             self.HoldPosition()
         else:
-            print("Desired: ", self.desired_step, " Current: ", self.current_step, " Error: ", error)
+            #print("Desired: ", self.desired_step, " Current: ", self.current_step, " Error: ", error)
             # Choose direction based on sign (+/-)
             if error < 0:
                 dir = -1

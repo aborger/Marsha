@@ -9,8 +9,7 @@
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find ar3_description)/urdf/ar3.urdf.xacro"/>
     <param name="robot_description_semantic" textfile="$(find ar3_moveit_config)/config/ar3.srdf" />
 
-    <!-- Really need to rename this because its more for launching arduino communication -->
-    <include file="$(find marsha_hardware)/launch/test_hardware.launch"/>
+    <include file="$(find marsha_hardware)/launch/hardware_comm.launch"/>
 
     <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen"/>
 

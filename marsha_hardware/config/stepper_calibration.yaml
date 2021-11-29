@@ -3,9 +3,9 @@ ar3:
     # Unconfigured joints have a 1 because 0 would result in divide by 0 error
     deg_per_step:
       - 0.0225
-      - 1
+      - 0.036
       - 0.0375
-      - 1
+      - 0.045
       - 0.18
       - 1
 

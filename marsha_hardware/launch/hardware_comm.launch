@@ -11,10 +11,6 @@
     </node>
 
 
-
-
-    
-
     <node name="diablo_controller" pkg="marsha_hardware" type="diablo_controller" output="screen"/>
 
 </launch>
