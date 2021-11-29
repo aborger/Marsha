@@ -7,8 +7,10 @@
     <rosparam file="$(find marsha_hardware)/config/stepper_calibration.yaml" command="load"/>
 
     <!-- Load universal robot description format (URDF) -->
+    <!-- Could be done in ar3_moveit_bringup launch file -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find ar3_description)/urdf/ar3.urdf.xacro"/>
-    <param name="robot_description_semantic" textfile="$(find ar3_moveit_config)/config/ar3.srdf" />
+    <!-- Loaded in planning_context.launch
+        <param name="robot_description_semantic" textfile="$(find ar3_moveit_config)/config/ar3.srdf" />-->
 
     <include file="$(find marsha_hardware)/launch/hardware_comm.launch">
         <arg name="machine" value="$(arg machine)"/>

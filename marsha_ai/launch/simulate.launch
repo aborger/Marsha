@@ -15,21 +15,23 @@
     <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
     
     <include file="$(find marsha_ai)/launch/single_arm.launch">
-        <arg name="machine" value="jet1"/>
+        <arg name="machine" value="jet2"/>
         <arg name="display_machine" value=""/>
         <arg name="ns" value="left"/>
         <arg name="launch_rviz" value="$(arg manual_left)"/>
         <arg name="x_pos" value="0"/>
+        <arg name="state_machine" value="true"/>
     </include>
     
     
-    <!--<include file="$(find marsha_ai)/launch/single_arm.launch">
-        <arg name="machine" value="jet1"/>
+    <include file="$(find marsha_ai)/launch/single_arm.launch">
+        <arg name="machine" value="jet2"/>
         <arg name="display_machine" value=""/>
         <arg name="ns" value="right"/>
         <arg name="launch_rviz" value="$(arg manual_right)"/>
         <arg name="x_pos" value="0.5"/>
-    </include>-->
+        <arg name="state_machine" value="true"/>
+    </include>
     
 
     <node pkg="marsha_gazebo" type="reset" name="reset"/>
