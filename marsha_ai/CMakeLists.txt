@@ -78,10 +78,10 @@ catkin_install_python(PROGRAMS
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-#add_executable(move_interface nodes/move_interface.cpp)
-#target_link_libraries(move_interface ${catkin_LIBRARIES})
-#add_dependencies(move_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#install(TARGETS move_interface DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+add_executable(move_interface nodes/move_interface.cpp)
+target_link_libraries(move_interface ${catkin_LIBRARIES})
+add_dependencies(move_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+install(TARGETS move_interface DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 

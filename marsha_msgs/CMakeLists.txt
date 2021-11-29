@@ -17,10 +17,13 @@ add_message_files(
 
 add_service_files(
     FILES
+    GraspedState.srv
+    MoveCmd.srv
     GetPos.srv
     GetPosFrame.srv
     PositionCmd.srv
     Reset.srv
+    StateComm.srv
 )
 
 add_action_files(

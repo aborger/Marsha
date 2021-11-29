@@ -24,8 +24,8 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 
 #include <ros/ros.h>
-#include "marsha_ai/Pose.h" // Replace with geometry_msgs/Pose.msg
-#include "marsha_ai/MoveCmd.h"
+#include "geometry_msgs/Pose.h" // Replace with geometry_msgs/Pose.msg
+#include "marsha_msgs/MoveCmd.h"
 #include "marsha_msgs/PositionCmd.h"
 #include "marsha_msgs/GetPos.h"
 
@@ -56,8 +56,8 @@ class MarshaMoveInterface {
         std::string pose_param;
 
 
-        bool poseCmd(marsha_ai::MoveCmd::Request &req,
-                     marsha_ai::MoveCmd::Response &res)
+        bool poseCmd(marsha_msgs::MoveCmd::Request &req,
+                     marsha_msgs::MoveCmd::Response &res)
         { 
             //std::string pose_name = req.pose_name;
             ROS_DEBUG("Going to pose: %s", req.pose_name.c_str());
@@ -86,8 +86,8 @@ class MarshaMoveInterface {
             return true;            
         }
 
-        bool positionCmd(marsha_ai::PositionCmd::Request &req,
-                         marsha_ai::PositionCmd::Response &res) {
+        bool positionCmd(marsha_msgs::PositionCmd::Request &req,
+                         marsha_msgs::PositionCmd::Response &res) {
 
             geometry_msgs::Pose target_pose;
 
@@ -127,8 +127,8 @@ class MarshaMoveInterface {
 
         }
 
-        bool graspCmd(marsha_ai::MoveCmd::Request &req,
-                    marsha_ai::MoveCmd::Response &res)
+        bool graspCmd(marsha_msgs::MoveCmd::Request &req,
+                    marsha_msgs::MoveCmd::Response &res)
         {
 
             ROS_DEBUG("Gripping pose: %s", req.pose_name.c_str());

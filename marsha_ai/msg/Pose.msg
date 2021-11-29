@@ -1,2 +1,0 @@
-Orientation orient
-Position pos

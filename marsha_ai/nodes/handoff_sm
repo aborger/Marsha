@@ -6,9 +6,9 @@ import rospy
 import smach
 import smach_ros
 
-from marsha_ai.srv import MoveCmd
-from marsha_ai.srv import StateComm
-from marsha_ai.srv import GraspedState
+from marsha_msgs.srv import MoveCmd
+from marsha_msgs.srv import StateComm
+from marsha_msgs.srv import GraspedState
 from std_srvs.srv import Trigger, TriggerRequest
 from std_msgs.msg import Empty
 
@@ -35,10 +35,10 @@ def command(pose_name):
     return success.done
 
 def isGrasped():
-    rospy.wait_for_service(rospy.get_namespace() + '/is_grasped')
+    rospy.wait_for_service(rospy.get_namespace() + 'is_grasped')
 
     
-    call_server = rospy.ServiceProxy(rospy.get_namespace() + '/is_grasped', Trigger)
+    call_server = rospy.ServiceProxy(rospy.get_namespace() + 'is_grasped', Trigger)
 
     grasped = call_server().success
 
