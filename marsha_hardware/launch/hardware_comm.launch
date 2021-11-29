@@ -1,0 +1,16 @@
+<launch>
+
+
+
+    <rosparam file="$(find marsha_hardware)/config/stepper_calibration.yaml" command="load"/>
+
+
+    <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
+        <param name="port" value="/dev/ttyACM0"/>
+        <param name="baud" value="115200"/>
+    </node>
+
+
+    <node name="diablo_controller" pkg="marsha_hardware" type="diablo_controller" output="screen"/>
+
+</launch>

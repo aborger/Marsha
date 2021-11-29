@@ -1,8 +1,10 @@
 #include "Stepper.h"
 
-Stepper::Stepper(int _step_pin, int _dir_pin) {
+Stepper::Stepper(int _step_pin, int _dir_pin, bool flip_direction=false) {
   step_pin = _step_pin;
   dir_pin = _dir_pin;
+
+  pos_dir = flip_direction;
 
   // In degrees
   current_step = 0;
@@ -113,21 +115,21 @@ void Stepper::control_step_pos() {
 }
 
 
-void Stepper::set_point(long int step_position) {
+void Stepper::set_point(int step_position) {
   desired_step = step_position;
   if (current_step < desired_step) {
-    digitalWrite(dir_pin, LOW);
+    digitalWrite(dir_pin, pos_dir);
     current_dir = true;
   }
   else {
-    digitalWrite(dir_pin, HIGH);
+    digitalWrite(dir_pin, !pos_dir);
     current_dir = false;
   }
 }
 
-long int Stepper::get_current_step() {
+int Stepper::get_current_step() {
   return current_step;
 }
-long int Stepper::get_desired_step() {
+int Stepper::get_desired_step() {
   return desired_step;
 }

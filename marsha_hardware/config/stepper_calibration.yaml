@@ -5,7 +5,7 @@ ar3:
       - 0.0225
       - 0.036
       - 0.0375
-      - 1
+      - 0.045
       - 0.18
       - .01 # Stepper not working currently
 
