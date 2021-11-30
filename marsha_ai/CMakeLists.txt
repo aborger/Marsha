@@ -11,12 +11,6 @@ find_package(catkin REQUIRED
     geometry_msgs
     trajectory_msgs
     rosbridge_server
-    interactive_markers
-    moveit_core
-    moveit_visual_tools
-    moveit_ros_planning
-    moveit_ros_planning_interface
-    moveit_ros_perception
     pluginlib
     geometric_shapes
     pcl_ros
@@ -40,21 +34,12 @@ include_directories(include)
  
 
 catkin_package(
-  LIBRARIES
-  INCLUDE_DIRS
   CATKIN_DEPENDS
-    moveit_core
-    moveit_visual_tools
-    moveit_ros_planning_interface
-    interactive_markers
     tf2_geometry_msgs
   DEPENDS
     EIGEN3
 )
 
-###########
-## Build ##
-###########
 
 
 include_directories(
@@ -63,30 +48,14 @@ include_directories(
 
 
 
-#############
-## Install ##
-#############
-
 
 
 catkin_install_python(PROGRAMS
    nodes/ai_node
-   nodes/handoff_sm
    nodes/spawn_tensorboard
-   scripts/cmd_state
-   scripts/get_state
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_executable(move_interface nodes/move_interface.cpp)
-target_link_libraries(move_interface ${catkin_LIBRARIES})
-add_dependencies(move_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-install(TARGETS move_interface DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-
-
-#############
-## Testing ##
-#############
 
 

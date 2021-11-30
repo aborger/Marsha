@@ -1,9 +1,0 @@
-<launch>
-
-    <arg name="train" default="true"/>
-    <arg name="continue" default="true"/>
-    <arg name="eval" default="true"/>
-
-    <node name="ai_node" pkg="marsha_ai" type="ai_node" output="screen" ns="left" args="$(arg train) $(arg continue) $(arg eval)"/>
-
-</launch>
