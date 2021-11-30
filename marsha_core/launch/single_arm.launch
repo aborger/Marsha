@@ -1,9 +1,11 @@
+<!-- This should eventually launch either simulated or hardware arms -->
+
 <launch>
+    
     <arg name="machine" default=""/>
     <arg name="display_machine" default=""/>
     <arg name="ns" default="left"/>
-    <arg name="launch_rviz" default="true"/>
-    <arg name="state_machine" default="true"/>
+    <arg name="launch_rviz" default="false"/>
     <arg name="x_pos" default="0"/>
 
     <group ns="$(arg ns)">
@@ -26,18 +28,14 @@
             <arg name="simulated" value="true"/>
         </include>
 
-        <node name="move_interface" pkg="marsha_ai" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+        <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
-
-
-
-        <node name="state_machine" pkg="marsha_ai" type="handoff_sm" machine="$(arg machine)" if="$(eval arg('state_machine') == true)"/>
 
         <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
         <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
         
 
-        <node name="get_state" pkg="marsha_ai" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
+        <node name="get_state" pkg="marsha_core" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
         
 
     </group>

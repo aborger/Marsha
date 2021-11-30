@@ -1,0 +1,15 @@
+
+<launch>
+
+
+    <include file="$(find marsha_core)/launch/simulate.launch">
+        <arg name="num_arms" value="2"/>
+    </include>
+
+    <node ns="right" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet1"/>
+    <node ns="left" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet1"/>
+
+ 
+</launch>
+
+    
