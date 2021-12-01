@@ -34,7 +34,7 @@ class MarshaGym(gym.Env):
         # time represents the time slice along the objects trajectory
         # Could also include grasp close speed & threshold
         action_space_min = np.array([0, 0, 0, 0]) 
-        action_space_max = np.array([1, 2*math.pi, 2*math.pi, 1])
+        action_space_max = np.array([1, math.pi, 2*math.pi, 1])
         self.action_space = spaces.Box(action_space_min, action_space_max)  
 
         # Observation space: (Object position, Object velocity)

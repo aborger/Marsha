@@ -12,6 +12,7 @@ find_package(catkin REQUIRED
         moveit_ros_planning
         moveit_ros_planning_interface
         marsha_msgs
+        tf
 )
 
 include_directories(include)
