@@ -10,6 +10,7 @@ Stepper::Stepper(int _step_pin, int _dir_pin, bool flip_direction=false) {
   current_step = 0;
   desired_step = 0;
   timer = 0;
+  enc_counter = 0;
 
   current_dir = true;
 
@@ -133,3 +134,5 @@ int Stepper::get_current_step() {
 int Stepper::get_desired_step() {
   return desired_step;
 }
+
+

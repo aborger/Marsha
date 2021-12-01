@@ -23,6 +23,8 @@ class Stepper {
 
     int DELAY;
     int timer;
+    int enc_counter;
+    int enc_rate = 10;
 
     int on_time;
     int off_time;
@@ -38,6 +40,8 @@ class Stepper {
     void step();
     void set_point(int step_position);
     void control_step_pos();
+
+    void get_encoder();
 
     int get_current_step();
     int get_desired_step();
