@@ -1,0 +1,3 @@
+marsha_msgs/Polar latent_space
+---
+geometry_msgs/Pose grasp
