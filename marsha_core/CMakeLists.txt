@@ -3,11 +3,16 @@ project(marsha_core)
 
 
 find_package(catkin REQUIRED
-    COMPONENTS
-        roscpp
-        rospy
-        std_msgs
+  COMPONENTS
+    roscpp
+    rospy
+    std_msgs
 )
 
 catkin_package()
 
+catkin_install_python(
+  PROGRAMS
+    scripts/pickup_moving_object
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

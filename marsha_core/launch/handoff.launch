@@ -1,4 +1,4 @@
-
+<!-- Handoff doesn't work well right now because of the transition to a ball. -->
 <launch>
 
 
@@ -6,8 +6,8 @@
         <arg name="num_arms" value="2"/>
     </include>
 
-    <node ns="right" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet1"/>
-    <node ns="left" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet1"/>
+    <node ns="right" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet2"/>
+    <node ns="left" name="state_machine" pkg="marsha_core" type="handoff_sm" machine="jet2"/>
 
  
 </launch>

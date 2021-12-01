@@ -16,9 +16,9 @@ import sys
 
 # Msg and Srv
 from geometry_msgs.msg import Pose
-from marsha_msgs.srv import GetPose
+from marsha_msgs.srv import GetPosFrame
 from gazebo_msgs.srv import GetModelState
-from marsha_ai.srv import PositionCmd
+from marsha_msgs.srv import PositionCmd
 
 
 class LocationServer():
@@ -27,7 +27,7 @@ class LocationServer():
 
         self.pub = rospy.Publisher('object_pos', Pose, queue_size=10)
         self.prev_state = None
-        self.service = rospy.Service('get_object_pos', GetPose, self.handleObjectPos)
+        self.service = rospy.Service('get_object_pos', GetPosFrame, self.handleObjectPos)
         self.rate = rospy.Rate(1)
 
         rospy.wait_for_service('/gazebo/get_model_state')

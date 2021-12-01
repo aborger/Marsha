@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+
+# Adds velocity to pickup object
+
+# Author: Aaron Borger
+
+import rospy
+
+from gazebo_msgs.srv import ApplyBodyWrench
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import Vector3
+from std_msgs.msg import Duration
+
+
+apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+
+def main():
+    rospy.init_node('velocity_control')
+    
+    ref_point = Point(0, 0, 0)
+    wrench = Wrench()
+    wrench.force = Vector3(0, 0.01, 0)
+
+    dur = Duration().data
+    dur.secs=1
+
+    resp = apply_wrench(
+        body_name="pickup_object::pickup_object",
+        reference_point=ref_point,
+        wrench=wrench,
+        duration=dur
+
+    )
+
+    print(resp)
+
+    
+
+if __name__ == "__main__":
+    main()

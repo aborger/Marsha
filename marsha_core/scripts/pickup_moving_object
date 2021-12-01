@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+# Finds object with object location and picks it up
+
+# Author: Aaron Borger
+
+import rospy
+from marsha_msgs.srv import MoveCmd
+from marsha_msgs.srv import GetPosFrame
+from marsha_msgs.srv import PositionCmd
+from marsha_msgs.srv import GetPos
+from std_srvs.srv import Trigger, TriggerRequest
+
+import math
+
+from geometry_msgs.msg import Point
+
+pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
+
+rospy.wait_for_service('/left/position_cmd')
+position_cmd = rospy.ServiceProxy('/left/position_cmd', PositionCmd)
+
+grasp_cmd = rospy.ServiceProxy('/left/grasp_cmd', MoveCmd)
+
+get_object_pos = rospy.ServiceProxy('/get_object_pos', GetPosFrame)
+
+is_grasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
+
+get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
+
+
+close_thresh = 0.12
+open_thresh = 0.2
+def calculateDistance(p1, p2):
+    distance = math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2 + (p2.z - p1.z)**2)
+    return distance
+
+# 2 states going to and following
+def main():
+    rospy.init_node('object_pickup')
+
+    rate = rospy.Rate(1)
+    while not rospy.is_shutdown():
+        recv_pos = get_object_pos("left_ar3::world_base").position
+        curr_pos = get_pos().position
+        
+        dist = calculateDistance(recv_pos, curr_pos)
+        print(dist)
+        if dist < close_thresh:
+            grasp_cmd("close")
+        if dist > open_thresh:
+            grasp_cmd("open")
+
+        point = Point()
+        point.x = recv_pos.x
+        point.y = recv_pos.y + 0.01
+        point.z = recv_pos.z + 0.06
+
+        
+
+        success = position_cmd(point).done
+
+        rate.sleep()
+
+
+
+
+
+if __name__ == "__main__":
+    main()
+

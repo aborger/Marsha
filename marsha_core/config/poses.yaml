@@ -23,7 +23,7 @@ left:
 
   pose/pickup:
     position:
-      x: -0.25677
+      x: -0.24
       y: -0.0545
       z: 0.087
     orientation:
@@ -34,9 +34,9 @@ left:
 
   pose/preGrasp:
     position:
-      x: -0.25677
+      x: -0.24
       y: -0.0545
-      z: 0.5
+      z: 0.4
     orientation:
       x: -0.999911
       y: 0.006463

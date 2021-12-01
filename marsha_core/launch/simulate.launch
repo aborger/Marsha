@@ -15,14 +15,14 @@
 
     <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
 
-    <include file="$(find marsha_core)/launch/single_arm.launch">
-        <arg name="machine" value="jet1"/>
+    <include file="$(find marsha_core)/launch/single_arm.launch" if="$(eval arg('num_arms') >= 1)">
+        <arg name="machine" value="jet2"/>
         <arg name="ns" value="left"/>
         <arg name="x_pos" value="0"/>
     </include>
 
     <include file="$(find marsha_core)/launch/single_arm.launch" if="$(eval arg('num_arms') == 2)">
-        <arg name="machine" value="jet1"/>
+        <arg name="machine" value="jet2"/>
         <arg name="ns" value="right"/>
         <arg name="x_pos" value="0.5"/>
     </include>
