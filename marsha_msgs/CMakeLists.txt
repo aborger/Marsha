@@ -13,6 +13,7 @@ find_package(catkin REQUIRED
 add_message_files(
     FILES
     Timer.msg
+    Polar.msg
 )
 
 add_service_files(
@@ -24,6 +25,7 @@ add_service_files(
     PositionCmd.srv
     Reset.srv
     StateComm.srv
+    GenerateGrasp.srv
 )
 
 add_action_files(
