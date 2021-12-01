@@ -44,8 +44,8 @@ def reset(req):
 
     pose = Pose()
     pose.position.x = -0.25 #domain[0]  #-0.25
-    pose.position.y = -0.5 #domain[1]  #-0.05
-    pose.position.z = 0.1
+    pose.position.y = -0.05 #domain[1]  #-0.05
+    pose.position.z = 0
     twist = Twist()
 
     desired_state = ModelState('pickup_object', pose, twist, 'world')

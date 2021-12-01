@@ -10,18 +10,21 @@ from marsha_msgs.srv import GetPosFrame
 from marsha_msgs.srv import PositionCmd
 from marsha_msgs.srv import GetPos
 from marsha_msgs.srv import GenerateGrasp
+from marsha_msgs.srv import PostureCmd
 from std_srvs.srv import Trigger, TriggerRequest
 
 
 
 import math
 
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Pose
 
 #pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
 
 #rospy.wait_for_service('/left/position_cmd')
 position_cmd = rospy.ServiceProxy('/left/position_cmd', PositionCmd)
+
+posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
 
 grasp_cmd = rospy.ServiceProxy('/left/grasp_cmd', MoveCmd)
 
@@ -45,18 +48,26 @@ def main():
 
 
     object_pos = get_object_pos("left_ar3::world_base").position
-    grasp_obj_space = generate_grasp(10, 0, 0).grasp.position
+    grasp_obj_space = generate_grasp(1, 0, 0).grasp.position
 
 
 
-    grasp = Point()
-    grasp.x = object_pos.x + grasp_obj_space.x
-    grasp.y = object_pos.y + grasp_obj_space.y
-    grasp.z = object_pos.z + grasp_obj_space.z
+    grasp = Pose()
+    grasp.position.x = object_pos.x + grasp_obj_space.x
+    grasp.position.y = object_pos.y + grasp_obj_space.y
+    grasp.position.z = object_pos.z + grasp_obj_space.z
+
+    grasp.orientation.x = -0.999
+    grasp.orientation.y = 0.006
+    grasp.orientation.z = -0.007
+    grasp.orientation.w = -0.009
+
+    print(grasp)
 
         
 
-    success = position_cmd(point).done
+    success = position_cmd(grasp).done
+    print(success)
 
 
 
