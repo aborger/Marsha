@@ -13,6 +13,7 @@
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Quaternion.h>
 #include <marsha_msgs/GenerateGrasp.h>
 
 #include <math.h>
@@ -39,7 +40,10 @@ class GraspGenerator {
 
         geometry_msgs::Pose generate(float r, float theta, float phi) {
             geometry_msgs::Pose pose;
+            geometry_msgs::Quaternion orientation;
+            orientation.w = 1;
             pose.position = polar_to_rect(r, theta, phi);
+            pose.orientation = orientation;
             return pose;
         }
 
