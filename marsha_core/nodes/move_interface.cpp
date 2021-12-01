@@ -28,6 +28,7 @@
 #include "marsha_msgs/MoveCmd.h"
 #include "marsha_msgs/PositionCmd.h"
 #include "marsha_msgs/GetPos.h"
+#include "marsha_msgs/PostureCmd.h"
 
 #include <std_msgs/Empty.h>
 #include <string>
@@ -50,6 +51,7 @@ class MarshaMoveInterface {
         ros::ServiceServer positionService;
         ros::ServiceServer graspService;
         ros::ServiceServer getPosService;
+        ros::ServiceServer postureService;
         //ros::Subscriber position_sub;
         ros::Subscriber get_pose_sub;
 
@@ -84,6 +86,38 @@ class MarshaMoveInterface {
 
             res.done = success;
             return true;            
+        }
+
+        // I hate this name, but I couldn't come up with anything better
+        bool postureCmd(marsha_msgs::PostureCmd::Request &req,
+                        marsha_msgs::PostureCmd::Response &res) {
+            
+            geometry_msgs::Pose target_pose;
+            target_pose = req.posture;
+
+            float z_collision;
+            ros::param::get("/hyperparameters/z_collision", z_collision);
+            if (target_pose.position.z < z_collision) {
+                ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
+                target_pose.position.z = z_collision;
+            }
+
+            move_group->setPoseTarget(target_pose);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+
+            if (success) {
+                move_group->asyncExecute(target_plan);
+            }
+            
+
+
+            res.done = success;
+            return true;   
+
         }
 
         bool positionCmd(marsha_msgs::PositionCmd::Request &req,
@@ -190,6 +224,8 @@ class MarshaMoveInterface {
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
             //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
+
+            postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
             pose_param = ros::this_node::getNamespace() + "/pose/";
         }

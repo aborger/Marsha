@@ -38,11 +38,12 @@ class GraspGenerator {
             return position;
         }
 
-        geometry_msgs::Pose generate(float r, float theta, float phi) {
+        geometry_msgs::Pose generate(float normalized_r, float theta, float phi) {
             geometry_msgs::Pose pose;
             geometry_msgs::Quaternion orientation;
+            float radius = convert_radius(normalized_r);
             orientation.w = 1;
-            pose.position = polar_to_rect(r, theta, phi);
+            pose.position = polar_to_rect(radius, theta, phi);
             pose.orientation = orientation;
             return pose;
         }
@@ -59,7 +60,7 @@ class GraspGenerator {
         bool generate_grasp(marsha_msgs::GenerateGrasp::Request &req,
                             marsha_msgs::GenerateGrasp::Response &res) 
         {
-            res.grasp = generate(req.latent_space.radius, req.latent_space.theta, req.latent_space.phi);
+            res.grasp = generate(req.radius, req.theta, req.phi);
             return true;
         }
 
