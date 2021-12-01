@@ -19,6 +19,7 @@
         <arg name="machine" value="jet2"/>
         <arg name="ns" value="left"/>
         <arg name="x_pos" value="0"/>
+        <arg name="launch_rviz" value="true"/>
     </include>
 
     <include file="$(find marsha_core)/launch/single_arm.launch" if="$(eval arg('num_arms') == 2)">

@@ -13,9 +13,11 @@ from marsha_msgs.srv import GenerateGrasp
 from marsha_msgs.srv import PostureCmd
 from std_srvs.srv import Trigger, TriggerRequest
 
+import tf
 
 
-import math
+
+from math import pi, sin, cos, sqrt
 
 from geometry_msgs.msg import Pose
 
@@ -37,40 +39,32 @@ get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
 generate_grasp = rospy.ServiceProxy('/generate_grasp', GenerateGrasp)
 
 
-#close_thresh = 0.12
-#open_thresh = 0.2
 
 
-# 2 states going to and following
+
+
 def main():
     rospy.init_node('object_pickup')
 
 
-
     object_pos = get_object_pos("left_ar3::world_base").position
-    grasp_obj_space = generate_grasp(1, 0, 0).grasp.position
+    
+    grasp_obj_space = generate_grasp(0.5, pi/3, pi/3).grasp
 
 
 
     grasp = Pose()
-    grasp.position.x = object_pos.x + grasp_obj_space.x
-    grasp.position.y = object_pos.y + grasp_obj_space.y
-    grasp.position.z = object_pos.z + grasp_obj_space.z
+    grasp.position.x = object_pos.x + grasp_obj_space.position.x
+    grasp.position.y = object_pos.y + grasp_obj_space.position.y
+    grasp.position.z = object_pos.z + grasp_obj_space.position.z
+    grasp.orientation = grasp_obj_space.orientation
 
-    grasp.orientation.x = -0.999
-    grasp.orientation.y = 0.006
-    grasp.orientation.z = -0.007
-    grasp.orientation.w = -0.009
 
     print(grasp)
 
-        
 
-    success = position_cmd(grasp).done
+    success = posture_cmd(grasp).done
     print(success)
-
-
-
 
 
 

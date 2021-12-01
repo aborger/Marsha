@@ -26,6 +26,7 @@ add_service_files(
     Reset.srv
     StateComm.srv
     GenerateGrasp.srv
+    PostureCmd.srv
 )
 
 add_action_files(
