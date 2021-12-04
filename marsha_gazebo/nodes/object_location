@@ -28,7 +28,7 @@ class LocationServer():
         self.pub = rospy.Publisher('object_pos', Pose, queue_size=10)
         self.prev_state = None
         self.service = rospy.Service('get_object_pos', GetPosFrame, self.handleObjectPos)
-        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(5)
 
         rospy.wait_for_service('/gazebo/get_model_state')
 

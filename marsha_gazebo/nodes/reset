@@ -9,20 +9,29 @@
 # Todo: Fix the domain randomization, its annoying needing to give value to reset
 
 import rospy
-import subprocess
-import os
+
+
 from gazebo_msgs.srv import DeleteModel
 from gazebo_msgs.srv import SpawnModel
-
+from gazebo_msgs.srv import SetLinkProperties
 from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.srv import ApplyBodyWrench
+
 from gazebo_msgs.msg import ModelState
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import Vector3
+
+from std_msgs.msg import Duration
 
 from marsha_msgs.srv import Reset
 
 from marsha_gazebo.auto_domain_randomization import DRandomizer
+
+from std_msgs.msg import Empty
 
 
 import time
@@ -33,31 +42,74 @@ MODEL_NAME = "pickup_object"
 # Not using any more, but dont want to delete just incase
 #delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
 #spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+
 set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+set_link_properties = rospy.ServiceProxy('/gazebo/set_link_properties', SetLinkProperties)
+apply_body_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
 
 randomizer = DRandomizer((2), (-0.25, 0.25))
 
 # If change works well, reset and all its requirements can be deleted
 def reset(req):
 
-    domain, dar = randomizer.get_domain(req.reward)
+    #domain, dar = randomizer.get_domain(req.reward)
 
     pose = Pose()
-    pose.position.x = -0.4 #domain[0]  #-0.25
-    pose.position.y = -0.05 #domain[1]  #-0.05
-    pose.position.z = 0
+    pose.position.x = -0.2 #domain[0]  #-0.25
+    pose.position.y = -0.1 #domain[1]  #-0.05
+    pose.position.z = 0.4
     twist = Twist()
 
+    success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
+    print("gravity success: ", success)
     desired_state = ModelState('pickup_object', pose, twist, 'world')
 
     resp = set_model(desired_state)
     #print('dar:', dar, type(dar))
-    return(resp.success, dar)
+    return(resp.success)
+
+def launcher(data):
+
+    pose = Pose()
+    pose.position.x = -0.3
+    pose.position.y = -1
+    pose.position.z = 0.2
+    twist = Twist()
+
+    success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
+    print("gravity success: ", success)
+    desired_state = ModelState('pickup_object', pose, twist, 'world')
+
+    resp = set_model(desired_state)
+    print('change success:', resp.success)
+
+    # Add velocity
+    ref_point = Point(0, 0, 0)
+    wrench = Wrench()
+    wrench.force = Vector3(0, 0.05, 0)
+
+    dur = Duration().data
+    dur.secs=1
+
+    resp = apply_wrench(
+        body_name="pickup_object::pickup_object",
+        reference_point=ref_point,
+        wrench=wrench,
+        duration=dur
+
+    )
+    
+
+
+
+
 
 
 def server():
     rospy.init_node('reset_server')
-    s = rospy.Service('reset', Reset, reset)
+    s = rospy.Subscriber("reset", Empty, launcher)
+    #s = rospy.Subscriber("reset", Empty, reset)
     rospy.spin()
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ from std_srvs.srv import Trigger, TriggerRequest
 
 import tf
 
-
+import numpy as np
 
 from math import pi, sin, cos, sqrt
 
@@ -24,7 +24,7 @@ from geometry_msgs.msg import Pose
 #pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
 
 #rospy.wait_for_service('/left/position_cmd')
-position_cmd = rospy.ServiceProxy('/left/position_cmd', PositionCmd)
+#position_cmd = rospy.ServiceProxy('/left/position_cmd', PositionCmd)
 
 posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
 
@@ -32,39 +32,97 @@ grasp_cmd = rospy.ServiceProxy('/left/grasp_cmd', MoveCmd)
 
 get_object_pos = rospy.ServiceProxy('/get_object_pos', GetPosFrame)
 
-#is_grasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
+is_grasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
 
-get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
+#get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
 
 generate_grasp = rospy.ServiceProxy('/generate_grasp', GenerateGrasp)
 
 
+def grasp(object_pos, r, theta, phi):
+    pre_grasp_obj_space = generate_grasp(r + 2, theta, phi).grasp
+
+    pre_grasp = object_to_world(pre_grasp_obj_space, object_pos)
+
+    pre_grasp_success = posture_cmd(pre_grasp).done
+    print("pre-grasp success:", pre_grasp_success)
+
+    grasp_cmd("open")
+
+    grasp_obj_space = generate_grasp(r, theta, phi).grasp
+
+    grasp = object_to_world(grasp_obj_space, object_pos)
+
+    grasp_success = posture_cmd(grasp).done
+    print("grasp position success:", grasp_success)
+
+    grasp_cmd("close")
+
+    success = is_grasped().success
+
+    print("grasp success", success)
+
+    return pre_grasp_success and grasp_success
 
 
+def object_to_world(obj_space, obj_pos):
+    world = Pose()
+    world.position.x = obj_pos.position.x + obj_space.position.x
+    world.position.y = obj_pos.position.y + obj_space.position.y
+    world.position.z = obj_pos.position.z + obj_space.position.z
+    world.orientation = obj_space.orientation
+    return world
 
 
 def main():
     rospy.init_node('object_pickup')
 
 
-    object_pos = get_object_pos("left_ar3::world_base").position
+    object_pos = Pose() #get_object_pos("left_ar3::world_base")
     
-    grasp_obj_space = generate_grasp(0.5, pi/3, pi/3).grasp
+    r = 0.468269
+    object_pos.position.x = -0.3
+    object_pos.position.y = 0.049966
+    object_pos.position.z = 0.5
+
+    theta = 1.472203
+    phi = 3.6241
+    
+    grasp(object_pos, r, theta, phi)
+
+
+def test():
+    rospy.init_node('object_pickup')
+
+
+    object_pos = Pose() #get_object_pos("left_ar3::world_base")
+
+    for x in np.arange(-0.4, 0.5, 0.1):
+        for y in np.arange(-0.5, 0.5, 0.1):
+            for z in np.arange(0.1, 0.5, 0.1):
+
+                r = 0.20435
+                object_pos.position.x = x
+                object_pos.position.y = y
+                object_pos.position.z = z
+
+                theta = pi/4
+                phi = pi/4
+
+                success = grasp(object_pos, r, theta, phi)
+                if success:
+                    print(object_pos)
+                    raise
 
 
 
-    grasp = Pose()
-    grasp.position.x = object_pos.x + grasp_obj_space.position.x
-    grasp.position.y = object_pos.y + grasp_obj_space.position.y
-    grasp.position.z = object_pos.z + grasp_obj_space.position.z
-    grasp.orientation = grasp_obj_space.orientation
+
+    
 
 
-    print(grasp)
 
 
-    success = posture_cmd(grasp).done
-    print(success)
+    
 
 
 
