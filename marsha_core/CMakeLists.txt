@@ -31,5 +31,5 @@ include_directories(
 add_executable(move_interface nodes/move_interface.cpp)
 target_link_libraries(move_interface ${catkin_LIBRARIES})
 
-add_executable(grasp_generator src/grasp_generator.cpp)
-target_link_libraries(grasp_generator ${catkin_LIBRARIES})
+
+

@@ -29,6 +29,7 @@
 #include "marsha_msgs/PositionCmd.h"
 #include "marsha_msgs/GetPos.h"
 #include "marsha_msgs/PostureCmd.h"
+#include "marsha_msgs/PlanGrasp.h"
 
 #include <std_msgs/Empty.h>
 #include <string>
@@ -37,6 +38,11 @@
 
 
 #include <vector>
+
+struct GraspPlan {
+    moveit::planning_interface::MoveGroupInterface::Plan pre_grasp;
+    moveit::planning_interface::MoveGroupInterface::Plan grasp;
+};
 
 static const std::string ARM_PLANNING_GROUP = "manipulator";
 static const std::string GRIPPER_PLANNING_GROUP = "gripper";
@@ -52,6 +58,7 @@ class MarshaMoveInterface {
         ros::ServiceServer graspService;
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
+        ros::ServiceServer planGraspService;
         //ros::Subscriber position_sub;
         ros::Subscriber get_pose_sub;
 
@@ -88,19 +95,39 @@ class MarshaMoveInterface {
             return true;            
         }
 
-        // I hate this name, but I couldn't come up with anything better
+        // Need to figure out how to plan the two as one movement
+        bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
+                       marsha_msgs::PlanGrasp::Response &res) {
+            move_group->setPoseTarget(req.preGrasp);
+            GraspPlan grasp_plan;
+
+            bool pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            if (pre_grasp_success) {
+                move_group->execute(grasp_plan.pre_grasp);
+                move_group->setPoseTarget(req.Grasp);
+                bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+                if (grasp_success) {
+                    move_group->execute(grasp_plan.grasp);
+                    res.success = true;
+                } else {
+                    res.success = false;
+                }
+            }
+            else {
+                res.success = false;
+            }
+            return true;
+        }
+
+        // This should be named poseCmd and poseCmd should be deleted because
+        // it was made before I understood quaternions
         bool postureCmd(marsha_msgs::PostureCmd::Request &req,
                         marsha_msgs::PostureCmd::Response &res) {
             
             geometry_msgs::Pose target_pose;
             target_pose = req.posture;
 
-            float z_collision;
-            ros::param::get("/hyperparameters/z_collision", z_collision);
-            if (target_pose.position.z < z_collision) {
-                ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
-                target_pose.position.z = z_collision;
-            }
+
 
             move_group->setPoseTarget(target_pose);
 
@@ -110,7 +137,7 @@ class MarshaMoveInterface {
             ROS_INFO("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
 
             if (success) {
-                move_group->asyncExecute(target_plan);
+                move_group->execute(target_plan);
             }
             
 
@@ -226,6 +253,8 @@ class MarshaMoveInterface {
             //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
 
             postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
+
+            planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
 
             pose_param = ros::this_node::getNamespace() + "/pose/";
         }

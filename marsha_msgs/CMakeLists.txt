@@ -27,6 +27,8 @@ add_service_files(
     StateComm.srv
     GenerateGrasp.srv
     PostureCmd.srv
+    PredictPosition.srv
+    PlanGrasp.srv
 )
 
 add_action_files(

@@ -52,10 +52,15 @@ include_directories(
 
 catkin_install_python(PROGRAMS
    nodes/ai_node
+   nodes/mdp_ai_node
    nodes/spawn_tensorboard
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+add_executable(grasp_generator nodes/grasp_generator.cpp)
+target_link_libraries(grasp_generator ${catkin_LIBRARIES})
 
+add_executable(trajectory_predictor nodes/trajectory_predictor.cpp)
+target_link_libraries(trajectory_predictor ${catkin_LIBRARIES})
 
 

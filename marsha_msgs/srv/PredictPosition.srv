@@ -1,0 +1,4 @@
+float64 norm_dist
+---
+geometry_msgs/Point predicted_position
+std_msgs/Duration predicted_time

@@ -19,6 +19,7 @@ from gym import spaces
 import numpy as np
 import rospy
 import math
+from time import sleep
 
 MAX_REWARD = 100
 
@@ -41,7 +42,21 @@ class MarshaGym(gym.Env):
         self.observation_space = spaces.Box(low=-1, high=1, shape=(2, 3))
 
     def step(self, action):
+
+        reward = self.ros_interface.perform_action(action)
+
+
+
+        # observation, reward, done, info
+        return None, reward, True, {}
+
+    def reset(self):
+        self.ros_interface.reset_simulation()
+        print("Waiting to predict...")
+        sleep(3)
+
+
+    def render(self, mode='', close=False):
         pass
 
-if __name__ == "__main__":
-    print(arr)
+        
