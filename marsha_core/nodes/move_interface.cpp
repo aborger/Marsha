@@ -193,15 +193,15 @@ class MarshaMoveInterface {
         {
 
             ROS_DEBUG("Gripping pose: %s", req.pose_name.c_str());
-            std::string param = "/gripper/" + req.pose_name + "/";
-            std::vector<double> joint_targets(2);
+            std::string param = "/gripper/" + req.pose_name;
+            std::vector<double> joint_targets(3);
+
+            ros::param::get(param, joint_targets[0]);
+            ros::param::get(param, joint_targets[1]);
+            ros::param::get(param, joint_targets[2]);
 
 
-            ros::param::get(param + "left", joint_targets[0]);
-            ros::param::get(param + "right", joint_targets[1]);
-
-
-            ROS_DEBUG("Value targets: %f, %f", joint_targets[0], joint_targets[1]);
+            ROS_DEBUG("Value target: %f", joint_targets);
 
             hand_group->setJointValueTarget(joint_targets);
 
