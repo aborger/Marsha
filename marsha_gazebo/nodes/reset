@@ -32,7 +32,9 @@ from marsha_msgs.srv import Reset
 from marsha_gazebo.auto_domain_randomization import DRandomizer
 
 from std_msgs.msg import Empty
+import sys
 
+import random
 
 import time
 
@@ -43,9 +45,16 @@ MODEL_NAME = "pickup_object"
 #delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
 #spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
 
+rospy.wait_for_service('/gazebo/set_model_state')
 set_model = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+rospy.wait_for_service('/gazebo/apply_body_wrench')
 apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+rospy.wait_for_service('/gazebo/set_link_properties')
 set_link_properties = rospy.ServiceProxy('/gazebo/set_link_properties', SetLinkProperties)
+
+rospy.wait_for_service('/gazebo/apply_body_wrench')
 apply_body_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
 
 randomizer = DRandomizer((2), (-0.25, 0.25))
@@ -61,7 +70,7 @@ def reset(req):
     pose.position.z = 0.1
     twist = Twist()
 
-    #success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
+    success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=True)
     #print("gravity success: ", success)
     desired_state = ModelState('pickup_object', pose, twist, 'world')
 
@@ -69,12 +78,41 @@ def reset(req):
     #print('dar:', dar, type(dar))
     return(resp.success)
 
-def launcher(data):
+class l_dir:
+    def __init__(self, x=-0.3, y=-0.3, z=0.2, force=5):
+        self.x = x
+        self.y = y
+        self.z = z
+        if (x == 1):
+            self.force = Vector3(-1 * force, 0, 0)
+        elif (x == -1):
+            self.force = Vector3(1 * force, 0, 0)
+        elif (y == 1):
+            self.force = Vector3(0, -1 * force, 0)
+        elif (y == -1):
+            self.force = Vector3(0, 1 * force, 0)
+        else:
+            self.force = Vector3(0, 0, 1 * force)
 
-    pose = Pose()
-    pose.position.x = -0.3
-    pose.position.y = -1
-    pose.position.z = 0.2
+    def get_pose(self):
+        pose = Pose()
+        pose.position.x = self.x
+        pose.position.y = self.y
+        pose.position.z = self.z
+        return pose
+
+    def get_force(self):
+        return self.force
+
+
+
+
+
+
+def launcher(data):
+    launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
+    l = random.choice(launches)
+    pose = l.get_pose()
     twist = Twist()
 
     success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
@@ -87,16 +125,16 @@ def launcher(data):
     # Add velocity
     ref_point = Point(0, 0, 0)
     wrench = Wrench()
-    wrench.force = Vector3(0, 0.05, 0)
+    #wrench.force = Vector3(5, 0, 0)
+    wrench.force = l.get_force()
 
-    dur = Duration().data
-    dur.secs=1
+    duration = rospy.Duration(0.01)
 
     resp = apply_wrench(
         body_name="pickup_object::pickup_object",
         reference_point=ref_point,
         wrench=wrench,
-        duration=dur
+        duration=duration
 
     )
     
@@ -106,11 +144,23 @@ def launcher(data):
 
 
 
-def server():
+def reset_server():
     rospy.init_node('reset_server')
+    reset(None)
+    s = rospy.Subscriber("reset", Empty, reset)
+    rospy.spin()
+
+def launch_server():
+    rospy.init_node('reset_server')
+    launcher(None)
     s = rospy.Subscriber("reset", Empty, launcher)
-    #s = rospy.Subscriber("reset", Empty, reset)
     rospy.spin()
 
 if __name__ == "__main__":
-    server()
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "launch":
+            launch_server()
+        else:
+            reset_server()
+    else:
+        reset_server()

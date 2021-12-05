@@ -92,6 +92,6 @@ right:
 
 gripper:
   open:
-    -0.523
+    -0.4
   close:
-    0.785398
+    0.6981
