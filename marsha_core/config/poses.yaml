@@ -23,9 +23,9 @@ left:
 
   pose/pickup:
     position:
-      x: -0.24
-      y: -0.0545
-      z: 0.087
+      x: -0.3
+      y: -0.1
+      z: 0.12
     orientation:
       x: -0.999911
       y: 0.006463
@@ -34,8 +34,8 @@ left:
 
   pose/preGrasp:
     position:
-      x: -0.24
-      y: -0.0545
+      x: -0.3
+      y: -0.1
       z: 0.4
     orientation:
       x: -0.999911
@@ -92,12 +92,6 @@ right:
 
 gripper:
   open:
-    left:
-      0.03
-    right:
-      -0.03
+    -0.523
   close:
-    left:
-      0
-    right:
-      0
+    0.785398

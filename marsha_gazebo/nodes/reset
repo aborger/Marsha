@@ -56,13 +56,13 @@ def reset(req):
     #domain, dar = randomizer.get_domain(req.reward)
 
     pose = Pose()
-    pose.position.x = -0.2 #domain[0]  #-0.25
+    pose.position.x = -0.3 #domain[0]  #-0.25
     pose.position.y = -0.1 #domain[1]  #-0.05
-    pose.position.z = 0.4
+    pose.position.z = 0.1
     twist = Twist()
 
-    success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
-    print("gravity success: ", success)
+    #success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=False)
+    #print("gravity success: ", success)
     desired_state = ModelState('pickup_object', pose, twist, 'world')
 
     resp = set_model(desired_state)
