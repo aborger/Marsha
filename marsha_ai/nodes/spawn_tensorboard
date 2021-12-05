@@ -4,10 +4,10 @@ import os
 import rospy
 
 # This needs to be a rosparam
-logdir = rospy.get_param('/training_dirs/log_dir')
+logdir = rospy.get_param('/training_dirs/jet2/log_dir')
 CMD = "tensorboard --logdir " + logdir
 def main():
-    rospy.loginfo("Access tensorboard at: http://jet:6006/")
+    rospy.loginfo("Access tensorboard at: http://nnu-engineering:6006/")
     os.system(CMD)
 
 if __name__ == "__main__":

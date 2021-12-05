@@ -28,7 +28,8 @@ add_service_files(
     GenerateGrasp.srv
     PostureCmd.srv
     PredictPosition.srv
-    PlanGrasp.srv
+    PlanGrasp.srv 
+    ObjectObservation.srv 
 )
 
 add_action_files(

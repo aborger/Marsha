@@ -1,4 +1,5 @@
 geometry_msgs/Pose preGrasp
 geometry_msgs/Pose Grasp
+std_msgs/Time grasp_time
 ---
 bool success

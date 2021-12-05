@@ -98,6 +98,8 @@ class MarshaMoveInterface {
         // Need to figure out how to plan the two as one movement
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
+            std::string param = "/gripper/open";
+            bool g_suc = grasp(param);
             move_group->setPoseTarget(req.preGrasp);
             GraspPlan grasp_plan;
 
@@ -107,7 +109,16 @@ class MarshaMoveInterface {
                 move_group->setPoseTarget(req.Grasp);
                 bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
                 if (grasp_success) {
+                    param = "/gripper/close";
+                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.grasp_time.data.toSec());
+                    while (ros::Time::now() < req.grasp_time.data) {
+                        // Not good way of waiting because it blocks
+                        ros::Duration(0.1).sleep();
+                    }
+                    
                     move_group->execute(grasp_plan.grasp);
+                    g_suc = grasp(param);
+
                     res.success = true;
                 } else {
                     res.success = false;
@@ -116,6 +127,7 @@ class MarshaMoveInterface {
             else {
                 res.success = false;
             }
+            
             return true;
         }
 
@@ -188,17 +200,13 @@ class MarshaMoveInterface {
 
         }
 
-        bool graspCmd(marsha_msgs::MoveCmd::Request &req,
-                    marsha_msgs::MoveCmd::Response &res)
-        {
-
-            ROS_DEBUG("Gripping pose: %s", req.pose_name.c_str());
-            std::string param = "/gripper/" + req.pose_name;
+        bool grasp(std::string param) {
             std::vector<double> joint_targets(3);
 
             ros::param::get(param, joint_targets[0]);
             ros::param::get(param, joint_targets[1]);
             ros::param::get(param, joint_targets[2]);
+
 
 
             ROS_DEBUG("Value target: %f", joint_targets);
@@ -209,7 +217,18 @@ class MarshaMoveInterface {
 
             bool success = (hand_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
             ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
-            hand_group->move();
+            hand_group->execute(target_plan);
+
+            return success;
+        }        
+
+        bool graspCmd(marsha_msgs::MoveCmd::Request &req,
+                    marsha_msgs::MoveCmd::Response &res)
+        {
+
+            ROS_DEBUG("Gripping pose: %s", req.pose_name.c_str());
+            std::string param = "/gripper/" + req.pose_name;
+            bool success = grasp(param);
 
             res.done = success;
             return true;

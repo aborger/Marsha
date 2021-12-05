@@ -10,7 +10,7 @@ class RosInterface():
     def perform_action(self, action):
         pass
 
-    def observe(self):
+    def perform_observation(self):
         pass
 
     def reset_simulation(self):

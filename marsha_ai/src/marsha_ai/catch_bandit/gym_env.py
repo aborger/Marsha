@@ -22,6 +22,7 @@ import math
 from time import sleep
 
 MAX_REWARD = 100
+MAX_EPISODE_LENGTH = 50
 
 class MarshaGym(gym.Env):
     def __init__(self, ros_interface):
@@ -30,12 +31,13 @@ class MarshaGym(gym.Env):
         self.reward_range = (0, 100)
         self.current_step = 0
 
-        # action_space: (r, theta, phi, time)
+        # action_space: (r, theta, phi, trajectory_slice, grasp_time)
         # r, theta, and phi represent polar coordinates of a grasp
-        # time represents the time slice along the objects trajectory
-        # Could also include grasp close speed & threshold
-        action_space_min = np.array([0, 0, 0, 0]) 
-        action_space_max = np.array([1, math.pi, 2*math.pi, 1])
+        # trajectory slice is the point along the trajectory the grasp will occur at
+        # the grasp_time is an offset from the predicted time to perform the grasp
+        # Could also include grasp close speed
+        action_space_min = np.array([0, 0, 0, 0, 0]) 
+        action_space_max = np.array([1, math.pi, 2*math.pi, 1, 2])
         self.action_space = spaces.Box(action_space_min, action_space_max)  
 
         # Observation space: (Object position, Object velocity)
@@ -43,17 +45,24 @@ class MarshaGym(gym.Env):
 
     def step(self, action):
 
-        reward = self.ros_interface.perform_action(action)
+        reward, done = self.ros_interface.perform_action(action)
+        observation = self.ros_interface.perform_observation()
 
-
+        self.current_step += 1
+        if self.current_step > MAX_EPISODE_LENGTH:
+            done = True
 
         # observation, reward, done, info
-        return None, reward, True, {}
+        return observation, reward, done, {}
 
     def reset(self):
         self.ros_interface.reset_simulation()
+        self.current_step = 0
         print("Waiting to predict...")
-        sleep(3)
+        sleep(1)
+        observation = self.ros_interface.perform_observation()
+
+        return observation
 
 
     def render(self, mode='', close=False):

@@ -7,18 +7,36 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Vector3.h>
 
 #include <std_msgs/Empty.h>
 
 #include <tf/tf.h>
 
 #include "marsha_msgs/PredictPosition.h"
+#include "marsha_msgs/ObjectObservation.h"
 
 #define REACH    0.3
 
 
 tf::Vector3 msg_to_vector(geometry_msgs::Point point) {
     return tf::Vector3(point.x, point.y, point.z);
+}
+
+geometry_msgs::Vector3 vector_to_Vmsg(tf::Vector3 vector) {
+    geometry_msgs::Vector3 msg;
+    msg.x = vector.x();
+    msg.y = vector.y();
+    msg.z = vector.z();
+    return msg;
+}
+
+geometry_msgs::Point vector_to_Pmsg(tf::Vector3 vector) {
+    geometry_msgs::Point msg;
+    msg.x = vector.x();
+    msg.y = vector.y();
+    msg.z = vector.z();
+    return msg;
 }
 
 void print_vect(tf::Vector3 vect) {
@@ -32,6 +50,7 @@ class TrajectoryPredictor {
         ros::Subscriber reset_subscriber;
 
         ros::ServiceServer predict_position_service;
+        ros::ServiceServer observation_service;
 
         tf::Vector3 initial_position;
         tf::Vector3 prev_position;
@@ -69,12 +88,14 @@ class TrajectoryPredictor {
                 ros::Duration delta_time = ros::Time::now() - initial_time;
 
                 current_velocity = (current_position - prev_position) / delta_time.toSec();
+                ROS_INFO("Current velocity:");
+                print_vect(current_velocity);
 
                 velocity_sum += current_velocity;
                 num_velocities ++;
 
-                ROS_INFO("Avg veloctity:");
-                print_vect(avg_velocity());
+                //ROS_INFO("Avg veloctity:");
+                //print_vect(avg_velocity());
 
 
                 
@@ -110,17 +131,28 @@ class TrajectoryPredictor {
             ros::Duration delta_time = ros::Duration(predicted_position.distance(initial_position) / avg_velocity().length());
 
             ROS_INFO("predictied pos: x: %f y: %f z: %f", predicted_position.x(), predicted_position.y(), predicted_position.z());
+            ROS_INFO("delta time: %f", delta_time.toSec());
             ROS_INFO("----------------------");
+
             // Convert tf vector3 to geometry_msgs Point
             geometry_msgs::Point position_msg;
             position_msg.x = predicted_position.x();
             position_msg.y = predicted_position.y();
             position_msg.z = predicted_position.z();
-            res.predicted_position = position_msg;
-            res.predicted_time.data = delta_time;
+            res.position = position_msg;
+            res.predicted_time.data = ros::Time(initial_time + delta_time);
             
             return true;
         }
+
+        bool observe(marsha_msgs::ObjectObservation::Request &req,
+                     marsha_msgs::ObjectObservation::Response &res) {
+
+            res.initial_position = vector_to_Pmsg(initial_position);
+            res.velocity = vector_to_Vmsg(avg_velocity());
+            return true;
+        }
+        
     public:
 
         TrajectoryPredictor(ros::NodeHandle *nh) {
@@ -128,6 +160,7 @@ class TrajectoryPredictor {
             reset_subscriber = nh->subscribe("reset", 1, &TrajectoryPredictor::reset_callback, this);    
 
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
+            observation_service = nh->advertiseService("observe", &TrajectoryPredictor::observe, this);
         }
 
 };
