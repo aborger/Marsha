@@ -18,6 +18,8 @@
             <arg name="x_pos" value="$(arg x_pos)"/>
         </include>
 
+
+
         <node name="world_transform" pkg="ar3_gazebo" type="tf_world_transform.py"/>
 
         <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch">
@@ -30,13 +32,15 @@
 
         <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
-
         <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
         <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
         
 
         <node name="get_state" pkg="marsha_core" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
-        
-
     </group>
+
+
+    <include file="$(find marsha_core)/launch/gripper.launch">
+        <arg name="machine" value="$(arg machine)"/>
+    </include>
 </launch>

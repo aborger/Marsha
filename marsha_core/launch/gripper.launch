@@ -1,0 +1,54 @@
+<launch>       
+
+    <arg name="machine" default=""/>
+    <arg name="ns" default=""/>
+
+    <group ns="grip">
+
+        <param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro'" />
+        <param name="robot_description_semantic" textfile="$(find marsha_description)/config/gripper_gazebo.srdf"/>
+
+
+        <rosparam file="$(find marsha_gazebo)/config/marsha_gazebo_controllers.yaml" command="load"/>
+
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="--namespace=/grip /grip/ar3/controllers/grip_position /grip/joint_state_controller
+            --shutdown-timeout 1"/>
+
+        <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
+        <rosparam file="$(find ar3_moveit_config)/config/grip_controllers.yaml" />
+
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+        <node name="joint_state_spawner" pkg="controller_manager" type="spawner"
+            respawn="false" output="screen" ns="/grip"
+            args="joint_state_controller">
+        </node>
+
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen" ns="/grip">
+            <param name="tf_prefix" value="grip"/>
+        </node>
+
+        <!--<node pkg="tf" type="tf_remap" name="tf_remapper" output="screen">
+            <rosparam param="mappings">
+            [{old: left/palm, new: grip/palm},{old: left/actuator_1, new: grip/actuator_1},
+             {old: left/actuator_2, new: grip/actuator_2}, {old: left/actuator_3, new: grip/actuator_3}]
+            </rosparam>
+        </node>-->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+            args="-param robot_description -urdf -model gripper -z 1.0" respawn="false" output="screen"/>
+        
+        <node name="gripper_transform" pkg="marsha_gazebo" type="tf_gripper_transform"/>
+
+        <include file="$(find marsha_core)/launch/moveit_config/move_group.launch"/>
+
+
+        <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+
+    </group>
+
+
+
+</launch>
+

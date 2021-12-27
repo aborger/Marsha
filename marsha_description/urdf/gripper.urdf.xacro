@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tundra_gripper">
+
+<link name="world"/>
+
+<link name="palm">
+  <inertial>
+    <origin rpy="0 3.1415 0" xyz="-0.025 0 -0.003"/>
+    <mass value="0.013863"/>
+    <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+  </inertial>
+  <visual>
+    <origin rpy="0 3.1415 0" xyz="-0.025 0 -0.003"/>
+    <geometry>
+      <!--<box size="0.1 0.04 0.005"/>-->
+      <mesh filename="package://ar3_description/meshes/gripper_palm.STL" scale="0.01 0.01 0.01"/>
+    </geometry>
+    <material name="">
+      <color rgba="1 1 0 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin rpy="0 3.1415 0" xyz="-0.025 0 -0.003"/>
+    <geometry>
+      <mesh filename="package://ar3_description/meshes/gripper_palm.STL" scale="0.01 0.01 0.01"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="world_joint" type="fixed">
+  <parent link="world"/>
+  <child link="palm"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+
+
+<link name="actuator_1">
+    <inertial>
+    <!-- -0.02 0.02 0 -->
+      <origin rpy="0 3.1415 1.0472" xyz="0 0 0.007"/>
+      <mass value="0.013863"/>
+      <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 3.1415 1.0472" xyz="0 0 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 3.1415 1.0472" xyz="0 0 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="actuator_joint_1" type="revolute">
+    <!--0.0195 -0.0124 0.045  -->
+    <origin rpy="0 0 3.1416" xyz="0.0195 -0.0124 0.043"/>
+    <parent link="palm"/>
+    <child link="actuator_1"/>
+    <axis xyz="0.5235 1.0471 0"/>
+    <limit lower="-0.523" upper="0.7854" effort="100" velocity="100"/>
+  </joint>  
+
+  <link name="actuator_2">
+    <inertial>
+      <origin rpy="0 3.1415 2.094" xyz="0 0 0.007"/>
+      <mass value="0.013863"/>
+      <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 3.1415 2.094" xyz="0 0 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 3.1415 2.094" xyz="0 0 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="actuator_joint_2" type="revolute">
+  <!-- -0.0195 -0.009 0.045 -->
+    <origin rpy="0 0 0" xyz="-0.0175 -0.009 0.043"/>
+    <parent link="palm"/>
+    <child link="actuator_2"/>
+    <axis xyz="-0.5235 1.0471 0"/>
+    <limit lower="-0.523" upper="0.7854" effort="100" velocity="100"/>
+  </joint> 
+
+  <link name="actuator_3">
+    <inertial>
+      <origin rpy="0 3.1415 0" xyz="0 -0.001 0.007"/>
+      <mass value="0.013863"/>
+      <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 3.1415 0" xyz="0 -0.001 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 3.1415 0" xyz="0 -0.001 0.007"/>
+      <geometry>
+        <mesh filename="package://ar3_description/meshes/gripper_link.STL" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="actuator_joint_3" type="revolute">
+  <!-- 0.001 0.017 0.045 -->
+    <origin rpy="0 0 0" xyz="0.001 0.022 0.043"/>
+    <parent link="palm"/>
+    <child link="actuator_3"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.523" upper="0.7854" effort="100" velocity="100"/>
+  </joint>
+
+  <transmission name="transmission_1">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="actuator_joint_1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+  </transmission>  
+
+  <transmission name="transmission_2">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="actuator_joint_2">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_2">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="transmission_3">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="actuator_joint_3">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_3">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/grip</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="actuator_1">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+  <gazebo reference="actuator_2">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+    <gazebo reference="actuator_3">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+</robot>

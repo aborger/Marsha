@@ -1,0 +1,27 @@
+<launch>
+
+
+    <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
+    <param name="use_controller_manager" value="true" />
+    <param name="trajectory_execution/execution_duration_monitoring" value="false" />  
+
+    <include ns="move_group" file="$(find marsha_core)/launch/moveit_config/ompl_planning_pipeline.launch.xml">
+    </include>
+
+    <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false">
+        <!-- Set the display variable, in case OpenGL code is used internally -->
+        <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
+
+        <param name="allow_trajectory_execution" value="true"/>
+        <param name="max_safe_path_cost" value="1"/>
+        <param name="jiggle_fraction" value="0.05" />
+
+
+        <!-- Publish the planning scene of the physical robot so that rviz plugin can know actual robot -->
+        <param name="planning_scene_monitor/publish_planning_scene" value="true" />
+        <param name="planning_scene_monitor/publish_geometry_updates" value="true" />
+        <param name="planning_scene_monitor/publish_state_updates" value="true" />
+        <param name="planning_scene_monitor/publish_transforms_updates" value="true" />
+    </node>
+
+</launch>

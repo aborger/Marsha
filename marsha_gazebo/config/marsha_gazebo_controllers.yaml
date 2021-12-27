@@ -1,0 +1,23 @@
+joint_state_controller:
+    type: "joint_state_controller/JointStateController"
+    publish_rate: 50
+
+# Joint Trajectory Controller
+ar3/controllers/grip_position:
+    type: "position_controllers/JointTrajectoryController"
+    joints: 
+        - actuator_joint_1
+        - actuator_joint_2
+        - actuator_joint_3
+
+    #constraints:
+    #    goal_time: 0.5
+    #    actuator_1:
+    #        trajectory: 0.5
+    #        goal: 0.02
+    #    actuator_2:
+    #        trajectory: 0.5
+    #        goal: 0.02
+    #    actuator_3:
+    #        trajectory: 0.5
+    #        goal: 0.02
