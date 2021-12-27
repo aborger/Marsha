@@ -3,7 +3,7 @@ joint_state_controller:
     publish_rate: 50
 
 # Joint Trajectory Controller
-ar3/controllers/grip_position:
+grip_position:
     type: "position_controllers/JointTrajectoryController"
     joints: 
         - actuator_joint_1

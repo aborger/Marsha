@@ -14,7 +14,7 @@
         <param name="trajectory_execution/allowed_goal_duration_margin" value="0.5"/>
         <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
-        <rosparam file="$(find ar3_moveit_config)/config/grip_controllers.yaml" />
+        <rosparam file="$(find ar3_moveit_config)/config/left_gripper_controllers.yaml" />
     </group>
 
     <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false">

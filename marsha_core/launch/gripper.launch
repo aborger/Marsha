@@ -3,16 +3,16 @@
     <arg name="machine" default=""/>
     <arg name="ns" default=""/>
 
-    <group ns="grip">
+    <group ns="gripper">
 
-        <param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro'" />
+        <param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />
         <param name="robot_description_semantic" textfile="$(find marsha_description)/config/gripper_gazebo.srdf"/>
 
 
         <rosparam file="$(find marsha_gazebo)/config/marsha_gazebo_controllers.yaml" command="load"/>
 
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-            args="--namespace=/grip /grip/ar3/controllers/grip_position /grip/joint_state_controller
+            args="--namespace=/$(arg ns)/gripper /$(arg ns)/gripper/grip_position /$(arg ns)/gripper/joint_state_controller
             --shutdown-timeout 1"/>
 
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
@@ -21,17 +21,17 @@
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
 
         <node name="joint_state_spawner" pkg="controller_manager" type="spawner"
-            respawn="false" output="screen" ns="/grip"
+            respawn="false" output="screen" ns="/$(arg ns)/gripper"
             args="joint_state_controller">
         </node>
 
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
-            respawn="false" output="screen" ns="/grip">
-            <param name="tf_prefix" value="grip"/>
+            respawn="false" output="screen" ns="/$(arg ns)/gripper">
+            <param name="tf_prefix" value="$(arg ns)/gripper"/>
         </node>
 
 
-        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /grip/palm 100"/>
+        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /$(arg ns)/gripper/gripper_link 100"/>
 
         <include file="$(find marsha_core)/launch/moveit_config/move_group.launch"/>
 
