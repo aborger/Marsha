@@ -2,7 +2,6 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tundra_gripper">
 
-<link name="world"/>
 
 <link name="palm">
   <inertial>
@@ -27,13 +26,6 @@
     </geometry>
   </collision>
 </link>
-
-<joint name="world_joint" type="fixed">
-  <parent link="world"/>
-  <child link="palm"/>
-  <origin xyz="0 0 0" rpy="0 0 0"/>
-</joint>
-
 
 
 <link name="actuator_1">

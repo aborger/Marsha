@@ -30,17 +30,8 @@
             <param name="tf_prefix" value="grip"/>
         </node>
 
-        <!--<node pkg="tf" type="tf_remap" name="tf_remapper" output="screen">
-            <rosparam param="mappings">
-            [{old: left/palm, new: grip/palm},{old: left/actuator_1, new: grip/actuator_1},
-             {old: left/actuator_2, new: grip/actuator_2}, {old: left/actuator_3, new: grip/actuator_3}]
-            </rosparam>
-        </node>-->
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-            args="-param robot_description -urdf -model gripper -z 1.0" respawn="false" output="screen"/>
-        
-        <node name="gripper_transform" pkg="marsha_gazebo" type="tf_gripper_transform"/>
-        <!--<node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /grip/world 100"/>-->
+
+        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /grip/palm 100"/>
 
         <include file="$(find marsha_core)/launch/moveit_config/move_group.launch"/>
 
