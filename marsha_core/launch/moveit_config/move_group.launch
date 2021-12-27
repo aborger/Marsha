@@ -1,12 +1,21 @@
 <launch>
 
 
-    <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
-    <param name="use_controller_manager" value="true" />
-    <param name="trajectory_execution/execution_duration_monitoring" value="false" />  
+    <group ns="move_group">
+        <param name="use_controller_manager" value="true" />
+        <param name="trajectory_execution/execution_duration_monitoring" value="false" />  
 
-    <include ns="move_group" file="$(find marsha_core)/launch/moveit_config/ompl_planning_pipeline.launch.xml">
-    </include>
+        <!-- Planning -->
+        <include file="$(find marsha_core)/launch/moveit_config/ompl_planning_pipeline.launch.xml"/>
+
+        <!-- Trajectory Execution -->
+        <param name="moveit_manage_controllers" value="true"/>
+        <param name="trajectory_execution/allowed_execution_duration_scaling" value="1.2"/>
+        <param name="trajectory_execution/allowed_goal_duration_margin" value="0.5"/>
+        <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
+        <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
+        <rosparam file="$(find ar3_moveit_config)/config/grip_controllers.yaml" />
+    </group>
 
     <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false">
         <!-- Set the display variable, in case OpenGL code is used internally -->

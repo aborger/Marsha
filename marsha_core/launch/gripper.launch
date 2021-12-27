@@ -16,7 +16,7 @@
             --shutdown-timeout 1"/>
 
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
-        <rosparam file="$(find ar3_moveit_config)/config/grip_controllers.yaml" />
+        
 
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
 
@@ -40,6 +40,7 @@
             args="-param robot_description -urdf -model gripper -z 1.0" respawn="false" output="screen"/>
         
         <node name="gripper_transform" pkg="marsha_gazebo" type="tf_gripper_transform"/>
+        <!--<node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /grip/world 100"/>-->
 
         <include file="$(find marsha_core)/launch/moveit_config/move_group.launch"/>
 
