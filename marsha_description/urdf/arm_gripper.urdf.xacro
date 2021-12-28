@@ -2,6 +2,7 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ar-mini">
 
+    <xacro:arg name="ns" default=""/>
 
     <xacro:include filename="$(find ar3_description)/urdf/ar3_gazebo.urdf.xacro"/>
 

@@ -12,8 +12,7 @@
         <rosparam file="$(find marsha_gazebo)/config/marsha_gazebo_controllers.yaml" command="load"/>
 
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-            args="--namespace=/$(arg ns)/gripper /$(arg ns)/gripper/grip_position /$(arg ns)/gripper/joint_state_controller
-            --shutdown-timeout 1"/>
+            args="--namespace=/$(arg ns)/gripper /$(arg ns)/gripper/grip_position /$(arg ns)/gripper/joint_state_controller"/>
 
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
         
@@ -31,9 +30,11 @@
         </node>
 
 
-        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /left/link_6 /$(arg ns)/gripper/gripper_link 100"/>
+        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /$(arg ns)/link_6 /$(arg ns)/gripper/gripper_link 100"/>
 
-        <include file="$(find marsha_core)/launch/moveit_config/move_group.launch"/>
+        <include file="$(find marsha_core)/launch/gripper_moveit_config/move_group.launch">
+            <arg name="ns" value="$(arg ns)"/>
+        </include>
 
 
         <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>

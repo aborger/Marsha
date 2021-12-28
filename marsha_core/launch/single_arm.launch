@@ -40,7 +40,7 @@
         
         <include file="$(find marsha_core)/launch/gripper.launch">
             <arg name="machine" value="$(arg machine)"/>
-            <arg name="ns" value="left"/>
+            <arg name="ns" value="$(arg ns)"/>
         </include>
     </group>
 

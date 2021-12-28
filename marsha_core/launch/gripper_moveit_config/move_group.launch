@@ -1,12 +1,28 @@
 <launch>
 
+    <arg name="ns" default="left"/>
+
+    <!-- Joint Limits -->
+    <group ns="robot_description_planning">
+        <rosparam command="load" file="$(find marsha_core)/config/gripper/joint_limits.yaml"/>
+    </group>
+
+    <!-- Kinematics -->
+    <group ns="robot_description_kinematics">
+        <rosparam command="load" file="$(find marsha_core)/config/gripper/kinematics.yaml"/>
+    </group>
 
     <group ns="move_group">
         <param name="use_controller_manager" value="true" />
         <param name="trajectory_execution/execution_duration_monitoring" value="false" />  
 
+        <!-- For Sensors (Not currently using) -->
+        <param name="octomap_resolution" type="double" value="0.1" />
+
         <!-- Planning -->
-        <include file="$(find marsha_core)/launch/moveit_config/ompl_planning_pipeline.launch.xml"/>
+        <include file="$(find marsha_core)/launch/gripper_moveit_config/ompl_planning_pipeline.launch.xml"/>
+
+
 
         <!-- Trajectory Execution -->
         <param name="moveit_manage_controllers" value="true"/>
@@ -14,7 +30,8 @@
         <param name="trajectory_execution/allowed_goal_duration_margin" value="0.5"/>
         <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
-        <rosparam file="$(find ar3_moveit_config)/config/left_gripper_controllers.yaml" />
+        
+        <rosparam file="$(find marsha_core)/config/gripper/$(arg ns)_gripper_controllers.yaml" />
     </group>
 
     <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false">
