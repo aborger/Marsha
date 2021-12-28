@@ -9,8 +9,6 @@
 
 */
 
-// THIS NEEDS TO BE MOVED OUT OF AI PACKAGE
-
 
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
@@ -253,29 +251,29 @@ class MarshaMoveInterface {
 
     public:
         MarshaMoveInterface(ros::NodeHandle *nh) {
-            move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
-            //hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
+            //move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
+            hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
 
             float ik_timeout;
 
             ros::param::get(ros::this_node::getNamespace() + "/IK_timeout", ik_timeout);
             move_group->setPlanningTime(ik_timeout);
             
-            poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
+            //poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
 
-            positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
+            //positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 
-            //graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
+            graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
 
-            getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
+            //getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
             //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
 
-            postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
+            //postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
-            planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
+            //planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
 
-            pose_param = ros::this_node::getNamespace() + "/pose/";
+            //pose_param = ros::this_node::getNamespace() + "/pose/";
         }
 
 };

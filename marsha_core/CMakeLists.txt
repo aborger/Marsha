@@ -31,5 +31,8 @@ include_directories(
 add_executable(move_interface nodes/move_interface.cpp)
 target_link_libraries(move_interface ${catkin_LIBRARIES})
 
+add_executable(grip_interface nodes/grip_interface.cpp)
+target_link_libraries(grip_interface ${catkin_LIBRARIES})
+
 
 

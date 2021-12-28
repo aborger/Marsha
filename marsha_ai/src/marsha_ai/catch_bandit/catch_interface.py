@@ -107,6 +107,7 @@ class CatchInterface(RosInterface):
         observation[1, 0] = raw_observation.velocity.x
         observation[1, 1] = raw_observation.velocity.y
         observation[1, 2] = raw_observation.velocity.z
+        print("returning observation...")
         return observation
 
     def reset_simulation(self):

@@ -44,24 +44,25 @@ class MarshaGym(gym.Env):
         self.observation_space = spaces.Box(low=-1, high=1, shape=(2, 3))
 
     def step(self, action):
-
+        print("stepping...")
         reward, done = self.ros_interface.perform_action(action)
         observation = self.ros_interface.perform_observation()
 
-        self.current_step += 1
-        if self.current_step > MAX_EPISODE_LENGTH:
-            done = True
+        # Need to try different actions if kinematically impossible
+        #self.current_step += 1
+        #if self.current_step > MAX_EPISODE_LENGTH:
+        #    done = True
 
         # observation, reward, done, info
-        return observation, reward, done, {}
+        return observation, reward, True, {}
 
     def reset(self):
         self.ros_interface.reset_simulation()
         self.current_step = 0
-        print("Waiting to predict...")
         sleep(1)
         observation = self.ros_interface.perform_observation()
 
+        print("returning observation from reset..")
         return observation
 
 
