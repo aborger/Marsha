@@ -10,10 +10,10 @@ grip_position:
         - actuator_joint_2
         - actuator_joint_3
 
-    gains:
-        actuator_joint_1: {p: 0, d: 0, i: 0}
-        actuator_joint_2: {p: 0, d: 0, i: 0}
-        actuator_joint_3: {p: 0, d: 0, i: 0}
+    #gains:
+    #    actuator_joint_1: {p: 0, d: 0, i: 0}
+    #    actuator_joint_2: {p: 0, d: 0, i: 0}
+    #    actuator_joint_3: {p: 0, d: 0, i: 0}
 
     constraints:
         goal_time: 0.5
