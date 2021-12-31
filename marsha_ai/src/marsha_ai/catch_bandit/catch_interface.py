@@ -14,6 +14,7 @@ from marsha_msgs.srv import ObjectObservation
 
 from std_msgs.msg import Empty
 from std_msgs.msg import Time
+from std_msgs.msg import Float32
 
 from std_srvs.srv import Trigger, TriggerRequest
 
@@ -24,10 +25,13 @@ from time import sleep
 import numpy as np
 
 PRE_GRASP_DISTANCE = 2
+POST_GRASP_DISTANCE = 0.5 # May want to learn this
 
 class CatchInterface(RosInterface):
     def __init__(self):
         super(CatchInterface, self).__init__()
+
+        rospy.loginfo("Waiting for services...")
 
         rospy.wait_for_service('generate_grasp')
         self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
@@ -44,14 +48,16 @@ class CatchInterface(RosInterface):
         rospy.wait_for_service('/left/get_pos')
         self.get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
 
-        rospy.wait_for_service('/left/grasp_cmd')
-        self.grasp_cmd = rospy.ServiceProxy('/left/grasp_cmd', MoveCmd)
+        rospy.wait_for_service('/left/gripper/grasp_cmd')
+        self.grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
 
-        rospy.wait_for_service('/left/is_grasped')
-        self.is_grasped = rospy.ServiceProxy('/left/is_grasped', Trigger)
+        rospy.wait_for_service('/left/gripper/is_grasped')
+        self.is_grasped = rospy.ServiceProxy('/left/gripper/is_grasped', Trigger)
 
-        rospy.wait_for_service('observe')
-        self.observe = rospy.ServiceProxy('observe', ObjectObservation)
+        rospy.wait_for_service('observe_trajectory')
+        self.observe = rospy.ServiceProxy('observe_trajectory', ObjectObservation)
+
+        rospy.loginfo("Services setup!")
 
         self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
 
@@ -60,11 +66,11 @@ class CatchInterface(RosInterface):
     # action_space (r, theta, phi, time)
     def perform_action(self, action):
         reward = 0
-        rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]))
+        rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]) + " grasp_time: " + str(action[5]))
 
         # Grasp generator takes "tailored latent space" as input
         obj_space_preGrasp = self.generate_grasp(action[0] + PRE_GRASP_DISTANCE, action[1], action[2]).grasp
-        obj_space_grasp = self.generate_grasp(action[0], action[1], action[2]).grasp
+        obj_space_grasp = self.generate_grasp(action[0] - POST_GRASP_DISTANCE, action[1], action[2]).grasp
 
         # Calculate object position at output time
         prediction = self.predict_position(norm_dist=action[3])
@@ -75,7 +81,7 @@ class CatchInterface(RosInterface):
 
         grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
         
-        move_success = self.plan_grasp(pre_grasp, grasp, grasp_time).success
+        move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
         
         
 
@@ -101,9 +107,9 @@ class CatchInterface(RosInterface):
     def perform_observation(self):
         raw_observation = self.observe()
         observation = np.empty(shape=(2, 3))
-        observation[0, 0] = raw_observation.initial_position.x
-        observation[0, 1] = raw_observation.initial_position.y
-        observation[0, 2] = raw_observation.initial_position.z
+        observation[0, 0] = raw_observation.position.x
+        observation[0, 1] = raw_observation.position.y
+        observation[0, 2] = raw_observation.position.z
         observation[1, 0] = raw_observation.velocity.x
         observation[1, 1] = raw_observation.velocity.y
         observation[1, 2] = raw_observation.velocity.z

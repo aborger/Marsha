@@ -34,7 +34,7 @@ class GraspGenerator {
             return normalized_radius * (radius_max - radius_min) + radius_min;
         }
 
-        // Note: r - [0, inf), theta - [0, pi], phi - [0, 2pi)
+        // Note: r - [0, 1), theta - [0, pi], phi - [0, 2pi)
         // Should probably throw error if this occures
         geometry_msgs::Point polar_to_rect(float r, float theta, float phi) {
             geometry_msgs::Point position;

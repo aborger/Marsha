@@ -148,7 +148,7 @@ class TrajectoryPredictor {
         bool observe(marsha_msgs::ObjectObservation::Request &req,
                      marsha_msgs::ObjectObservation::Response &res) {
 
-            res.initial_position = vector_to_Pmsg(initial_position);
+            res.position = vector_to_Pmsg(prev_position);
             res.velocity = vector_to_Vmsg(avg_velocity());
             return true;
         }
@@ -160,7 +160,7 @@ class TrajectoryPredictor {
             reset_subscriber = nh->subscribe("reset", 1, &TrajectoryPredictor::reset_callback, this);    
 
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
-            observation_service = nh->advertiseService("observe", &TrajectoryPredictor::observe, this);
+            observation_service = nh->advertiseService("observe_trajectory", &TrajectoryPredictor::observe, this);
         }
 
 };

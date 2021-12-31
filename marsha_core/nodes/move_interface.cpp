@@ -45,22 +45,20 @@ struct GraspPlan {
 };
 
 static const std::string ARM_PLANNING_GROUP = "manipulator";
-static const std::string GRIPPER_PLANNING_GROUP = "gripper";
 
 class MarshaMoveInterface {
     private:
         moveit::planning_interface::MoveGroupInterface* move_group;
-        moveit::planning_interface::MoveGroupInterface* hand_group;
-
         
         ros::ServiceServer poseService;
         ros::ServiceServer positionService;
-        ros::ServiceServer graspService;
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
         ros::ServiceServer planGraspService;
         //ros::Subscriber position_sub;
         ros::Subscriber get_pose_sub;
+
+        ros::ServiceClient graspClient;
 
         std::string pose_param;
 
@@ -95,11 +93,11 @@ class MarshaMoveInterface {
             return true;            
         }
 
-        // Need to figure out how to plan the two as one movement
+
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
-            std::string param = "/gripper/open";
-            bool g_suc = grasp(param);
+            std::string param = "open";
+            bool g_success = grasp(param);
             move_group->setPoseTarget(req.preGrasp);
             GraspPlan grasp_plan;
 
@@ -109,15 +107,16 @@ class MarshaMoveInterface {
                 move_group->setPoseTarget(req.Grasp);
                 bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
                 if (grasp_success) {
-                    param = "/gripper/close";
-                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.grasp_time.data.toSec());
-                    while (ros::Time::now() < req.grasp_time.data) {
+                    param = "close";
+                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_offset.data.toSec());
+                    while (ros::Time::now() < req.time_offset.data) {
                         // Not good way of waiting because it blocks
                         ros::Duration(0.1).sleep();
                     }
                     
-                    move_group->execute(grasp_plan.grasp);
-                    g_suc = grasp(param);
+                    move_group->asyncExecute(grasp_plan.grasp);
+                    ros::Duration(req.grasp_time.data).sleep();
+                    g_success = grasp(param);
 
                     res.success = true;
                 } else {
@@ -201,23 +200,11 @@ class MarshaMoveInterface {
         }
 
         bool grasp(std::string param) {
-            std::vector<double> joint_targets(3);
-
-            ros::param::get(param, joint_targets[0]);
-            ros::param::get(param, joint_targets[1]);
-            ros::param::get(param, joint_targets[2]);
-
-
-
-            //ROS_DEBUG("Value target: %f", joint_targets);
-
-            hand_group->setJointValueTarget(joint_targets);
-
-            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
-
-            bool success = (hand_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
-            hand_group->execute(target_plan);
+            ROS_INFO("Grasping...");
+            marsha_msgs::MoveCmd grasp_cmd;
+            grasp_cmd.request.pose_name = param;
+            bool success = graspClient.call(grasp_cmd);
+            if (success) {ROS_INFO("Grasp success");} else {ROS_INFO("Grasp Fail");}
 
             return success;
         }        
@@ -266,6 +253,7 @@ class MarshaMoveInterface {
             positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 
             //graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
+            graspClient = nh->serviceClient<marsha_msgs::MoveCmd>("gripper/grasp_cmd");
 
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
