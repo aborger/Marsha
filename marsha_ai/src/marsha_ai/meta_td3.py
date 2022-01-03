@@ -1,5 +1,23 @@
 #!/usr/bin/env python3
 
+"""
+
+* Meta TD3 Algorithm
+
+* Combines iMAML and TD3 algorithms to learn initial parameters to be fed into the stable-baselines3 (SB3) TD3 algorithm.
+
+* Initial/Meta parameters are learned by approximating the jacobian-vector product (I+1/lambda*H) with the conjugate gradient.
+
+* Note: SB3 uses pyTorch for their TD3 algorithm, however at the time of writing this I was not proficient in pyTorch so I used tensorflow instead.
+        Therefore, after each meta episode I had to convert the parameters between pyTorch and Tensorflow. This could by avoided by using pyTorch throughout.
+
+* Author: Aaron Borger <aborger@nnu.edu (307)534-6265>
+
+
+"""
+
+
+
 import gym
 from stable_baselines3 import TD3
 
@@ -49,9 +67,35 @@ class Task:
         self.action_space = action_space
         self.env = env
 
+    def convert_from_torch(self, mesa_models):
+        # Convert from torch
+        torch_actor_layers = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
+        torch_critic_0_layers = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
+        torch_critic_1_layers = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
+
+        torch_mesa_models = [torch_actor_layers, torch_critic_0_layers, torch_critic_1_layers]
+
+        #mesa_models = deepcopy(initial_models)
+
+        for model_num, model_name in enumerate(mesa_models):
+            for layer_num, layer in enumerate(torch_mesa_models[model_num]):
+                print("-------------")
+                mesa_parameters = mesa_algo.get_parameters()
+                mesa_params = mesa_parameters['policy'][layer]
+                np_params = mesa_params.numpy()
+                if layer_num % 2 == 0: # Torch weights shape is flipped
+                    np_params = np.reshape(np_params, (mesa_params.shape[1], mesa_params.shape[0])) 
+                tf_weights = tf.convert_to_tensor(np_params)
+                mesa_models[model_name].trainable_variables[layer_num].assign(tf_weights)
+            mesa_parameters = mesa_algo.get_parameters()
+
+            weights = mesa_parameters['policy'][layer]
+
+        return mesa_models
 
     def learn(self, initial_models):
-        mesa_algo = TD3("MlpPolicy", self.env, verbose=1) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)
+        mesa_algo = TD3("MlpPolicy", self.env, verbose=1) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)'
+        # Convert to torch
         #mesa_model.set_parameters(self.meta_model.get_parameters(), exact_match=True)
         """
         mesa_models = {"actor": Actor(self.observation_space, self.action_space), 
@@ -62,10 +106,18 @@ class Task:
                     "critic_target_1": Critic(self.observation_space, self.action_space)
                     }
         """
+        #convert_from_torch()
 
-        mesa_parameters = mesa_algo.get_parameters()
-        for param in mesa_parameters['policy']:
-            print(param)
+        tf_tensor = initial_models["actor"].trainable_variables[0]
+        np_tensor = tf_tensor.numpy()
+        torch_tensor = torch.from_numpy(np_tensor)
+
+        print("tf_tensor:\n", tf_tensor)
+        print("torch_tensor:\n", torch_tensor)
+
+
+
+
         return self.replay_buffer, mesa_models
 
 class Actor(tf.keras.Model):
@@ -74,7 +126,7 @@ class Actor(tf.keras.Model):
         
         self._initialize(observation_space, action_space)
 
-        self.call(tf.constant(np.zeros(observation_space.sample().shape).astype('f'))) # Initialize parameters by calling
+        self.call(tf.constant(np.zeros(shape=(1, get_flattened_obs_dim(observation_space))))) # Initialize parameters by calling
 
         self.loss_function_id = ACTOR_LOSS
 
@@ -90,14 +142,14 @@ class Actor(tf.keras.Model):
     """
 
     def _initialize(self, observation_space, action_space):
-        self.dense1 = tf.keras.layers.Dense(400, input_shape=observation_space.sample().shape, activation='relu')
+        self.dense1 = tf.keras.layers.Dense(400, input_shape=(get_flattened_obs_dim(observation_space),), activation='relu')
         self.dense2 = tf.keras.layers.Dense(300, activation='relu')
         self.dense3 = tf.keras.layers.Dense(get_action_dim(action_space), activation='tanh')
 
     def call(self, inputs):
         x = self.dense1(inputs)
-        x = self.dense2(inputs)
-        x = self.dense3(inputs)
+        x = self.dense2(x)
+        x = self.dense3(x)
         return x
 
 class Critic(tf.keras.Model):
@@ -133,8 +185,8 @@ class Critic(tf.keras.Model):
     def call(self, observations, actions):
         inputs = tf.concat([observations, actions], axis=1)
         x = self.dense1(inputs)
-        x = self.dense2(inputs)
-        x = self.dense3(inputs)
+        x = self.dense2(x)
+        x = self.dense3(x)
         return x
 
 
@@ -207,11 +259,11 @@ class MetaTD3():
                             "critic_0": Critic(self.observation_space, self.action_space),
                             "critic_1": Critic(self.observation_space, self.action_space)
                             }
-
+        """
         for model in self.meta_models:
             print(model, "initial parameters:\n")
             print(self.meta_models[model].trainable_variables, "\n\n")
-
+        """
 
     def _update_meta_parameters(self):
         meta_grads = {}
@@ -357,8 +409,12 @@ def print_torch(tensor):
 if __name__ == "__main__":
     mtd = MetaTD3()
 
-    #mtd.tasks[0].learn(mtd.meta_models)
     mtd._initialize_meta_models()
+    
+    #print("pre meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
+    replay_buffer, mesa_models = mtd.tasks[0].learn(mtd.meta_models)
+    #print("post meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
+    #print("mesa actor\n", mesa_models["actor"].trainable_variables[0])
     #mtd._update_meta_parameters()
 
 
