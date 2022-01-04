@@ -1,0 +1,16 @@
+joint_limits:
+  actuator_joint_1:
+      max_velocity: 100
+      max_acceleration: 100
+      max_jerk: 100
+      max_effort: 100
+  actuator_joint_2:
+      max_velocity: 100
+      max_acceleration: 100
+      max_jerk: 100
+      max_effort: 100
+  actuator_joint_3:
+      max_velocity: 100
+      max_acceleration: 100
+      max_jerk: 100
+      max_effort: 100
