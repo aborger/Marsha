@@ -2,8 +2,6 @@
 #define Stepper_h
 
 #include "Arduino.h"
-#include <ros.h>
-#include <std_msgs/Float64.h>
 
 #define TOLERANCE    1
 #define STEP_PER_CALL    10
