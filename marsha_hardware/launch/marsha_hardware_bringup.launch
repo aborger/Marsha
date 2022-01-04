@@ -8,7 +8,7 @@
 
     <!-- Load universal robot description format (URDF) -->
     <!-- Could be done in ar3_moveit_bringup launch file -->
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find ar3_description)/urdf/ar3.urdf.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find ar3_description)/urdf/ar3_hardware.urdf.xacro"/>
     <!-- Loaded in planning_context.launch
         <param name="robot_description_semantic" textfile="$(find ar3_moveit_config)/config/ar3.srdf" />-->
 
@@ -16,11 +16,14 @@
         <arg name="machine" value="$(arg machine)"/>
     </include>
 
+    <node name="gripper_driver" pkg="marsha_core" type="motor.py" machine="$(arg machine)"/>
+
     <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/" 
         args="/ar3/controllers/state
-            /ar3/controllers/position"
+              /ar3/controllers/position
+              /ar3/controllers/effort"
         machine="$(arg machine)"/>
 
 </launch>
