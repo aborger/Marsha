@@ -20,10 +20,13 @@
 
 import gym
 from stable_baselines3 import TD3
+from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.callbacks import StopTrainingOnMaxEpisodes
 
-from marsha_ai import catch_bandit
+from marsha_ai import catch_bandit as TaskEnv
 from marsha_ai.catch_bandit.gym_env import MarshaGym
 from marsha_ai.catch_bandit.catch_interface import CatchInterface
+from marsha_ai.callbacks import TensorboardCallback
 
 import torch
 import tensorflow as tf
@@ -40,6 +43,13 @@ OPTIMIZER = tf.keras.optimizers.Adam(learning_rate=0.1)
 
 ACTOR_LOSS = 0
 CRITIC_LOSS = 1
+
+torch_actor_layers = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
+torch_critic_0_layers = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
+torch_critic_1_layers = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
+
+TORCH_LAYER_NAMES = [torch_actor_layers, torch_critic_0_layers, torch_critic_1_layers]
+TF_MODEL_NAMES = ["actor", "critic_0", "critic_1"]
 
 class Observation: # Unit Test
     def __init__(self, num_batches, observation_len, action_len):
@@ -67,58 +77,27 @@ class Task:
         self.action_space = action_space
         self.env = env
 
-    def convert_from_torch(self, mesa_models):
-        # Convert from torch
-        torch_actor_layers = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
-        torch_critic_0_layers = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
-        torch_critic_1_layers = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
-
-        torch_mesa_models = [torch_actor_layers, torch_critic_0_layers, torch_critic_1_layers]
-
-        #mesa_models = deepcopy(initial_models)
-
-        for model_num, model_name in enumerate(mesa_models):
-            for layer_num, layer in enumerate(torch_mesa_models[model_num]):
-                print("-------------")
-                mesa_parameters = mesa_algo.get_parameters()
-                mesa_params = mesa_parameters['policy'][layer]
-                np_params = mesa_params.numpy()
-                if layer_num % 2 == 0: # Torch weights shape is flipped
-                    np_params = np.reshape(np_params, (mesa_params.shape[1], mesa_params.shape[0])) 
-                tf_weights = tf.convert_to_tensor(np_params)
-                mesa_models[model_name].trainable_variables[layer_num].assign(tf_weights)
-            mesa_parameters = mesa_algo.get_parameters()
-
-            weights = mesa_parameters['policy'][layer]
-
-        return mesa_models
-
     def learn(self, initial_models):
-        mesa_algo = TD3("MlpPolicy", self.env, verbose=1) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)'
-        # Convert to torch
-        #mesa_model.set_parameters(self.meta_model.get_parameters(), exact_match=True)
-        """
-        mesa_models = {"actor": Actor(self.observation_space, self.action_space), 
-                    "actor_target": Actor(self.observation_space, self.action_space),
-                    "critic_0": Critic(self.observation_space, self.action_space),
-                    "critic_1": Critic(self.observation_space, self.action_space),
-                    "critic_target_0": Critic(self.observation_space, self.action_space),
-                    "critic_target_1": Critic(self.observation_space, self.action_space)
-                    }
-        """
-        #convert_from_torch()
+        mesa_algo = TD3("MlpPolicy", self.env, verbose=1, learning_starts=3) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)'
 
-        tf_tensor = initial_models["actor"].trainable_variables[0]
-        np_tensor = tf_tensor.numpy()
-        torch_tensor = torch.from_numpy(np_tensor)
+        mesa_algo.set_parameters(to_torch(initial_models), exact_match=False)
+        LOG_DIR = "/home/jet/catkin_ws/src/marsha/marsha_ai/training/logs/"
+        MODEL_DIR = "/home/jet/catkin_ws/src/marsha/marsha_ai/training/models/"
 
-        print("tf_tensor:\n", tf_tensor)
-        print("torch_tensor:\n", torch_tensor)
+        callback_list = []
+        callback_list.append(TensorboardCallback())
+        callback_list.append(StopTrainingOnMaxEpisodes(max_episodes=3, verbose=1))
+        """callback_list.append(EvalCallback(self.env, best_model_save_path=MODEL_DIR, log_path=LOG_DIR,
+                                    deterministic=True,
+                                    eval_freq=5,
+                                    n_eval_episodes=1))"""
+        mesa_algo.learn(total_timesteps=1000, callback=callback_list)       #rospy.get_param("/hyperparameters/total_timesteps")
 
-
-
-
-        return self.replay_buffer, mesa_models
+        print("finished training!")
+        optimized_mesa_parameters = mesa_algo.get_parameters()
+        tf_mesa_models = from_torch(optimized_mesa_parameters)
+        
+        return self.replay_buffer, tf_mesa_models
 
 class Actor(tf.keras.Model):
     def __init__(self, observation_space, action_space):
@@ -189,7 +168,50 @@ class Critic(tf.keras.Model):
         x = self.dense3(x)
         return x
 
+        self.observation_space = catch_bandit.observation_space
+        self.action_space = catch_bandit.action_space
+# Convert from torch should be used to convert optimized mesa parameters from sb3 to train the meta parameters
+def from_torch(torch_models):
+    tf_models = {"actor": Actor(TaskEnv.observation_space, TaskEnv.action_space), 
+                    "critic_0": Critic(TaskEnv.observation_space, TaskEnv.action_space),
+                    "critic_1": Critic(TaskEnv.observation_space, TaskEnv.action_space)
+                }
 
+    for model_num, model_name in enumerate(TF_MODEL_NAMES):
+        for layer_num, layer in enumerate(TORCH_LAYER_NAMES[model_num]):
+            torch_params = torch_models['policy'][layer]
+            np_params = torch_params.numpy()
+            if layer_num % 2 == 0: # Torch weights shape is flipped
+                np_params = np.reshape(np_params, (np_params.shape[1], np_params.shape[0])) 
+            tf_weights = tf.convert_to_tensor(np_params)
+            tf_models[model_name].trainable_variables[layer_num].assign(tf_weights)
+    return tf_models
+
+# Convert to torch should be used to initialize the mesa sb3 models with the TF meta parameters
+def to_torch(tf_models):
+    torch_dict = {}
+
+    for model_num, model_name in enumerate(TF_MODEL_NAMES):
+        for layer_num, layer in enumerate(TORCH_LAYER_NAMES[model_num]):
+            tf_tensor = tf_models[model_name].trainable_variables[layer_num]
+            np_params = tf_tensor.numpy()
+            if layer_num % 2 == 0: # Torch weights shape is flipped
+                np_params = np.reshape(np_params, (np_params.shape[1], np_params.shape[0])) 
+            torch_tensor = torch.from_numpy(np_params)
+            torch_dict[layer] = torch_tensor
+
+    return {"policy": torch_dict}
+
+def test_conversion(self, initial_models):
+    torch_models_0 = to_torch(initial_models)
+    tf_models = from_torch(torch_models_0)
+    torch_models_1 = to_torch(tf_models)
+
+    for model_num, model_name in enumerate(TF_MODEL_NAMES):
+        for layer_num, layer in enumerate(TORCH_LAYER_NAMES[model_num]):
+            print("------------------------------------------------")
+            print(layer, " Before:", torch_models_0["policy"][layer])
+            print(layer, " After:", torch_models_1["policy"][layer])
 
 def pl(name, var):
     print(name, var, '\n\n')
@@ -233,8 +255,8 @@ def conjugate_gradient(Av, b, x0, num_iterations):
 class MetaTD3():
     def __init__(self):
 
-        self.observation_space = catch_bandit.observation_space
-        self.action_space = catch_bandit.action_space
+        self.observation_space = TaskEnv.observation_space
+        self.action_space = TaskEnv.action_space
         
 
         self.ros_interface = CatchInterface()
@@ -411,10 +433,9 @@ if __name__ == "__main__":
 
     mtd._initialize_meta_models()
     
-    #print("pre meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
     replay_buffer, mesa_models = mtd.tasks[0].learn(mtd.meta_models)
-    #print("post meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
-    #print("mesa actor\n", mesa_models["actor"].trainable_variables[0])
+    print("pre meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
+    print("mesa actor\n", mesa_models["actor"].trainable_variables[0])
     #mtd._update_meta_parameters()
 
 

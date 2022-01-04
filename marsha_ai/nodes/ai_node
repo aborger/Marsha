@@ -5,6 +5,7 @@ import rospy
 
 from stable_baselines3 import TD3
 from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.callbacks import StopTrainingOnMaxEpisodes
 
 from marsha_ai.catch_bandit.gym_env import MarshaGym
 from marsha_ai.catch_bandit.catch_interface import CatchInterface
@@ -20,15 +21,20 @@ def train():
 
     callback_list = []
     callback_list.append(TensorboardCallback())
+    callback_list.append(StopTrainingOnMaxEpisodes(max_episodes=3, verbose=1))
 
-    if rospy.get_param("/hyperparameters/eval_frequency") > 0: # Else not evaluating
+    """if rospy.get_param("/hyperparameters/eval_frequency") > 0: # Else not evaluating
         eval_callback = EvalCallback(env, best_model_save_path=MODEL_DIR, log_path=LOG_DIR,
                                     deterministic=True,
                                     eval_freq=rospy.get_param("/hyperparameters/eval_frequency"),
                                     n_eval_episodes=rospy.get_param('/hyperparameters/n_eval_ep'))
-    callback_list.append(eval_callback)
+    callback_list.append(eval_callback)"""
 
-    model = TD3("MlpPolicy", env, verbose=1, tensorboard_log=LOG_DIR)
+    """
+    TODO: Fix illegal instruction (core dumped) that occurs when learning should start according to learning_starts parameter.
+    Or maybe it occurs near max episodes... I don't really know... This kinda sucks...
+    """
+    model = TD3("MlpPolicy", env, verbose=1, tensorboard_log=LOG_DIR, learning_starts=4) 
     #model = TD3.load(MODEL_DIR + 'best_model', env=env, tensorboard_log=LOG_DIR)
     model.learn(total_timesteps=rospy.get_param("/hyperparameters/total_timesteps"), callback=callback_list)
 

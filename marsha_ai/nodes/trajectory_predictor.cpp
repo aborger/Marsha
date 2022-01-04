@@ -88,6 +88,7 @@ class TrajectoryPredictor {
                 ros::Duration delta_time = ros::Time::now() - initial_time;
 
                 current_velocity = (current_position - prev_position) / delta_time.toSec();
+                prev_position = current_position;
                 ROS_INFO("Current velocity:");
                 print_vect(current_velocity);
 

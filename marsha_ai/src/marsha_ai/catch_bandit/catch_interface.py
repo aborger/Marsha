@@ -82,7 +82,7 @@ class CatchInterface(RosInterface):
         grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
         
         move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
-        
+        print("Move Success:", move_success)
         
 
         if move_success:
@@ -92,7 +92,7 @@ class CatchInterface(RosInterface):
 
 
         catch_success = self.is_grasped().success
-        print("catch success: ", catch_success)
+        print("Catch success: ", catch_success)
 
         if catch_success:
             sleep(1)
@@ -113,7 +113,7 @@ class CatchInterface(RosInterface):
         observation[1, 0] = raw_observation.velocity.x
         observation[1, 1] = raw_observation.velocity.y
         observation[1, 2] = raw_observation.velocity.z
-        print("returning observation...")
+        print("Observation:\n", observation)
         return observation
 
     def reset_simulation(self):
