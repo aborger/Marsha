@@ -26,10 +26,10 @@ add_service_files(
     Reset.srv
     StateComm.srv
     GenerateGrasp.srv
-    PostureCmd.srv
+    PostureCmd.srv 
     PredictPosition.srv
     PlanGrasp.srv 
-    ObjectObservation.srv 
+    ObjectObservation.srv   
 )
 
 add_action_files(
