@@ -15,7 +15,7 @@ from time import sleep
 
 
 DRIVE_LEVEL = 1.0
-HOLD_LEVEL = 0.0
+HOLD_LEVEL = 1.0
 TOLERANCE = 1
 
 

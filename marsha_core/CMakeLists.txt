@@ -21,6 +21,7 @@ catkin_package(
     CATKIN_DEPENDS
       moveit_core
       moveit_ros_planning_interface
+      marsha_msgs
 )
 
 include_directories(
@@ -28,8 +29,15 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
+catkin_install_python(
+    PROGRAMS
+        scripts/motor.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 add_executable(move_interface nodes/move_interface.cpp)
 target_link_libraries(move_interface ${catkin_LIBRARIES})
+add_dependencies(move_interface marsha_msgs_generate_messages_cpp)
 
 
 

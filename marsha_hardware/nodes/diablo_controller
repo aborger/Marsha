@@ -9,7 +9,7 @@
 # Author: Aaron Borger unfortunately...
 
 import rospy
-from std_msgs.msg import Int16MultiArray
+from std_msgs.msg import Int32MultiArray
 from marsha_hardware.diablo.diabloStepper import Stepper
 import time
 
@@ -20,7 +20,7 @@ def rosCmdCallback(msg):
 
 rospy.init_node('diablo_controller')
 
-rospy.Subscriber("stepper_step", Int16MultiArray, rosCmdCallback)
+rospy.Subscriber("stepper_step", Int32MultiArray, rosCmdCallback)
 
 
 def main():
