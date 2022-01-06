@@ -47,7 +47,7 @@ void Stepper::watch_bounds() {
     set_point(upper_bound + 1);
   }
 }
-/*
+
 // num_steps is never higher than STEP_SIZE
 void Stepper::step(int num_steps) {
   bool dir = true;
@@ -75,7 +75,7 @@ void Stepper::step(int num_steps) {
   }
   digitalWrite(dir_pin, LOW);
 }
-*/
+
 void Stepper::step() {
   if (digitalRead(step_pin) == HIGH && timer > on_time) {
     digitalWrite(step_pin, LOW);
