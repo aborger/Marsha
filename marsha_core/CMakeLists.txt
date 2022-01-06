@@ -7,6 +7,7 @@ find_package(catkin REQUIRED
     roscpp
     rospy
     std_msgs
+    ar_mini_description
 )
 
 catkin_package()

@@ -2,10 +2,15 @@
 
     <arg name="machine" default=""/>
     <arg name="ns" default=""/>
+    <arg name="launch_world" default="false"/>
 
+    <include if="$(arg launch_world)" file="$(find gazebo_ros)/launch/empty_world.launch" />
+    <include file="$(find marsha_core)/launch/satlab_net.machine"/>
+    
     <group ns="gripper">
 
-        <param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />
+        <!--<param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />-->
+        <param name="robot_description" command="$(find xacro)/xacro '$(find ar_mini_description)/urdf/ar_gripper_gazebo.urdf.xacro' ns:=$(arg ns)" />
         <param name="robot_description_semantic" textfile="$(find marsha_description)/config/gripper_gazebo.srdf"/>
 
 
@@ -38,6 +43,9 @@
 
 
         <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+
+        <node if="$(arg launch_world)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+        args="-param robot_description -urdf -model gripper" respawn="false" output="screen"/>
 
     </group>
 
