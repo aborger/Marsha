@@ -2,10 +2,12 @@
 
 import gym
 import rospy
+import numpy as np
 
 from stable_baselines3 import TD3
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.callbacks import StopTrainingOnMaxEpisodes
+from stable_baselines3.common.noise import NormalActionNoise
 
 from marsha_ai.catch_bandit.gym_env import MarshaGym
 from marsha_ai.catch_bandit.catch_interface import CatchInterface
@@ -30,11 +32,14 @@ def train():
                                     deterministic=True,
                                     eval_freq=rospy.get_param("/hyperparameters/eval_frequency"),
                                     n_eval_episodes=rospy.get_param('/hyperparameters/n_eval_ep'))
-    #callback_list.append(eval_callback)
+    callback_list.append(eval_callback)
+
+    n_actions = env.action_space.shape[-1]
+    action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
     
-    model = TD3("MlpPolicy", env, verbose=1, tensorboard_log=LOG_DIR, learning_starts=100) 
-    #model = TD3.load(MODEL_DIR + 'best_model', env=env, tensorboard_log=LOG_DIR)
+    #model = TD3("MlpPolicy", env, action_noise=action_noise, verbose=1, tensorboard_log=LOG_DIR, learning_starts=500) 
+    model = TD3.load(MODEL_DIR + 'best_model', env=env, tensorboard_log=LOG_DIR)
     model.learn(total_timesteps=rospy.get_param("/hyperparameters/total_timesteps"), callback=callback_list)
 
     model.save(MODEL_DIR + "TD3_Catch")
