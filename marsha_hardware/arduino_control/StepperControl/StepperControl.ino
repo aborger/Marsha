@@ -1,13 +1,13 @@
 /*
  * Marsha Stepper Control System, currently configured for the AR3.
  * 
- * Takes Int16MultiArray as position input for each joint from ROS and moves steppers to desired position using a timer interrupt for exact step times.
+ * Takes Int32MultiArray as position input for each joint from ROS and moves steppers to desired position using a timer interrupt for exact step times.
  * 
  * Author: Aaron Borger
  */
 
 #include <ros.h>
-#include <std_msgs/Int16MultiArray.h>
+#include <std_msgs/Int32MultiArray.h>
 #include "Stepper.h"
 #include "TimerOne.h"
 
@@ -22,7 +22,7 @@
 
 // Declare ROS data types
 ros::NodeHandle nh;
-std_msgs::Int16MultiArray feedback_multiArr; // Msg that is transmitted to ROS (contains feedback_arr)
+std_msgs::Int32MultiArray feedback_multiArr; // Msg that is transmitted to ROS (contains feedback_arr)
 int feedback_arr[NUM_JOINTS]; // Array that is updated on Arduino
 
 int led = 13;
@@ -48,7 +48,7 @@ void setupTimer() {
   timerSetup = true;
 }
 
-void rosCmdCallback(const std_msgs::Int16MultiArray &msg) {
+void rosCmdCallback(const std_msgs::Int32MultiArray &msg) {
   // Cannot setup timer until connected
   if (!timerSetup) {
     setupTimer();
@@ -66,7 +66,7 @@ void rosCmdCallback(const std_msgs::Int16MultiArray &msg) {
 
 
 ros::Publisher feedback_pub("encoder_feedback", &feedback_multiArr);
-ros::Subscriber<std_msgs::Int16MultiArray> step_sub("stepper_step", &rosCmdCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> step_sub("stepper_step", &rosCmdCallback);
 
 void sendFeedback() {
   for (int i = 0; i < NUM_JOINTS; i++) {

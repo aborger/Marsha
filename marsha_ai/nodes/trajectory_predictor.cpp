@@ -87,7 +87,8 @@ class TrajectoryPredictor {
 
                 ros::Duration delta_time = ros::Time::now() - initial_time;
 
-                current_velocity = (current_position - prev_position) / delta_time.toSec();
+                current_velocity = (current_position - initial_position) / delta_time.toSec();
+                prev_position = current_position;
                 ROS_INFO("Current velocity:");
                 print_vect(current_velocity);
 
@@ -128,9 +129,11 @@ class TrajectoryPredictor {
             // Calculate position of object along trajectory or de_norm time
             tf::Vector3 predicted_position = initial_position + delta_pos * velocity_dir;
 
-            ros::Duration delta_time = ros::Duration(predicted_position.distance(initial_position) / avg_velocity().length());
+            //ros::Duration delta_time = ros::Duration(predicted_position.distance(initial_position) / avg_velocity().length());
+            // Fix long delay maybe:
+            ros::Duration delta_time = ros::Duration(delta_pos / avg_velocity().length());
 
-            ROS_INFO("predictied pos: x: %f y: %f z: %f", predicted_position.x(), predicted_position.y(), predicted_position.z());
+            ROS_INFO("predicted pos: x: %f y: %f z: %f", predicted_position.x(), predicted_position.y(), predicted_position.z());
             ROS_INFO("delta time: %f", delta_time.toSec());
             ROS_INFO("----------------------");
 
@@ -148,7 +151,7 @@ class TrajectoryPredictor {
         bool observe(marsha_msgs::ObjectObservation::Request &req,
                      marsha_msgs::ObjectObservation::Response &res) {
 
-            res.initial_position = vector_to_Pmsg(initial_position);
+            res.position = vector_to_Pmsg(prev_position);
             res.velocity = vector_to_Vmsg(avg_velocity());
             return true;
         }
@@ -160,7 +163,7 @@ class TrajectoryPredictor {
             reset_subscriber = nh->subscribe("reset", 1, &TrajectoryPredictor::reset_callback, this);    
 
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
-            observation_service = nh->advertiseService("observe", &TrajectoryPredictor::observe, this);
+            observation_service = nh->advertiseService("observe_trajectory", &TrajectoryPredictor::observe, this);
         }
 
 };

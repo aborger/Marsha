@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import rospy
+
+from std_msgs.msg import Empty
+
+from marsha_msgs.srv import MoveCmd
+
+rospy.wait_for_service('/left/pose_cmd')
+pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
+
+rospy.wait_for_service('/left/async_pose_cmd')
+async_pose_cmd = rospy.ServiceProxy('/left/async_pose_cmd', MoveCmd)
+
+rospy.wait_for_service('/left/gripper/grasp_cmd')
+grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
+
+reset_pub = rospy.Publisher('/reset', Empty, queue_size=5)
+
+def throw():
+    rospy.init_node('throw_controller')
+    reset_pub.publish()
+    pose_cmd("preGrasp")
+    grasp_cmd("open")
+    pose_cmd("0g_pickup")
+    grasp_cmd("close")
+    pose_cmd("preThrow")
+    async_pose_cmd("postThrow")
+    grasp_cmd("open")
+
+if __name__ == "__main__":
+    throw()
