@@ -29,6 +29,7 @@ class MarshaGym(gym.Env):
         self.ros_interface = ros_interface
         self.reward_range = (0, 100)
         self.current_step = 0
+        self.episode_num = 0
 
 
         self.action_space = catch_bandit.action_space
@@ -38,7 +39,6 @@ class MarshaGym(gym.Env):
 
 
     def step(self, action):
-        print("stepping...")
         reward, done = self.ros_interface.perform_action(action)
         observation = self.ros_interface.perform_observation()
 
@@ -53,10 +53,11 @@ class MarshaGym(gym.Env):
     def reset(self):
         self.ros_interface.reset_simulation()
         self.current_step = 0
-        sleep(1)
+        print("Finished episode ", self.episode_num)
+        self.episode_num += 1
+        sleep(1) # Waits for trajectory prediction to calculate velocity, could be less
         observation = self.ros_interface.perform_observation()
 
-        print("returning observation from reset..")
         return observation
 
 

@@ -51,6 +51,7 @@ class MarshaMoveInterface {
         moveit::planning_interface::MoveGroupInterface* move_group;
         
         ros::ServiceServer poseService;
+        ros::ServiceServer asyncPoseService;
         ros::ServiceServer positionService;
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
@@ -87,7 +88,38 @@ class MarshaMoveInterface {
 
             bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
             ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
-            move_group->move();
+            move_group->execute(target_plan);
+
+            res.done = success;
+            return true;            
+        }
+
+        // Exact same as poseCmd, but doesn't block
+        bool asyncPoseCmd(marsha_msgs::MoveCmd::Request &req,
+                          marsha_msgs::MoveCmd::Response &res)
+        { 
+            //std::string pose_name = req.pose_name;
+            ROS_DEBUG("Going to pose: %s", req.pose_name.c_str());
+
+            std::string param = pose_param + req.pose_name + "/";
+            geometry_msgs::Pose target_pose;
+
+
+            ros::param::get(param + "position/x", target_pose.position.x);
+            ros::param::get(param + "position/y", target_pose.position.y);       
+            ros::param::get(param + "position/z", target_pose.position.z);
+            ros::param::get(param + "orientation/x", target_pose.orientation.x);
+            ros::param::get(param + "orientation/y", target_pose.orientation.y);
+            ros::param::get(param + "orientation/z", target_pose.orientation.z);
+            ros::param::get(param + "orientation/w", target_pose.orientation.w);
+
+            move_group->setPoseTarget(target_pose);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+            move_group->asyncExecute(target_plan);
 
             res.done = success;
             return true;            
@@ -200,11 +232,10 @@ class MarshaMoveInterface {
         }
 
         bool grasp(std::string param) {
-            ROS_INFO("Grasping...");
             marsha_msgs::MoveCmd grasp_cmd;
             grasp_cmd.request.pose_name = param;
             bool success = graspClient.call(grasp_cmd);
-            if (success) {ROS_INFO("Grasp success");} else {ROS_INFO("Grasp Fail");}
+            if (success) {ROS_INFO("Grasp %s success!", param.c_str());} else {ROS_INFO("Grasp %s fail!", param.c_str());}
 
             return success;
         }        
@@ -249,6 +280,7 @@ class MarshaMoveInterface {
             move_group->setPlanningTime(ik_timeout);
             
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
+            asyncPoseService = nh->advertiseService("async_pose_cmd", &MarshaMoveInterface::asyncPoseCmd, this);
 
             positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 

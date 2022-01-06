@@ -22,6 +22,8 @@ import gym
 from stable_baselines3 import TD3
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.callbacks import StopTrainingOnMaxEpisodes
+from stable_baselines3.common.buffers import ReplayBuffer
+from stable_baselines3.common.monitor import Monitor
 
 from marsha_ai import catch_bandit as TaskEnv
 from marsha_ai.catch_bandit.gym_env import MarshaGym
@@ -44,12 +46,8 @@ OPTIMIZER = tf.keras.optimizers.Adam(learning_rate=0.1)
 ACTOR_LOSS = 0
 CRITIC_LOSS = 1
 
-torch_actor_layers = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
-torch_critic_0_layers = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
-torch_critic_1_layers = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
-
-TORCH_LAYER_NAMES = [torch_actor_layers, torch_critic_0_layers, torch_critic_1_layers]
-TF_MODEL_NAMES = ["actor", "critic_0", "critic_1"]
+META_BATCH_SIZE = 2
+META_GRADIENT_STEPS = 2
 
 class Observation: # Unit Test
     def __init__(self, num_batches, observation_len, action_len):
@@ -60,7 +58,6 @@ class Observation: # Unit Test
         self.dones = tf.constant(np.zeros(shape=(num_batches, 1)).astype('f'))
 
 
-# TODO: Get replay buffer from TD3 with TD3.collect_rollouts()
 class Replay_Buffer: # Unit Test
     def __init__(self, observation_len, num_batches):
         np.random.rand(num_batches, observation_len)
@@ -69,16 +66,14 @@ class Replay_Buffer: # Unit Test
 
 
 class Task:
-    def __init__(self, observation_space, action_space, env):
+    def __init__(self, env):
         batch_size = 2 # number of steps in reinforcement learning
-        self.replay_buffer = Replay_Buffer(get_flattened_obs_dim(observation_space), batch_size)
+        #self.replay_buffer = Replay_Buffer(get_flattened_obs_dim(TaskEnv.observation_space), batch_size)
 
-        self.observation_space = observation_space
-        self.action_space = action_space
         self.env = env
 
     def learn(self, initial_models):
-        mesa_algo = TD3("MlpPolicy", self.env, verbose=1, learning_starts=3) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)'
+        mesa_algo = TD3("MlpPolicy", self.env, verbose=1, learning_starts=1) # Note: Unecessarily initializes parameters (could speed up a bit by fixing)'
 
         mesa_algo.set_parameters(to_torch(initial_models), exact_match=False)
         LOG_DIR = "/home/jet/catkin_ws/src/marsha/marsha_ai/training/logs/"
@@ -86,44 +81,48 @@ class Task:
 
         callback_list = []
         callback_list.append(TensorboardCallback())
-        callback_list.append(StopTrainingOnMaxEpisodes(max_episodes=3, verbose=1))
+        callback_list.append(StopTrainingOnMaxEpisodes(max_episodes=5, verbose=1))
         """callback_list.append(EvalCallback(self.env, best_model_save_path=MODEL_DIR, log_path=LOG_DIR,
                                     deterministic=True,
                                     eval_freq=5,
                                     n_eval_episodes=1))"""
         mesa_algo.learn(total_timesteps=1000, callback=callback_list)       #rospy.get_param("/hyperparameters/total_timesteps")
 
-        print("finished training!")
+        print("finished training! Testing mesa network...")
+        test_buffer = ReplayBuffer(100, TaskEnv.observation_space, TaskEnv.action_space, device="cuda")
+
+        test_env = Monitor(self.env)
+        done = False
+        ob = test_env.reset()
+        while not done:
+            action, state = mesa_algo.predict(ob)
+            next_ob, reward, done, info = test_env.step(action)
+            test_buffer.add(ob, next_ob, action, reward, done, [info])
+            ob = next_ob
+
+
+        meta_buffer = {"test": test_buffer, "train": mesa_algo.replay_buffer}
+
         optimized_mesa_parameters = mesa_algo.get_parameters()
         tf_mesa_models = from_torch(optimized_mesa_parameters)
         
-        return self.replay_buffer, tf_mesa_models
+        return meta_buffer, tf_mesa_models
 
 class Actor(tf.keras.Model):
-    def __init__(self, observation_space, action_space):
+    def __init__(self):
         super().__init__()
         
-        self._initialize(observation_space, action_space)
+        self._initialize()
 
-        self.call(tf.constant(np.zeros(shape=(1, get_flattened_obs_dim(observation_space))))) # Initialize parameters by calling
+        self.call(tf.constant(np.zeros(shape=(1, get_flattened_obs_dim(TaskEnv.observation_space))))) # Initialize parameters by calling
 
         self.loss_function_id = ACTOR_LOSS
 
-    """
-    debug
 
-    def _initialize(self, observation_space, action_space):
-        self.dense1 = tf.keras.layers.Dense(get_action_dim(action_space), input_shape=observation_space.sample().shape)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        return x
-    """
-
-    def _initialize(self, observation_space, action_space):
-        self.dense1 = tf.keras.layers.Dense(400, input_shape=(get_flattened_obs_dim(observation_space),), activation='relu')
+    def _initialize(self):
+        self.dense1 = tf.keras.layers.Dense(400, input_shape=(get_flattened_obs_dim(TaskEnv.observation_space),), activation='relu')
         self.dense2 = tf.keras.layers.Dense(300, activation='relu')
-        self.dense3 = tf.keras.layers.Dense(get_action_dim(action_space), activation='tanh')
+        self.dense3 = tf.keras.layers.Dense(get_action_dim(TaskEnv.action_space), activation='tanh')
 
     def call(self, inputs):
         x = self.dense1(inputs)
@@ -132,32 +131,19 @@ class Actor(tf.keras.Model):
         return x
 
 class Critic(tf.keras.Model):
-    def __init__(self, observation_space, action_space):
+    def __init__(self):
         super().__init__()
-        
-        self._initialize(observation_space, action_space)
+        self._initialize()
 
         # Initialize parameters by calling
         self.call(
-            tf.constant(np.zeros(shape=(1, get_flattened_obs_dim(observation_space)))),
-            tf.constant(np.zeros(shape=(1, get_action_dim(action_space))))
+            tf.constant(np.zeros(shape=(1, get_flattened_obs_dim(TaskEnv.observation_space)))),
+            tf.constant(np.zeros(shape=(1, get_action_dim(TaskEnv.action_space))))
             ) 
         self.loss_function_id = CRITIC_LOSS
 
-    """
-    Debug
-
-    def _initialize(self, observation_space, action_space):
-        input_len = get_flattened_obs_dim(observation_space) + get_action_dim(action_space)
-        self.dense1 = tf.keras.layers.Dense(1, input_shape=input_shape)
-
-    def call(self, observations, actions):
-        inputs = tf.concat([observations, actions], axis=1)
-        x = self.dense1(inputs)
-        return x
-    """
-    def _initialize(self, observation_space, action_space):
-        self.dense1 = tf.keras.layers.Dense(400, input_shape=(get_flattened_obs_dim(observation_space) + get_action_dim(action_space),), activation='relu')
+    def _initialize(self):
+        self.dense1 = tf.keras.layers.Dense(400, input_shape=(get_flattened_obs_dim(TaskEnv.observation_space) + get_action_dim(TaskEnv.action_space),), activation='relu')
         self.dense2 = tf.keras.layers.Dense(300, activation='relu')
         self.dense3 = tf.keras.layers.Dense(1)
 
@@ -168,19 +154,30 @@ class Critic(tf.keras.Model):
         x = self.dense3(x)
         return x
 
-        self.observation_space = catch_bandit.observation_space
-        self.action_space = catch_bandit.action_space
 # Convert from torch should be used to convert optimized mesa parameters from sb3 to train the meta parameters
 def from_torch(torch_models):
-    tf_models = {"actor": Actor(TaskEnv.observation_space, TaskEnv.action_space), 
-                    "critic_0": Critic(TaskEnv.observation_space, TaskEnv.action_space),
-                    "critic_1": Critic(TaskEnv.observation_space, TaskEnv.action_space)
+    actor = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
+    actor_target = ["actor_target.mu.0.weight","actor_target.mu.0.bias","actor_target.mu.2.weight","actor_target.mu.2.bias","actor_target.mu.4.weight","actor_target.mu.4.bias"]
+    critic_0 = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
+    critic_0_target = ["critic_target.qf0.0.weight","critic_target.qf0.0.bias","critic_target.qf0.2.weight","critic_target.qf0.2.bias","critic_target.qf0.4.weight","critic_target.qf0.4.bias"]
+    critic_1 = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
+    critic_1_target = ["critic_target.qf1.0.weight","critic_target.qf1.0.bias","critic_target.qf1.2.weight","critic_target.qf1.2.bias","critic_target.qf1.4.weight","critic_target.qf1.4.bias"]
+
+    # Map torch layer groups to tf models
+    TORCH_LAYER_NAMES = [actor, actor_target, critic_0, critic_0_target, critic_1, critic_1_target]
+
+    tf_models = {"actor": Actor(), 
+                 "actor_target": Actor(),
+                 "critic_0": Critic(),
+                 "critic_0_target": Critic(),
+                 "critic_1": Critic(),
+                 "critic_1_target": Critic()
                 }
 
-    for model_num, model_name in enumerate(TF_MODEL_NAMES):
+    for model_num, model_name in enumerate(tf_models):
         for layer_num, layer in enumerate(TORCH_LAYER_NAMES[model_num]):
             torch_params = torch_models['policy'][layer]
-            np_params = torch_params.numpy()
+            np_params = torch_params.cpu().numpy() # move to cpu memory then convert to numpy
             if layer_num % 2 == 0: # Torch weights shape is flipped
                 np_params = np.reshape(np_params, (np_params.shape[1], np_params.shape[0])) 
             tf_weights = tf.convert_to_tensor(np_params)
@@ -189,6 +186,17 @@ def from_torch(torch_models):
 
 # Convert to torch should be used to initialize the mesa sb3 models with the TF meta parameters
 def to_torch(tf_models):
+    actor = ["actor.mu.0.weight","actor.mu.0.bias","actor.mu.2.weight","actor.mu.2.bias","actor.mu.4.weight","actor.mu.4.bias"]
+    actor_target = ["actor_target.mu.0.weight","actor_target.mu.0.bias","actor_target.mu.2.weight","actor_target.mu.2.bias","actor_target.mu.4.weight","actor_target.mu.4.bias"]
+    critic_0 = ["critic.qf0.0.weight","critic.qf0.0.bias","critic.qf0.2.weight","critic.qf0.2.bias","critic.qf0.4.weight","critic.qf0.4.bias"]
+    critic_0_target = ["critic_target.qf0.0.weight","critic_target.qf0.0.bias","critic_target.qf0.2.weight","critic_target.qf0.2.bias","critic_target.qf0.4.weight","critic_target.qf0.4.bias"]
+    critic_1 = ["critic.qf1.0.weight","critic.qf1.0.bias","critic.qf1.2.weight","critic.qf1.2.bias","critic.qf1.4.weight","critic.qf1.4.bias"]
+    critic_1_target = ["critic_target.qf1.0.weight","critic_target.qf1.0.bias","critic_target.qf1.2.weight","critic_target.qf1.2.bias","critic_target.qf1.4.weight","critic_target.qf1.4.bias"]
+
+    # Map tf models to torch layer groups. TODO: torch actor and actor target both recieve actor parameters, and so on for critic_0 & critic_1
+    TORCH_LAYER_NAMES = [actor, critic_0, critic_1]
+    TF_MODEL_NAMES = ["actor", "critic_0", "critic_1"]
+
     torch_dict = {}
 
     for model_num, model_name in enumerate(TF_MODEL_NAMES):
@@ -202,16 +210,6 @@ def to_torch(tf_models):
 
     return {"policy": torch_dict}
 
-def test_conversion(self, initial_models):
-    torch_models_0 = to_torch(initial_models)
-    tf_models = from_torch(torch_models_0)
-    torch_models_1 = to_torch(tf_models)
-
-    for model_num, model_name in enumerate(TF_MODEL_NAMES):
-        for layer_num, layer in enumerate(TORCH_LAYER_NAMES[model_num]):
-            print("------------------------------------------------")
-            print(layer, " Before:", torch_models_0["policy"][layer])
-            print(layer, " After:", torch_models_1["policy"][layer])
 
 def pl(name, var):
     print(name, var, '\n\n')
@@ -255,37 +253,29 @@ def conjugate_gradient(Av, b, x0, num_iterations):
 class MetaTD3():
     def __init__(self):
 
-        self.observation_space = TaskEnv.observation_space
-        self.action_space = TaskEnv.action_space
+        #self.observation_space = TaskEnv.observation_space
+        #self.action_space = TaskEnv.action_space
         
 
         self.ros_interface = CatchInterface()
         self.env = MarshaGym(self.ros_interface)
         self.mesa_algo = TD3("MlpPolicy", self.env)
-        self.tasks = [Task(self.observation_space, self.action_space, self.env), Task(self.observation_space, self.action_space, self.env)]
+        self.tasks = [Task(self.env), Task(self.env)]
         self.replay_buffer = None # will use one of the task replay buffers
         self.lambda_reg = 2.0 # Regularization Strength (2.0 according to iMAML paper)
-        self.meta_models = None # (meta_actor, meta_critic_0, meta_critic_1)
+
+        self.meta_models = {"actor": Actor(), 
+                            "critic_0": Critic(),
+                            "critic_1": Critic()
+                            }
 
         self.loss_functions = [self.actor_loss, self.critic_loss]
 
-        # Large variables updated after each task
-        self.replay_buffer = None
+
         self.optimized_mesa_models = None
 
 
-    def _initialize_meta_models(self):
-        # Create Actor and Critic Architecture according to stable-baselines TD3 and TD3 paper
-        
-        self.meta_models = {"actor": Actor(self.observation_space, self.action_space), 
-                            "critic_0": Critic(self.observation_space, self.action_space),
-                            "critic_1": Critic(self.observation_space, self.action_space)
-                            }
-        """
-        for model in self.meta_models:
-            print(model, "initial parameters:\n")
-            print(self.meta_models[model].trainable_variables, "\n\n")
-        """
+
 
     def _update_meta_parameters(self):
         meta_grads = {}
@@ -293,13 +283,11 @@ class MetaTD3():
             print("--------------- task -------------------------------")
             # Mesa models are returned after sb3 training
             self.replay_buffer, self.optimized_mesa_models = task.learn(self.meta_models)
-            pl("testing_observations:", self.replay_buffer.testing_data.observations)
-            pl("op mesa models:", self.optimized_mesa_models["actor"].trainable_variables)
+            #pl("testing_observations:", self.replay_buffer.testing_data.observations)
 
             for model in self.meta_models:
-                pl("model:", model)
+                print("Training meta", model, "...")
                 gi = self._calculate_implicit_meta_gradient(model)
-                pl("gi:", gi)
                 try:
                     meta_grads[model].append(gi)
                 except KeyError:
@@ -316,8 +304,6 @@ class MetaTD3():
             bias_avg_grad = sum(bias_grads)/len(bias_grads)
 
             OPTIMIZER.apply_gradients(zip([weight_avg_grad, bias_avg_grad], self.meta_models[model].trainable_variables))
-
-            print("new_parameters for ", model, ": ", self.meta_models[model].trainable_variables)
 
     def _calculate_implicit_meta_gradient(self, model_id):
         """
@@ -350,8 +336,6 @@ class MetaTD3():
         # vi, aka gradient of testing loss
         vi = self._calculate_partial_outer_gradient(model_id)
 
-        pl("vi:", vi)
-
         parameters = [v.numpy() for v in self.optimized_mesa_models[model_id].trainable_variables]
 
         # x0 is a list with weights and biases replaced with zeros ex: [weights, bias] where weights = [[0, 0, 0], [0, 0, 0]]
@@ -373,7 +357,8 @@ class MetaTD3():
         loss_function = self.loss_functions[self.meta_models[model_id].loss_function_id]
         with tf.GradientTape() as outer_tape:
             with tf.GradientTape() as inner_tape:
-                loss = loss_function(self.replay_buffer.training_data)
+                print("Train loss:")
+                loss = loss_function(self.replay_buffer["train"].sample(META_BATCH_SIZE))
             grads = inner_tape.gradient(loss, self.optimized_mesa_models[model_id].trainable_variables)
         Hv = outer_tape.gradient(grads, self.optimized_mesa_models[model_id].trainable_variables, output_gradients=v)
         return Hv
@@ -382,37 +367,47 @@ class MetaTD3():
     def _calculate_partial_outer_gradient(self, model_id):
         loss_function = self.loss_functions[self.meta_models[model_id].loss_function_id]
         with tf.GradientTape() as tape:
-            loss = loss_function(self.replay_buffer.testing_data)
+            print("Test Loss:")
+            loss = loss_function(self.replay_buffer["test"].sample(META_BATCH_SIZE))
         grads = tape.gradient(loss, self.optimized_mesa_models[model_id].trainable_variables) # v_i in the iMAML paper
         return grads
 
 
-    @tf.function
+    #@tf.function
     def actor_loss(self, replay_data):
-        actions = self.optimized_mesa_models["actor"](replay_data.observations)
-        qs = self.optimized_mesa_models["critic_0"](replay_data.observations, actions) # Only predicts q-value with first network
+        np_obs = replay_data.observations.cpu().numpy()
+        np_obs = np.reshape(np_obs, (np_obs.shape[0], np_obs.shape[1] * np_obs.shape[2]))
+        print("observation:", np_obs)
+        actions = self.optimized_mesa_models["actor"](np_obs)
+        qs = self.optimized_mesa_models["critic_0"](np_obs, actions) # Only predicts q-value with first network
 
         actor_loss = -1 * tf.reduce_mean(qs, axis=0)
+        print("Actor loss:", actor_loss)
         return actor_loss
 
     # TODO: Add noise
-    @tf.function
+    #@tf.function
     def critic_loss(self, replay_data):
-        next_actions = self.optimized_mesa_models["actor_target"](replay_data.next_observations)
+        np_next_obs = replay_data.next_observations.cpu().numpy()
+        np_next_obs = np.reshape(np_next_obs, (np_next_obs.shape[0], np_next_obs.shape[1] * np_next_obs.shape[2]))
+        np_obs = replay_data.observations.cpu().numpy()
+        np_obs = np.reshape(np_obs, (np_obs.shape[0], np_obs.shape[1] * np_obs.shape[2]))
+        next_actions = self.optimized_mesa_models["actor_target"](np_next_obs)
 
-        next_q_values_0 = self.optimized_mesa_models["critic_target_0"](replay_data.next_observations, next_actions)
-        next_q_values_1 = self.optimized_mesa_models["critic_target_1"](replay_data.next_observations, next_actions)
+        next_q_values_0 = self.optimized_mesa_models["critic_0_target"](np_next_obs, next_actions)
+        next_q_values_1 = self.optimized_mesa_models["critic_1_target"](np_next_obs, next_actions)
 
 
         min_next_q = tf.math.minimum(next_q_values_0, next_q_values_1)
 
         gamma = 0.9
-        target_q_values = replay_data.rewards + (1 - replay_data.dones) * gamma * min_next_q
+        target_q_values = replay_data.rewards.cpu().numpy() + (1 - replay_data.dones.cpu().numpy()) * gamma * min_next_q
 
-        current_q_values_0 = self.optimized_mesa_models["critic_0"](replay_data.observations, replay_data.actions)
-        current_q_values_1 = self.optimized_mesa_models["critic_1"](replay_data.observations, replay_data.actions)
+        current_q_values_0 = self.optimized_mesa_models["critic_0"](np_obs, replay_data.actions.cpu().numpy())
+        current_q_values_1 = self.optimized_mesa_models["critic_1"](np_obs, replay_data.actions.cpu().numpy())
 
         critic_loss = MSE(current_q_values_0, target_q_values) + MSE(current_q_values_1, target_q_values)
+        print("Critic loss:", critic_loss)
 
         return critic_loss
 
@@ -431,11 +426,12 @@ def print_torch(tensor):
 if __name__ == "__main__":
     mtd = MetaTD3()
 
-    mtd._initialize_meta_models()
+    pre_meta = mtd.meta_models["actor"].trainable_variables[0]
+    mtd._update_meta_parameters()
+    print("pre meta actor\n", pre_meta)
     
-    replay_buffer, mesa_models = mtd.tasks[0].learn(mtd.meta_models)
-    print("pre meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
-    print("mesa actor\n", mesa_models["actor"].trainable_variables[0])
+    print("post meta actor\n", mtd.meta_models["actor"].trainable_variables[0])
+
     #mtd._update_meta_parameters()
 
 

@@ -28,6 +28,11 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
+catkin_install_python(PROGRAMS
+   scripts/throw
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 add_executable(move_interface nodes/move_interface.cpp)
 target_link_libraries(move_interface ${catkin_LIBRARIES})
 

@@ -27,6 +27,8 @@ import numpy as np
 PRE_GRASP_DISTANCE = 2
 POST_GRASP_DISTANCE = 0.5 # May want to learn this
 
+DEBUG = True
+
 class CatchInterface(RosInterface):
     def __init__(self):
         super(CatchInterface, self).__init__()
@@ -66,7 +68,8 @@ class CatchInterface(RosInterface):
     # action_space (r, theta, phi, time)
     def perform_action(self, action):
         reward = 0
-        rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]) + " grasp_time: " + str(action[5]))
+        if DEBUG:
+            rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]) + " grasp_time: " + str(action[5]))
 
         # Grasp generator takes "tailored latent space" as input
         obj_space_preGrasp = self.generate_grasp(action[0] + PRE_GRASP_DISTANCE, action[1], action[2]).grasp
@@ -79,10 +82,18 @@ class CatchInterface(RosInterface):
         pre_grasp = self._object_to_world(obj_space_preGrasp, prediction.position)
         grasp = self._object_to_world(obj_space_grasp, prediction.position)
 
+        # Note: action[4] is currently on range (0, 1) so therefore it will only begin the grasp before it reaches the desired point
+        # TODO: fix predicted_time
         grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
+
+        #time_until = grasp_time - rospy.Time.now()
+        #print("Time until predicted:", time_until)
+
         
         move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
-        print("Move Success:", move_success)
+
+        if DEBUG:
+            print("Move Success:", move_success)
         
 
         if move_success:
@@ -92,7 +103,8 @@ class CatchInterface(RosInterface):
 
 
         catch_success = self.is_grasped().success
-        print("Catch success: ", catch_success)
+        if DEBUG:
+            print("Catch success: ", catch_success)
 
         if catch_success:
             sleep(1)
@@ -113,11 +125,13 @@ class CatchInterface(RosInterface):
         observation[1, 0] = raw_observation.velocity.x
         observation[1, 1] = raw_observation.velocity.y
         observation[1, 2] = raw_observation.velocity.z
-        print("Observation:\n", observation)
+        if DEBUG:
+            print("Observation:\n", observation)
         return observation
 
     def reset_simulation(self):
-        print("resetting...")
+        if DEBUG:
+            print("resetting...")
         self.reset_pub.publish()
 
     def _object_to_world(self, obj_space, obj_pos):
