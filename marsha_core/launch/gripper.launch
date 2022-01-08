@@ -9,8 +9,9 @@
     
     <group ns="gripper">
 
-        <!--<param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />-->
-        <param name="robot_description" command="$(find xacro)/xacro '$(find ar_mini_description)/urdf/ar_gripper_gazebo.urdf.xacro' ns:=$(arg ns)" />
+        <param name="robot_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />
+        <!-- One finger doenst work -->
+        <!--<param name="robot_description" command="$(find xacro)/xacro '$(find ar_mini_description)/urdf/ar_gripper_gazebo.urdf.xacro' ns:=$(arg ns)" />-->
         <param name="robot_description_semantic" textfile="$(find marsha_description)/config/gripper_gazebo.srdf"/>
 
 
