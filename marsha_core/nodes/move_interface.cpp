@@ -200,13 +200,6 @@ class MarshaMoveInterface {
             ros::param::get("/left/pose/pickup/orientation/z", target_pose.orientation.z);
             ros::param::get("/left/pose/pickup/orientation/w", target_pose.orientation.w);
 
-            // Do not allow gripper to collide with ground
-            float z_collision;
-            ros::param::get("/hyperparameters/z_collision", z_collision);
-            if (req.position.z < z_collision) {
-                ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
-                req.position.z = z_collision;
-            }
             target_pose.position = req.position;
 
 
