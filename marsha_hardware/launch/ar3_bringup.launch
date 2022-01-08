@@ -1,10 +1,18 @@
 <launch>
 
     <machine name="jet1" address="jet" user="aaron" password="Rocksat1" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
+
+    <rosparam file="$(find marsha_core)/config/poses.yaml" command="load"/>
+    
     <include file="$(find marsha_hardware)/launch/marsha_hardware_bringup.launch">
         <arg name="machine" value="jet1"/>
     </include>
 
-    <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch"/>
+    <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch">
+        <arg name="description" value="hardware"/>
+        <arg name="machine" value="jet1"/>
+    </include>
+
+    <node pkg="marsha_core" type="move_interface" name="move_interface" machine="jet1"/>
 
 </launch>

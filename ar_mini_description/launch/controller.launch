@@ -1,0 +1,9 @@
+<launch>
+
+<rosparam file="$(find ar_mini_description)/launch/controller.yaml" command="load"/>
+<node args="joint2_position_controller joint3_position_controller joint4_position_controller joint5_position_controller finger_joint1_position_controller finger_joint2_position_controller finger_joint3_position_controller joint1_position_controller joint_state_controller " name="controller_spawner" ns="ar_mini" output="screen" pkg="controller_manager" respawn="false" type="spawner"/>
+<node name="robot_state_publisher" output="screen" pkg="robot_state_publisher" respawn="false" type="robot_state_publisher">
+  <remap from="/joint_states" to="/ar_mini/joint_states"/>
+</node>
+
+</launch>
