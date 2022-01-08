@@ -36,6 +36,8 @@
             <arg name="ns" value="$(arg ns)"/>
         </include>
 
+        <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
+        <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
 
         <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 

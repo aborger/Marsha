@@ -6,6 +6,7 @@
 <launch>
     
     <arg name="num_arms" default="1"/>
+    <arg name="launch_rviz" default="false"/>
 
     <include file="$(find marsha_core)/launch/satlab_net.machine"/>
 
@@ -19,7 +20,7 @@
         <arg name="machine" value="jet2"/>
         <arg name="ns" value="left"/>
         <arg name="x_pos" value="0"/>
-        <arg name="launch_rviz" value="false"/>
+        <arg name="launch_rviz" value="$(arg launch_rviz)"/>
     </include>
 
     <include file="$(find marsha_core)/launch/single_arm.launch" if="$(eval arg('num_arms') == 2)">

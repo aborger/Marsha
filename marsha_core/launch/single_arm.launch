@@ -31,9 +31,6 @@
         </include>
 
         <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
-
-        <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
-        <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
         
 
         <node name="get_state" pkg="marsha_core" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
