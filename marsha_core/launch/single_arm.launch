@@ -28,6 +28,7 @@
             <arg name="machine" value="$(arg machine)"/>
             <arg name="display_machine" value="$(arg display_machine)"/>
             <arg name="ns" value="$(arg ns)"/>
+            <arg name="description" value="gazebo"/>
             <!--<arg name="simulated" value="true"/>-->
         </include>
 
@@ -40,6 +41,7 @@
             <arg name="machine" value="$(arg machine)"/>
             <arg name="ns" value="$(arg ns)"/>
         </include>
+        
     </group>
 
 
