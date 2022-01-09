@@ -6,10 +6,12 @@
  * Author: Aaron Borger
  */
 
-#include <ros.h>
-#include <std_msgs/Int32MultiArray.h>
+
+
 #include "Stepper.h"
 #include "TimerOne.h"
+#include <ros.h>
+#include <std_msgs/Int32MultiArray.h>
 
 #define NUM_JOINTS      6
 #define TIMER_INTERVAL  50
@@ -23,7 +25,7 @@
 // Declare ROS data types
 ros::NodeHandle nh;
 std_msgs::Int32MultiArray feedback_multiArr; // Msg that is transmitted to ROS (contains feedback_arr)
-int feedback_arr[NUM_JOINTS]; // Array that is updated on Arduino
+long int feedback_arr[NUM_JOINTS]; // Array that is updated on Arduino
 
 int led = 13;
 
@@ -124,8 +126,7 @@ void loop() {
 // Needs to be quick to ensure function is not running when next interrupt occurs.
 void timerCallBack() {
     digitalWrite(led, LOW);
-    // Not controlling J6 currently
-    for (int i = 0; i < NUM_JOINTS - 1; i++) {
+    for (int i = 0; i < NUM_JOINTS -1; i++) {
       steppers[i].step();
     }
 
