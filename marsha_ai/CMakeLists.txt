@@ -32,10 +32,18 @@ catkin_python_setup()
 
 include_directories(include)
  
+generate_messages(
+  DEPENDENCIES
+    std_msgs
+    marsha_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS
     tf2_geometry_msgs
+    rospy
+    roscpp
+    marsha_msgs
   DEPENDS
     EIGEN3
 )
@@ -57,10 +65,12 @@ catkin_install_python(PROGRAMS
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_executable(grasp_generator nodes/grasp_generator.cpp)
-target_link_libraries(grasp_generator ${catkin_LIBRARIES})
+#add_executable(grasp_generator nodes/grasp_generator.cpp)
+#target_link_libraries(grasp_generator ${catkin_LIBRARIES})
+#add_dependencies(grasp_generator marsha_msgs)
 
-add_executable(trajectory_predictor nodes/trajectory_predictor.cpp)
-target_link_libraries(trajectory_predictor ${catkin_LIBRARIES})
+#add_executable(trajectory_predictor nodes/trajectory_predictor.cpp)
+#target_link_libraries(trajectory_predictor ${catkin_LIBRARIES})
+#add_dependencies(trajectory_predictor marsha_msgs)
 
 

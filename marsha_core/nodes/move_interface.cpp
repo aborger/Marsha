@@ -9,7 +9,6 @@
 
 */
 
-// THIS NEEDS TO BE MOVED OUT OF AI PACKAGE
 
 
 #include <moveit/move_group_interface/move_group_interface.h>
@@ -68,10 +67,11 @@ class MarshaMoveInterface {
                      marsha_msgs::MoveCmd::Response &res)
         { 
             //std::string pose_name = req.pose_name;
-            ROS_DEBUG("Going to pose: %s", req.pose_name.c_str());
+            
 
             std::string param = pose_param + req.pose_name + "/";
             geometry_msgs::Pose target_pose;
+            ROS_INFO("Going to pose: %s", param.c_str());
 
 
             ros::param::get(param + "position/x", target_pose.position.x);
@@ -200,13 +200,6 @@ class MarshaMoveInterface {
             ros::param::get("/left/pose/pickup/orientation/z", target_pose.orientation.z);
             ros::param::get("/left/pose/pickup/orientation/w", target_pose.orientation.w);
 
-            // Do not allow gripper to collide with ground
-            float z_collision;
-            ros::param::get("/hyperparameters/z_collision", z_collision);
-            if (req.position.z < z_collision) {
-                ROS_WARN("Attempted to move gripper below ground! System automatically prevented collision.");
-                req.position.z = z_collision;
-            }
             target_pose.position = req.position;
 
 
@@ -295,7 +288,8 @@ class MarshaMoveInterface {
 
             planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
 
-            pose_param = ros::this_node::getNamespace() + "/pose/";
+            //pose_param = ros::this_node::getNamespace() + "/pose/";
+            pose_param = "/hardware/pose/";
         }
 
 };

@@ -89,7 +89,7 @@ class CatchInterface(RosInterface):
         #time_until = grasp_time - rospy.Time.now()
         #print("Time until predicted:", time_until)
 
-        
+        # Should check ball location before finishing grasp
         move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
 
         if DEBUG:
