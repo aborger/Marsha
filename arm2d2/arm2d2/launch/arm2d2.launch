@@ -2,15 +2,20 @@
   
   <arg name="machine" default="jet2"/>
   <arg name="ns" default=""/>
+  <arg name="launch_rviz" default="true"/>
 
   <include file="$(find marsha_core)/launch/satlab_net.machine"/>
 
   <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch"/>
 
-  <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch"/>
+  <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch">
+    <arg name="launch_rviz" value="$(arg launch_rviz)"/>
+    <arg name="machine" value="$(arg machine)"/>
+    <arg name="ns" value="$(arg ns)"/>
+  </include>
 
   <!-- Doesnt work yet -->
-  <!--<node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>-->
+  <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
 
 </launch>
