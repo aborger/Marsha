@@ -28,8 +28,6 @@
             <arg name="machine" value="$(arg machine)"/>
             <arg name="display_machine" value="$(arg display_machine)"/>
             <arg name="ns" value="$(arg ns)"/>
-            <arg name="description" value="gazebo"/>
-            <!--<arg name="simulated" value="true"/>-->
         </include>
 
         <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
