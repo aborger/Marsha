@@ -1,9 +1,8 @@
 <package>
 
-  <name>ar_mini</name>
+  <name>arm2d2_moveit_config</name>
   <version>0.0.0</version>
-  <description> Moveit package for the ar_mini
-  </description>
+  <description> Moveit package for the arm2d2 arms </description>
   <author email="aborger@nnu.edu">Aaron Borger</author>
   <maintainer email="aborger@nnu.edu">Aaron Borger</maintainer>
 
@@ -27,7 +26,7 @@
   <run_depend>tf2_ros</run_depend>
   <run_depend>xacro</run_depend>
 
-  <run_depend>ar_mini_description</run_depend>
+  <run_depend>arm2d2_description</run_depend>
 
 
 </package>

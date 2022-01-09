@@ -1,0 +1,15 @@
+<launch>
+
+    <arg name="ns" default=""/>
+    <arg name="machine" default=""/>
+
+    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch"/>
+
+    <include file="$(find arm2d2_moveit_config)/launch/move_group.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="ns" value="$(arg ns)"/>
+    </include>
+
+    <!-- Database would be included here, but it is not currently used -->
+
+</launch>
