@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3)
-project(ar_mini)
+project(arm2d2_moveit_config)
 
 find_package(catkin REQUIRED)
 

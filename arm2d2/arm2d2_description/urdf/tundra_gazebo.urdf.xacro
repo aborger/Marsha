@@ -22,14 +22,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/palm_1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/palm_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/palm_1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/palm_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -50,14 +50,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="-0.038503 0.023636 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.038503 0.023636 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -79,14 +79,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="-0.005046 0.023636 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.005046 0.023636 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -109,14 +109,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="-0.015674 -0.015904 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.015674 -0.015904 -0.424996"/>
       <geometry>
-        <mesh filename="package://ar_mini_description/meshes/finger_3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://arm2d2_description/meshes/finger_3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>

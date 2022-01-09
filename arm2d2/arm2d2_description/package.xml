@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ar_mini_description</name>
+  <name>arm2d2_description</name>
   <version>0.0.0</version>
-<description>The ar_mini_description package</description>
+<description>The ARM2D2_description package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

@@ -1,0 +1,29 @@
+<launch>
+    <arg name="ns" default=""/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+
+    <!-- Urdf for arm only -->
+    <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro"/>
+
+    <!-- Load controller configuration -->
+    <rosparam file="$(find arm2d2_moveit_config)/config/arm2d2_gazebo_controllers.yaml" command="load"/>
+
+    <!-- Spawn Controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+          args="--namespace=/$(arg ns) /$(arg ns)/joint_state_controller /$(arg ns)/arm2d2/controllers/position"/>
+
+    <!-- Publish Joint states -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen" ns="/$(arg ns)">
+        <param name="tf_prefix" value="$(arg ns)"/>
+    </node>
+
+    <!-- Spawns urdf with arm and gripper combined -->
+    <param name="robot_model" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro"/>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+          args="-param robot_description -urdf -model arm2d2"/>
+
+
+</launch>
