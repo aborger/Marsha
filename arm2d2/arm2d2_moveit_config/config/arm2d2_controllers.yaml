@@ -1,5 +1,5 @@
 controller_list:
-  - name: "/arm2d2/controllers/position"
+  - name: "/arm2d2/arm2d2/controllers/position"
     action_ns: follow_joint_trajectory
     type: FollowJointTrajectory
     default: true
