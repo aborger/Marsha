@@ -35,7 +35,7 @@
 
         <node name="get_state" pkg="marsha_core" type="get_state" machine="$(arg machine)" if="$(eval arg('launch_rviz') == true)"/>
         
-        <include file="$(find marsha_core)/launch/gripper.launch">
+        <include file="$(find tundra_gripper)/launch/gripper.launch">
             <arg name="machine" value="$(arg machine)"/>
             <arg name="ns" value="$(arg ns)"/>
         </include>

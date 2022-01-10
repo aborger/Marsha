@@ -6,7 +6,7 @@
 
     <xacro:include filename="$(find ar3_description)/urdf/ar3_gazebo.urdf.xacro"/>
 
-    <xacro:include filename="$(find marsha_description)/urdf/gripper.urdf.xacro"/>
+    <xacro:include filename="$(find tundra_gripper)/urdf/gripper.urdf.xacro"/>
 
     <joint name="gripper_joint" type="fixed">
         <parent link="link_6"/>
