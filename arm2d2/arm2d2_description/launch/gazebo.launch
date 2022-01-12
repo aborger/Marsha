@@ -1,6 +1,18 @@
 <launch>
-  <param command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm2d2.xacro" name="robot_description"/>
-  <node args="-param robot_description -urdf -model arm2d2" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"/>
+
+  <param name="base_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/base.urdf.xacro top_plate:=false" />
+
+  <!--<node args="-param base_description -urdf -model base_plate" name="spawn_base" pkg="gazebo_ros" type="spawn_model"/>-->
+  
+  <include file="$(find arm2d2_description)/launch/arm1.launch">
+    <arg name="ns" value="left"/>
+  </include>
+
+  
+  <include file="$(find arm2d2_description)/launch/arm1.launch">
+    <arg name="ns" value="right"/>
+  </include>
+
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
