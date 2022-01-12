@@ -25,7 +25,7 @@
     </node>
 
     <!-- Spawns urdf with arm and gripper combined -->
-    <param name="robot_model" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm2d2.xacro ns:=$(arg ns) include_arm:=true include_gripper:=true"/>
+    <param name="robot_model" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm2d2.xacro ns:=$(arg ns) include_arm:=true include_gripper:=false"/>
 
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
           args="-param robot_model -urdf -model arm2d2"/>

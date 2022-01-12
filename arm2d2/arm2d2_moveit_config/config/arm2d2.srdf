@@ -3,7 +3,6 @@
 <robot name="arm2d2">
 
   <group name="manipulator">
-    <joint name="world_joint"/>
     <joint name="joint_1"/>
     <joint name="joint_2"/>
     <joint name="joint_3"/>
@@ -27,15 +26,14 @@
     <joint name="joint_5" value="0" />
   </group_state>
 
-  <end_effector name="gripper" parent_link="link_4" group="manipulator"/>
+  <!--<end_effector name="gripper" parent_link="link_4" group="manipulator"/>-->
 
-  <disable_collisions link1="base_link" link2="link_1" reason="Adjacent" />
   <disable_collisions link1="link_1" link2="link_2" reason="Adjacent" />
   <disable_collisions link1="link_1" link2="link_3" reason="Never" />
   <disable_collisions link1="link_2" link2="link_3" reason="Adjacent" />
-  <disable_collisions link1="link_2" link2="palm" reason="Never" />
   <disable_collisions link1="link_3" link2="link_4" reason="Adjacent" />
-  <disable_collisions link1="link_3" link2="palm" reason="Never" />
-  <disable_collisions link1="link_4" link2="palm" reason="Adjacent" />
+  <disable_collisions link1="link_4" link2="link_5" reason="Adjacent" />
+
+
 
 </robot>

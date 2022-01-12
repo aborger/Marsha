@@ -19,7 +19,6 @@
         <joint name="actuator_joint_3" value="0.6981"/>
     </group_state>
 
-    <virtual_joint name="gripper_joint" type="fixed" parent_frame="left/link_6" child_link="gripper_link"/>
 
     <disable_collisions link1="palm" link2="actuator_1" reason="Adjacent" />
     <disable_collisions link1="palm" link2="actuator_2" reason="Adjacent" />

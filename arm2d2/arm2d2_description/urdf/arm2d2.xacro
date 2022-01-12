@@ -26,7 +26,7 @@
   </xacro:if>
 
   <xacro:if value="$(arg include_gripper)">
-    <xacro:include filename="$(find arm2d2_description)/urdf/gripper.urdf.xacro"/>
+    <xacro:include filename="$(find tundra_gripper)/urdf/gripper.urdf.xacro"/>
   </xacro:if>
 
   <!-- Connect arm and gripper -->
