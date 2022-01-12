@@ -1,7 +1,7 @@
 <launch>
   
   <arg name="machine" default="jet2"/>
-  <arg name="ns" default="arm2d2"/>
+  <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
 
   <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>

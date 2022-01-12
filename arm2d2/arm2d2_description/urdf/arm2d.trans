@@ -1,89 +1,115 @@
 <?xml version="1.0" ?>
-<robot name="arm2d2" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+<robot name="arm2d" xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
-<transmission name="joint2_tran">
+
+<transmission name="transmission_1">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="joint2">
+  <joint name="joint_1">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="joint2_actr">
+  <actuator name="motor_1">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="joint3_tran">
+
+<transmission name="transmission_2">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="joint3">
+  <joint name="joint_2">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="joint3_actr">
+  <actuator name="motor_2">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="joint4_tran">
+<transmission name="transmission_3">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="joint4">
+  <joint name="joint_3">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="joint4_actr">
+  <actuator name="motor_3">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="joint5_tran">
+<transmission name="transmission_4">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="joint5">
+  <joint name="joint_4">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="joint5_actr">
+  <actuator name="motor_4">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="finger_joint1_tran">
+
+
+<transmission name="transmission_5">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="finger_joint1">
+  <joint name="joint_5">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="finger_joint1_actr">
+  <actuator name="motor_5">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="finger_joint2_tran">
+<transmission name="actuator_joint_1_tran">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="finger_joint2">
+  <joint name="actuator_joint_1">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="finger_joint2_actr">
+  <actuator name="actuator_joint_1_actr">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="finger_joint3_tran">
+<transmission name="actuator_joint_2_tran">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="finger_joint3">
+  <joint name="actuator_joint_2">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="finger_joint3_actr">
+  <actuator name="actuator_joint_2_actr">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>
 </transmission>
 
-<transmission name="joint1_tran">
+<transmission name="actuator_joint_3_tran">
   <type>transmission_interface/SimpleTransmission</type>
-  <joint name="joint1">
+  <joint name="actuator_joint_3">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
   </joint>
-  <actuator name="joint1_actr">
+  <actuator name="actuator_joint_3_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="right_joint_1_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="right_joint_1">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="right_joint_1_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="gripper_driver_joint_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="gripper_driver_joint">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="gripper_driver_joint_actr">
     <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
   </actuator>

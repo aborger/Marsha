@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<robot name="arm2d" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:arg name="top_plate" default="false"/>
+
+<link name="base_link">
+  <inertial>
+    <origin rpy="0 0 0" xyz="0.06861790086338357 -0.0835697992386399 0.07107579694115096"/>
+    <mass value="4.519107238213137"/>
+    <inertia ixx="0.059779" ixy="-0.0" ixz="0.0" iyy="0.062251" iyz="0.000956" izz="0.076317"/>
+  </inertial>
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<xacro:if value="$(arg top_plate)">
+  <link name="top_plate">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-2.160592513816839e-06 0.006014994682341276 -0.0033018459554867265"/>
+      <mass value="1.5433879121893925"/>
+      <inertia ixx="0.010217" ixy="-0.0" ixz="0.0" iyy="0.011371" iyz="-0.0" izz="0.021576"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.068617 0.090846 -0.0"/>
+      <geometry>
+        <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.068617 0.090846 -0.0"/>
+      <geometry>
+        <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <joint name="top_plate_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.29"/>
+    <parent link="base_link"/>
+    <child link="top_plate"/>
+  </joint>
+</xacro:if>
+
+
+
+</robot>
