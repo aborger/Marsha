@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: make a setup script for the embedded platform
 echo Installing MARSHA...
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 yes | sudo apt install curl
