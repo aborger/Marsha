@@ -1,14 +1,28 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 
 project(tundra_gripper)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+	COMPONENTS
+		roscpp
+		std_msgs
+		moveit_core
+		moveit_ros_planning_interface
+		marsha_msgs
+)
 
-catkin_package()
+catkin_package(
+	CATKIN_DEPENDS
+		moveit_core
+		moveit_ros_planning_interface
+		marsha_msgs
+)
 
-find_package(roslaunch)
+include_directories(
+	include
+	${catkin_INCLUDE_DIRS}
+)
 
-foreach(dir config launch meshes urdf)
-	install(DIRECTORY ${dir}/
-		DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-endforeach(dir)
+add_executable(grip_interface nodes/grip_interface.cpp)
+target_link_libraries(grip_interface ${catkin_LIBRARIES})
+#add_dependencies(grip_interface move)

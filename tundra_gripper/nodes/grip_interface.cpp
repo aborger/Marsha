@@ -11,14 +11,12 @@
 
 
 #include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/planning_scene_interface/planning_scene_interface.h>
 
 
 #include <ros/ros.h>
-#include "marsha_msgs/MoveCmd.h"
+#include <marsha_msgs/MoveCmd.h>
 
 #include <string>
-
 
 #include <vector>
 
@@ -32,7 +30,7 @@ class MarshaMoveInterface {
         
         ros::ServiceServer graspService;
 
-        std::string pose_param;
+
  
 
         bool graspCmd(marsha_msgs::MoveCmd::Request &req,
@@ -40,10 +38,11 @@ class MarshaMoveInterface {
         {
 
             ROS_INFO("Gripping pose: %s", req.pose_name.c_str());
-            std::string param = "/gripper/" + req.pose_name;
+            std::string param = "/gripper/pose/" + req.pose_name;
             std::vector<double> joint_targets(3);
 
             if (!ros::param::get(param, joint_targets[0])) {
+                ROS_ERROR("Failed to get param: %s", param.c_str());
                 res.done = false;
                 return false;
             }

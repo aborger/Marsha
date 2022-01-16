@@ -23,11 +23,26 @@ from geometry_msgs.msg import Pose
 from time import sleep
 
 import numpy as np
+import math
 
 PRE_GRASP_DISTANCE = 2
 POST_GRASP_DISTANCE = 0.5 # May want to learn this
 
 DEBUG = True
+
+def object_to_world(obj_space, obj_pos):
+    world = Pose()
+    world.position.x = obj_pos.x + obj_space.position.x
+    world.position.y = obj_pos.y + obj_space.position.y
+    world.position.z = obj_pos.z + obj_space.position.z
+    world.orientation = obj_space.orientation
+    return world
+
+def distance(pose1: Pose, pose2: Pose):
+    dist = math.sqrt((pose1.position.x - pose2.position.x)**2 +
+                     (pose1.position.y - pose2.position.y)**2 +
+                     (pose1.position.z - pose2.position.z)**2)
+    return dist
 
 class CatchInterface(RosInterface):
     def __init__(self):
@@ -79,21 +94,26 @@ class CatchInterface(RosInterface):
         prediction = self.predict_position(norm_dist=action[3])
         
 
-        pre_grasp = self._object_to_world(obj_space_preGrasp, prediction.position)
-        grasp = self._object_to_world(obj_space_grasp, prediction.position)
+        pre_grasp = object_to_world(obj_space_preGrasp, prediction.position)
+        grasp = object_to_world(obj_space_grasp, prediction.position)
 
         # Note: action[4] is currently on range (0, 1) so therefore it will only begin the grasp before it reaches the desired point
-        # TODO: fix predicted_time
         grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
 
         #time_until = grasp_time - rospy.Time.now()
         #print("Time until predicted:", time_until)
 
-        # Should check ball location before finishing grasp
+        # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
         move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
 
         if DEBUG:
             print("Move Success:", move_success)
+
+        dist_at_grasp = distance(self.observe(), grasp)
+        
+        # Punish if ball is further away
+        reward -= dist_at_grasp
+        
         
 
         if move_success:
@@ -110,7 +130,7 @@ class CatchInterface(RosInterface):
             sleep(1)
             self.grasp_cmd("open")
             sleep(1)
-            reward += 10
+            reward = 10
 
         return reward, move_success
 
@@ -134,10 +154,6 @@ class CatchInterface(RosInterface):
             print("resetting...")
         self.reset_pub.publish()
 
-    def _object_to_world(self, obj_space, obj_pos):
-        world = Pose()
-        world.position.x = obj_pos.x + obj_space.position.x
-        world.position.y = obj_pos.y + obj_space.position.y
-        world.position.z = obj_pos.z + obj_space.position.z
-        world.orientation = obj_space.orientation
-        return world
+
+
+
