@@ -2,7 +2,7 @@
 
     <machine name="jet1" address="jet" user="aaron" password="Rocksat1" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
 
-    <rosparam file="$(find marsha_core)/config/poses.yaml" command="load"/>
+    <rosparam file="$(find ar3_moveit_config)/config/poses.yaml" command="load"/>
     
     <include file="$(find marsha_hardware)/launch/marsha_hardware_bringup.launch">
         <arg name="machine" value="jet1"/>
