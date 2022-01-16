@@ -1,0 +1,11 @@
+<launch>
+    <arg name="launch_world" default="true"/>
+    <arg name="top_plate" default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg launch_world)"/>
+
+    <param name="base_model" command="$(find xacro)/xacro '$(find arm2d2_description)/urdf/base.urdf.xacro' top_plate:=$(arg top_plate)"/>
+
+    <node name="spawn_base" pkg="gazebo_ros" type="spawn_model"
+          args="-param base_model -urdf -model base"/>
+</launch>

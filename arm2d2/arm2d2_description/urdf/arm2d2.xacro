@@ -6,6 +6,8 @@
   <xacro:arg name="ns" default=""/>
   <xacro:arg name="include_arm" default="false"/>
   <xacro:arg name="include_gripper" default="false"/>
+  <!-- When true each arm comes with the base attached (always false in this file)-->
+  <xacro:arg name="include_arm_base" default="false"/> 
 
   <!-- Convert args to properties-->
   <xacro:property name="ns" value="$(arg ns)"/>
@@ -36,10 +38,10 @@
         <parent link="link_5"/>
         <child link="gripper_link"/>
         <xacro:if value="${is_left}">
-          <origin xyz="0.025 0 0.025" rpy="0 0 0"/>
+          <origin xyz="0.025 0 0.009" rpy="0 0 0"/>
         </xacro:if>
         <xacro:unless value="${is_left}">
-          <origin xyz="0.025 0 0.025" rpy="0 0 3.14159"/>
+          <origin xyz="0.025 0 0.009" rpy="0 0 3.14159"/>
         </xacro:unless>
       </joint>
     </xacro:if>

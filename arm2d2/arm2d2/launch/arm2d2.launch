@@ -3,12 +3,9 @@
   <arg name="machine" default="jet2"/>
   <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
+  
 
-  <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
-
-  <include file="$(find marsha_core)/launch/satlab_net.machine"/>
-
-  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+  
 
   <group ns="$(arg ns)">
     <rosparam param="IK_timeout">1</rosparam>

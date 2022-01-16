@@ -27,7 +27,7 @@
     <joint name="joint_5" value="0" />
   </group_state>
 
-  <end_effector name="gripper" parent_link="link_4" group="manipulator"/>
+  <!--<end_effector name="gripper" parent_link="link_4" group="manipulator"/>-->
 
   <disable_collisions link1="base_link" link2="link_1" reason="Adjacent" />
   <disable_collisions link1="link_1" link2="link_2" reason="Adjacent" />

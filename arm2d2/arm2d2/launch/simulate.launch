@@ -1,0 +1,24 @@
+<launch>
+    
+    <include file="$(find marsha_core)/launch/satlab_net.machine"/>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+
+
+    <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
+
+    <include file="$(find arm2d2_description)/launch/base.launch">
+        <arg name="launch_world" value="false"/>
+    </include>
+
+    <include file="$(find arm2d2)/launch/arm2d2.launch">
+        <arg name="ns" value="left"/>
+        <arg name="machine" value="jet2"/>
+    </include>
+
+    <include file="$(find arm2d2)/launch/arm2d2.launch">
+        <arg name="ns" value="right"/>
+        <arg name="machine" value="jet2"/>
+    </include>
+
+
+</launch>
