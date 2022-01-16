@@ -25,6 +25,7 @@ static const std::string GRIPPER_PLANNING_GROUP = "gripper";
 
 class MarshaMoveInterface {
     private:
+        ros::NodeHandle* nh;
         moveit::planning_interface::MoveGroupInterface* hand_group;
 
         
@@ -38,7 +39,8 @@ class MarshaMoveInterface {
         {
 
             ROS_INFO("Gripping pose: %s", req.pose_name.c_str());
-            std::string param = "/gripper/pose/" + req.pose_name;
+            ROS_INFO("Namespace: %s", nh->getNamespace().c_str());
+            std::string param =  nh->getNamespace() + "/pose/" + req.pose_name; // Example of gripper pose: /left/gripper/pose/open
             std::vector<double> joint_targets(3);
 
             if (!ros::param::get(param, joint_targets[0])) {
@@ -63,7 +65,8 @@ class MarshaMoveInterface {
 
 
     public:
-        MarshaMoveInterface(ros::NodeHandle *nh) {
+        MarshaMoveInterface(ros::NodeHandle* _nh) {
+            nh = _nh;
             hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
 
             graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
