@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot xmlns:xacro="http://www.ros.org/wifi/xacro" name="arm2d2">
+
+
+  <xacro:arg name="ns" default=""/>
+  <xacro:arg name="include_arm" default="false"/>
+  <xacro:arg name="include_gripper" default="false"/>
+
+  <!-- Convert args to properties-->
+  <xacro:property name="ns" value="$(arg ns)"/>
+
+  <!-- Create bool which will essentially mirror the arm based on its side -->
+  <xacro:if value="${ns == 'right'}">
+    <xacro:property name="is_left" value="false"/>
+  </xacro:if>
+
+  <xacro:unless value="${ns == 'right'}">
+    <xacro:property name="is_left" value="true"/>
+  </xacro:unless>
+  
+
+  <!-- Include arm and gripper urdfs-->
+  <xacro:if value="$(arg include_arm)">
+    <xacro:include filename="$(find arm2d2_description)/urdf/arm1.urdf.xacro"/>
+  </xacro:if>
+
+  <xacro:if value="$(arg include_gripper)">
+    <xacro:include filename="$(find tundra_gripper)/urdf/gripper.urdf.xacro"/>
+  </xacro:if>
+
+  <!-- Connect arm and gripper -->
+  <xacro:if value="$(arg include_arm)">
+    <xacro:if value="$(arg include_gripper)">
+      <joint name="gripper_joint" type="fixed">
+        <parent link="link_5"/>
+        <child link="palm"/>
+        <xacro:if value="${is_left}">
+          <origin xyz="0.025 0 0.025" rpy="0 0 0"/>
+        </xacro:if>
+        <xacro:unless value="${is_left}">
+          <origin xyz="0.025 0 0.025" rpy="0 0 3.14159"/>
+        </xacro:unless>
+      </joint>
+    </xacro:if>
+  </xacro:if>
+
+</robot>
