@@ -46,7 +46,7 @@
         <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
 
         <!-- TODO: move this file to tundra package on jetson -->
-        <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+        <node name="grip_interface" pkg="tundra_gripper" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
         <node if="$(arg launch_world)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
         args="-param robot_description -urdf -model gripper" respawn="false" output="screen"/>

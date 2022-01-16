@@ -9,7 +9,7 @@
     </include>
 
     <include file="$(find ar3_moveit_config)/launch/ar3_moveit_bringup.launch">
-        <arg name="description" value="hardware"/>
+        <!--<arg name="description" value="hardware"/>-->
         <arg name="machine" value="jet1"/>
     </include>
 

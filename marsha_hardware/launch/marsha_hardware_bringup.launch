@@ -22,8 +22,8 @@
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/" 
         args="/ar3/controllers/state
-              /ar3/controllers/position
-              /ar3/controllers/effort"
+              /ar3/controllers/position"
         machine="$(arg machine)"/>
+        <!--/ar3/controllers/effort-->
 
 </launch>
