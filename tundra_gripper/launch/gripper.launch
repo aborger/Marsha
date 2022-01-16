@@ -3,12 +3,14 @@
     <arg name="machine" default=""/>
     <arg name="ns" default=""/>
     <arg name="launch_world" default="false"/>
+    <arg name="launch_rviz" default="false"/>
 
     <include if="$(arg launch_world)" file="$(find gazebo_ros)/launch/empty_world.launch" />
     <include file="$(find marsha_core)/launch/satlab_net.machine"/>
     
+    <rosparam command="load" file="$(find tundra_gripper)/config/poses.yaml"/>
+    
     <group ns="gripper">
-
         <param name="robot_description" command="$(find xacro)/xacro '$(find tundra_gripper)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />
         <!-- One finger doenst work -->
         <!--<param name="robot_description" command="$(find xacro)/xacro '$(find ar_mini_description)/urdf/ar_gripper_gazebo.urdf.xacro' ns:=$(arg ns)" />-->
@@ -42,7 +44,7 @@
             <arg name="ns" value="$(arg ns)"/>
         </include>
 
-        <include file="$(find tundra_gripper)/launch/moveit_rviz.launch">
+        <include file="$(find tundra_gripper)/launch/moveit_rviz.launch" if="$(arg launch_rviz)">
             <arg name="config" value="true"/>
         </include>
 
