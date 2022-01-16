@@ -80,30 +80,11 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          actuator_1:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          actuator_2:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          actuator_3:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          camera_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
           link_1:
             Alpha: 1
             Show Axes: false
@@ -129,21 +110,7 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          link_6:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          palm:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           world:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          world_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -169,7 +136,7 @@ Visualization Manager:
         Goal State Color: 250; 128; 0
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
-        Planning Group: gripper
+        Planning Group: manipulator
         Query Goal State: true
         Query Start State: false
         Show Workspace: false
@@ -192,30 +159,11 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          actuator_1:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          actuator_2:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          actuator_3:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          camera_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
           link_1:
             Alpha: 1
             Show Axes: false
@@ -241,21 +189,7 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          link_6:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          palm:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           world:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          world_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -321,30 +255,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.1200733184814453
+      Distance: 1.546766757965088
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.2494017481803894
-        Y: -0.5778816938400269
-        Z: 5.445829174277605e-7
+        X: 0.0278337299823761
+        Y: -0.09035086631774902
+        Z: 4.849782726523699e-7
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.704797089099884
+      Pitch: 0.4297970235347748
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.0618113279342651
+      Yaw: 5.359999656677246
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1025
+  Height: 539
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -355,9 +289,9 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001f3000003a7fc020000000afc0000003d000002e40000019a0100001cfa000000000100000002fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000000ffffffff000001f300fffffffb000000100044006900730070006c0061007900730100000000000002a20000015600fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000001e80000010d0000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c006900640065007200000002ee000000410000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000141000001ed0000000000000000fb0000000c00430061006d006500720061010000026d000000c10000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000000a0049006d0061006700650100000327000000bd0000001600ffffff00000544000003a700000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001f3000001c1fc020000000afc0000003d000001a50000019a0100001cfa000000000100000002fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000000ffffffff000001f300fffffffb000000100044006900730070006c0061007900730100000000000002a20000015600fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000001e80000010d0000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c006900640065007200000002ee000000410000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000141000001ed0000000000000000fb0000000c00430061006d006500720061010000026d000000c10000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000000a0049006d00610067006501000001e8000000160000001600ffffff000001a4000001c100000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1853
-  X: 67
-  Y: 27
+  Width: 925
+  X: 995
+  Y: 511

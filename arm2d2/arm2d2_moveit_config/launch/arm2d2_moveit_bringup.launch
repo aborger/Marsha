@@ -12,6 +12,7 @@
     </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/moveit_rviz.launch" if="$(arg launch_rviz)">
+        <arg name="ns" value="$(arg ns)"/>
         <arg name="config" value="true"/>
     </include>
 
