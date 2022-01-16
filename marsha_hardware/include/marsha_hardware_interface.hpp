@@ -8,7 +8,7 @@
 #include <string.h>
 #include <std_msgs/Bool.h>
 
-#include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Int16MultiArray.h>
 
 #define NUM_JOINTS 7
 
@@ -22,7 +22,7 @@ class MarshaArm : public hardware_interface::RobotHW
         void write();
         void update(const ros::TimerEvent &e);
 
-        void encoderCallBack(const std_msgs::Int32MultiArray &msg);
+        void encoderCallBack(const std_msgs::Int16MultiArray &msg);
         void graspCallBack(const std_msgs::Bool &msg);
     private:
         ros::NodeHandle nh;

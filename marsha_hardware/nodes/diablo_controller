@@ -9,18 +9,18 @@
 # Author: Aaron Borger unfortunately...
 
 import rospy
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int16MultiArray
 from marsha_hardware.diablo.diabloStepper import Stepper
 import time
 
-stepper = Stepper(12, 2.8, 0.9)
+stepper = Stepper(28, 2.8, 0.9)
 
 def rosCmdCallback(msg):
     stepper.set_point(msg.data[1])
 
 rospy.init_node('diablo_controller')
 
-rospy.Subscriber("stepper_step", Int32MultiArray, rosCmdCallback)
+rospy.Subscriber("stepper_step", Int16MultiArray, rosCmdCallback)
 
 
 def main():

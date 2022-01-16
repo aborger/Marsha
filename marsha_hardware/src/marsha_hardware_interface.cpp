@@ -7,7 +7,7 @@
 MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     nh = nh_;
 
-    step_pub = nh.advertise<std_msgs::Int32MultiArray>("stepper_step", 10);
+    step_pub = nh.advertise<std_msgs::Int16MultiArray>("stepper_step", 10);
     ros::Subscriber enc_sub = nh.subscribe("encoder_feedback", 100, &MarshaArm::encoderCallBack, this);
 
     // Note: This should be put in a loop for each controller
@@ -31,9 +31,9 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     registerInterface(&joint_position_interface);
     registerInterface(&gripper_effort_handle);
 
-    //rostopic pub stepper_step std_msgs/Int32MultiArray '{layout: {data_offset: 69420, dim: [{stride: 25}]}, data: [0, 0, 0, 0, 0, 0]}'    std_msgs::Float64MultiArray arr;
+    //rostopic pub stepper_step std_msgs/Int16MultiArray '{layout: {data_offset: 69420, dim: [{stride: 25}]}, data: [0, 0, 0, 0, 0, 0]}'    std_msgs::Float64MultiArray arr;
     int step_delay;
-    std_msgs::Int32MultiArray arr;
+    std_msgs::Int16MultiArray arr;
     ros::param::get("ar3/stepper_config/step_delay", step_delay);
     arr.layout.data_offset = 69420; // Header key that indicates this message is the configuration header
     std_msgs::MultiArrayDimension dim;
@@ -59,17 +59,18 @@ void MarshaArm::read() {
 }
 
 void MarshaArm::write() {
-    std_msgs::Int32MultiArray array; // can probably use Int32
+    std_msgs::Int16MultiArray array; // can probably use Int16
     std::vector<float> deg_per_steps;
     ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
     for (int i = 0; i < NUM_JOINTS - 1; i++) {
         int num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]); // deg/step for j1
         array.data.push_back(num_steps);
     }
+    ROS_INFO("J1: %f, J2: %f, J3: %f, J4: %f, J5: %f, J6: %f, grip: %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
     step_pub.publish(array);
 }
 
-void MarshaArm::encoderCallBack(const std_msgs::Int32MultiArray &msg) {
+void MarshaArm::encoderCallBack(const std_msgs::Int16MultiArray &msg) {
     // msg.data contains number of steps
     std::vector<float> deg_per_steps;
     ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
