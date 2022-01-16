@@ -22,7 +22,7 @@
 
   <!-- Include arm and gripper urdfs-->
   <xacro:if value="$(arg include_arm)">
-    <xacro:include filename="$(find arm2d2_description)/urdf/arm1.urdf.xacro"/>
+    <xacro:include filename="$(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro"/>
   </xacro:if>
 
   <xacro:if value="$(arg include_gripper)">
@@ -34,7 +34,7 @@
     <xacro:if value="$(arg include_gripper)">
       <joint name="gripper_joint" type="fixed">
         <parent link="link_5"/>
-        <child link="palm"/>
+        <child link="gripper_link"/>
         <xacro:if value="${is_left}">
           <origin xyz="0.025 0 0.025" rpy="0 0 0"/>
         </xacro:if>

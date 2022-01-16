@@ -1,3 +1,4 @@
+# TODO: Put this file in the ar3 package
 left:
   pose:
     preHandoff:
@@ -148,9 +149,3 @@ right:
       y: -0.733
       z: -0.042
       w: 0.033
-
-gripper:
-  open:
-    -0.4
-  close:
-    0.6981

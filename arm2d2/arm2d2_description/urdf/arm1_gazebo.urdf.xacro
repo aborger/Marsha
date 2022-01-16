@@ -154,7 +154,7 @@
   </joint>
 
   
-  <link name="palm">
+  <link name="link_5">
     <inertial>
       <origin rpy="0 0 0" xyz="0.02043962300807103 -1.5866844334157942e-07 0.010610125536728798" />
       <mass value="0.06937470143360883" />
@@ -163,14 +163,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/palm_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_5.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="silver" />
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/palm_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_5.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
@@ -178,7 +178,7 @@
   <joint name="joint_5" type="revolute">
     <origin rpy="0 0 0" xyz="-0.01 1e-06 0.09" />
     <parent link="link_4" />
-    <child link="palm" />
+    <child link="link_5" />
     <axis xyz="1.0 -0.0 0.0" />
     <limit effort="100" lower="-2.268928" upper="2.268928" velocity="100" />
   </joint>

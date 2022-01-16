@@ -21,10 +21,10 @@
     </node>
 
     <!-- Spawns urdf with arm and gripper combined -->
-    <param name="robot_model" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro"/>
+    <param name="robot_model" command="$(find xacro)/xacro '$(find arm2d2_description)/urdf/arm2d2.xacro' ns:=$(arg ns) include_arm:=true include_gripper:=true" />
 
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
-          args="-param robot_description -urdf -model arm2d2"/>
+          args="-param robot_model -urdf -model arm2d2"/>
 
     <!--                                                                       x y z x y z w parent     child     rate-->
     <node pkg="tf" type="static_transform_publisher" name="world_tf_pub" args="0 0 0 0 0 0 1 world $(arg ns)/world 100"/>

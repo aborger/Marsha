@@ -36,10 +36,14 @@
         </node>
 
 
-        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /$(arg ns)/link_6 /$(arg ns)/gripper/gripper_link 100"/>
+        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /$(arg ns)/link_5 /$(arg ns)/gripper/gripper_link 100"/>
 
         <include file="$(find tundra_gripper)/launch/move_group.launch">
             <arg name="ns" value="$(arg ns)"/>
+        </include>
+
+        <include file="$(find tundra_gripper)/launch/moveit_rviz.launch">
+            <arg name="config" value="true"/>
         </include>
 
         <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>

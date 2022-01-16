@@ -1,0 +1,6 @@
+gripper:
+  pose:
+    open:
+      -0.5
+    close:
+      0.7
