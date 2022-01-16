@@ -57,14 +57,14 @@
       <visual>
         <origin rpy="0 0 0" xyz="0.003226 0.019004 -0.084836" />
         <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link1_1.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="package://arm2d2_description/meshes/link_1.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="silver" />
       </visual>
       <collision>
         <origin rpy="0 0 0" xyz="0.003226 0.019004 -0.084836" />
         <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link1_1.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="package://arm2d2_description/meshes/link_1.stl" scale="0.001 0.001 0.001" />
         </geometry>
       </collision>
     </link>
@@ -119,14 +119,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.023226 0.006935 -0.127996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link2_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_2.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="silver" />
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0.023226 0.006935 -0.127996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link2_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_2.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
@@ -153,14 +153,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.013226 0.006935 -0.247996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link3_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_3.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="silver" />
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0.013226 0.006935 -0.247996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link3_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_3.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
@@ -182,14 +182,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="-0.006774 0.006935 -0.287996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link4_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_4.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="silver" />
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.006774 0.006935 -0.287996" />
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link4_1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_4.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
@@ -301,35 +301,35 @@
     <gravity>true</gravity>
   </gazebo>
 
-  <gazebo reference="link1">
+  <gazebo reference="link_1">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <selfCollide>true</selfCollide>
   </gazebo>
 
-  <gazebo reference="link2">
+  <gazebo reference="link_2">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <selfCollide>true</selfCollide>
   </gazebo>
 
-  <gazebo reference="link3">
+  <gazebo reference="link_3">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <selfCollide>true</selfCollide>
   </gazebo>
 
-  <gazebo reference="link4">
+  <gazebo reference="link_4">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <selfCollide>true</selfCollide>
   </gazebo>
 
-  <gazebo reference="palm">
+  <gazebo reference="link_5">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
