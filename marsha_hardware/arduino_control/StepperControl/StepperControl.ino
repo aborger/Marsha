@@ -124,8 +124,7 @@ void loop() {
 // Needs to be quick to ensure function is not running when next interrupt occurs.
 void timerCallBack() {
     digitalWrite(led, LOW);
-    // Not controlling J6 currently
-    for (int i = 0; i < NUM_JOINTS - 1; i++) {
+    for (int i = 0; i < NUM_JOINTS -1; i++) {
       steppers[i].step();
     }
 

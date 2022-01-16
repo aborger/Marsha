@@ -1,0 +1,53 @@
+<launch>
+
+    <arg name="ns" default="left"/>
+
+    <!-- Joint Limits -->
+    <group ns="robot_description_planning">
+        <rosparam command="load" file="$(find tundra_gripper)/config/joint_limits.yaml"/>
+    </group>
+
+    <!-- Kinematics -->
+    <group ns="robot_description_kinematics">
+        <rosparam command="load" file="$(find tundra_gripper)/config/kinematics.yaml"/>
+    </group>
+
+    <group ns="move_group">
+        <param name="use_controller_manager" value="true" />
+        <param name="trajectory_execution/execution_duration_monitoring" value="false" />  
+
+        <!-- For Sensors (Not currently using) -->
+        <param name="octomap_resolution" type="double" value="0.1" />
+
+        <!-- Planning -->
+        <include file="$(find tundra_gripper)/launch/ompl_planning_pipeline.launch.xml"/>
+
+
+
+        <!-- Trajectory Execution -->
+        <param name="moveit_manage_controllers" value="true"/>
+        <param name="trajectory_execution/allowed_execution_duration_scaling" value="1.2"/>
+        <param name="trajectory_execution/allowed_goal_duration_margin" value="0.5"/>
+        <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
+        <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
+        
+        <rosparam file="$(find tundra_gripper)/config/$(arg ns)_gripper_controllers.yaml" />
+    </group>
+
+    <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false">
+        <!-- Set the display variable, in case OpenGL code is used internally -->
+        <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
+
+        <param name="allow_trajectory_execution" value="true"/>
+        <param name="max_safe_path_cost" value="1"/>
+        <param name="jiggle_fraction" value="0.05" />
+
+
+        <!-- Publish the planning scene of the physical robot so that rviz plugin can know actual robot -->
+        <param name="planning_scene_monitor/publish_planning_scene" value="true" />
+        <param name="planning_scene_monitor/publish_geometry_updates" value="true" />
+        <param name="planning_scene_monitor/publish_state_updates" value="true" />
+        <param name="planning_scene_monitor/publish_transforms_updates" value="true" />
+    </node>
+
+</launch>

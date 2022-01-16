@@ -1,0 +1,4 @@
+# Use following plugin for complex grippers
+# https://github.com/davetcoleman/moveit_whole_body_ik
+gripper:
+  kinematics_solver: 0

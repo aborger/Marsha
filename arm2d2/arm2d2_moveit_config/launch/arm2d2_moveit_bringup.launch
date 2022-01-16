@@ -1,0 +1,20 @@
+<launch>
+
+    <arg name="ns" default=""/>
+    <arg name="machine" default=""/>
+    <arg name="launch_rviz" default=""/>
+
+    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch"/>
+
+    <include file="$(find arm2d2_moveit_config)/launch/move_group.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="ns" value="$(arg ns)"/>
+    </include>
+
+    <include file="$(find arm2d2_moveit_config)/launch/moveit_rviz.launch" if="$(arg launch_rviz)">
+        <arg name="config" value="true"/>
+    </include>
+
+    <!-- Database would be included here, but it is not currently used -->
+
+</launch>

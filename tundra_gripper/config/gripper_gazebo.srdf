@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<robot name="tundra_gripper">
+    <group name="gripper">
+        <joint name="actuator_joint_1"/>
+        <joint name="actuator_joint_2"/>
+        <joint name="actuator_joint_3"/>
+    </group>
+
+    <group_state name="open" group="gripper">
+        <joint name="actuator_joint_1" value="-0.52359"/>
+        <joint name="actuator_joint_2" value="-0.52359"/>
+        <joint name="actuator_joint_3" value="-0.52359"/>
+    </group_state>
+
+    <group_state name="close" group="gripper">
+        <joint name="actuator_joint_1" value="0.6981"/>
+        <joint name="actuator_joint_2" value="0.6981"/>
+        <joint name="actuator_joint_3" value="0.6981"/>
+    </group_state>
+
+
+    <disable_collisions link1="palm" link2="actuator_1" reason="Adjacent" />
+    <disable_collisions link1="palm" link2="actuator_2" reason="Adjacent" />
+    <disable_collisions link1="palm" link2="actuator_3" reason="Adjacent" />
+    <disable_collisions link1="actuator_1" link2="actuator_2" reason="Adjacent" />
+    <disable_collisions link1="actuator_1" link2="actuator_3" reason="Adjacent" />
+    <disable_collisions link1="actuator_2" link2="actuator_3" reason="Adjacent" />
+
+</robot>

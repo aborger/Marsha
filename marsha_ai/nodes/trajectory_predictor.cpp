@@ -61,6 +61,7 @@ class TrajectoryPredictor {
         bool position_initialized = false;
         bool velocity_initialized = false;
 
+        // A kalman filter should be used instead of average
         tf::Vector3 avg_velocity() {
             return velocity_sum / num_velocities;
         }

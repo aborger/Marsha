@@ -82,6 +82,8 @@ class MarshaMoveInterface {
             ros::param::get(param + "orientation/z", target_pose.orientation.z);
             ros::param::get(param + "orientation/w", target_pose.orientation.w);
 
+            ROS_INFO("Target_pose x: %f", target_pose.position.x);
+
             move_group->setPoseTarget(target_pose);
 
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
@@ -288,8 +290,8 @@ class MarshaMoveInterface {
 
             planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
 
-            //pose_param = ros::this_node::getNamespace() + "/pose/";
-            pose_param = "/hardware/pose/";
+            pose_param = ros::this_node::getNamespace() + "/pose/";
+            //pose_param = "/hardware/pose/";
         }
 
 };

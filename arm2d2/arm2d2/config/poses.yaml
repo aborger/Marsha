@@ -1,0 +1,34 @@
+arm2d2:
+  pose:
+    handoff:
+      position:
+        x: -0.003
+        y: 0.11
+        z: 0.2506
+      orientation:
+        x: 0
+        y: 0
+        z: 0
+        w: 1
+
+    preHandoff:
+      position:
+        x: -0.003
+        y: 0.243
+        z: 0.132
+      orientation:
+        x: 0.00554178
+        y: -0.000009
+        z: -0.000007
+        w: 0.99998
+
+    straight:
+      position:
+        x: -0.00322492
+        y: -0.00691
+        z: 0.377996
+      orientation:
+        x: 0
+        y: 0
+        z: 0
+        w: 1

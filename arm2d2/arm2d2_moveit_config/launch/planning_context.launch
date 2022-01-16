@@ -1,0 +1,13 @@
+<launch>
+  <arg name="robot_description" default="robot_description"/>
+
+  <param name="$(arg robot_description)_semantic" textfile="$(find arm2d2_moveit_config)/config/arm2d2.srdf"/>
+
+  <group ns="$(arg robot_description)_planning">
+    <rosparam command="load" file="$(find arm2d2_moveit_config)/config/joint_limits.yaml"/>
+  </group>
+
+  <group ns="$(arg robot_description)_kinematics">
+    <rosparam command="load" file="$(find arm2d2_moveit_config)/config/kinematics.yaml"/>
+  </group>
+</launch>

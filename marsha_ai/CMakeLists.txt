@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
     std_msgs
     geometry_msgs
     trajectory_msgs
-    rosbridge_server
+    #rosbridge_server
     pluginlib
     geometric_shapes
     pcl_ros
