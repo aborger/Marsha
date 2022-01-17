@@ -1,4 +1,5 @@
 <launch>
+  <arg name="ns" default="left"/>
   <arg name="robot_description" default="robot_description"/>
 
   <param name="$(arg robot_description)_semantic" textfile="$(find arm2d2_moveit_config)/config/arm2d2.srdf"/>

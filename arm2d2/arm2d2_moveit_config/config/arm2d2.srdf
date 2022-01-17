@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="arm2d2">
+<robot name="arm2d2" xmlns:xacro="http://www.ros.org/wifi/xacro">
 
   <group name="manipulator">
     <joint name="world_joint"/>
@@ -11,12 +11,20 @@
     <joint name="joint_5"/>
   </group>
 
-  <group_state name="home" group="manipulator">
-    <joint name="joint_1" value="0.1909" />
+  <group_state name="left_home" group="manipulator">
+    <joint name="joint_1" value="-0.1909" />
     <joint name="joint_2" value="0.6137" />
     <joint name="joint_3" value="2.1435" />
     <joint name="joint_4" value="0" />
     <joint name="joint_5" value="-1.1909" />
+  </group_state>
+
+  <group_state name="right_home" group="manipulator">
+    <joint name="joint_1" value="0.1909" />
+    <joint name="joint_2" value="-0.6137" />
+    <joint name="joint_3" value="-2.1435" />
+    <joint name="joint_4" value="0" />
+    <joint name="joint_5" value="1.1909" />
   </group_state>
 
   <group_state name="straight" group="manipulator">

@@ -4,7 +4,9 @@
     <arg name="machine" default=""/>
     <arg name="launch_rviz" default=""/>
 
-    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch"/>
+    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch">
+        <arg name="ns" value="$(arg ns)"/>
+    </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/move_group.launch">
         <arg name="machine" value="$(arg machine)"/>
