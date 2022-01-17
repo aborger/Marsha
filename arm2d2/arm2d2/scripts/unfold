@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import rospy
+import time
+import sys
+
+from marsha_msgs.srv import MoveCmd
+
+ns = rospy.get_namespace()
+
+rospy.wait_for_service(ns + 'joint_cmd')
+joint_cmd = rospy.ServiceProxy(ns + 'joint_cmd', MoveCmd)
+
+rospy.wait_for_service(ns + "gripper/grasp_cmd")
+grasp_cmd = rospy.ServiceProxy(ns + "gripper/grasp_cmd", MoveCmd)
+
+def unfold():
+
+    joint_cmd("home")
+    for i in range(0, 4):
+        print(i)
+        joint_cmd("folding/step_" + str(i))
+
+
+def fold():
+    for i in range(3, -1, -1):
+        print(i)
+        joint_cmd("folding/step_" + str(i))
+    joint_cmd("home")
+
+def home():
+    print("Folding...")
+    grasp_cmd("close")
+    joint_cmd("home")
+
+def demo():
+    unfold()
+    time.sleep(1)
+    fold()
+
+if __name__ == "__main__":
+    rospy.init_node('unfold_cmd')
+
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "unfold":
+            unfold()
+
+        elif sys.argv[1] == "home":
+            home()
+
+        elif sys.argv[1] == "fold":
+            fold()
+        else:
+            demo()
+
+    else:
+        demo()

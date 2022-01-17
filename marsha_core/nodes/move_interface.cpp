@@ -51,6 +51,7 @@ class MarshaMoveInterface {
         
         ros::ServiceServer poseService;
         ros::ServiceServer asyncPoseService;
+        ros::ServiceServer jointService;
         ros::ServiceServer positionService;
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
@@ -61,6 +62,9 @@ class MarshaMoveInterface {
         ros::ServiceClient graspClient;
 
         std::string pose_param;
+        std::string joint_param;
+        
+        int num_joints;
 
 
         bool poseCmd(marsha_msgs::MoveCmd::Request &req,
@@ -127,6 +131,38 @@ class MarshaMoveInterface {
             return true;            
         }
 
+        // Note: joint values in yaml file must be in radians
+        bool jointCmd(marsha_msgs::MoveCmd::Request &req,
+                      marsha_msgs::MoveCmd::Response &res)
+        {
+            std::string param =  joint_param + req.pose_name + "/";
+            ROS_INFO("Going to joint state: %s", param.c_str());
+
+            std::vector<double> joint_group_positions;
+
+            ros::param::get(param, joint_group_positions);
+
+            move_group->setJointValueTarget(joint_group_positions);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool plan_success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_DEBUG("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
+
+            if (plan_success) {
+                move_group->execute(target_plan);
+                res.done = true;
+                return true;
+            }
+            else {
+                res.done = false;
+                return false;
+            }
+
+
+
+
+        }
 
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
@@ -277,6 +313,8 @@ class MarshaMoveInterface {
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
             asyncPoseService = nh->advertiseService("async_pose_cmd", &MarshaMoveInterface::asyncPoseCmd, this);
 
+            jointService = nh->advertiseService("joint_cmd", &MarshaMoveInterface::jointCmd, this);
+
             positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 
             //graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
@@ -290,7 +328,10 @@ class MarshaMoveInterface {
 
             planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
 
+            ros::param::get(ros::this_node::getNamespace() + "/num_joints", num_joints);
+
             pose_param = ros::this_node::getNamespace() + "/pose/";
+            joint_param = ros::this_node::getNamespace() + "/joints/";
             //pose_param = "/hardware/pose/";
         }
 
