@@ -4,3 +4,5 @@ gripper:
       -0.5
     close:
       0.7
+    half:
+      0.2

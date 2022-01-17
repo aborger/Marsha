@@ -62,13 +62,13 @@ randomizer = DRandomizer((2), (-0.25, 0.25))
 gravity = True
 # If change works well, reset and all its requirements can be deleted
 def reset(req):
-
+    print("Resetting...")
     #domain, dar = randomizer.get_domain(req.reward)
 
     pose = Pose()
-    pose.position.x = -0.3 #domain[0]  #-0.25
-    pose.position.y = -0.1 #domain[1]  #-0.05
-    pose.position.z = 0.1
+    pose.position.x = -0.025 #-0.3
+    pose.position.y = -0.22 #-0.1
+    pose.position.z = 0.125 #0.1
     twist = Twist()
 
     success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=gravity)

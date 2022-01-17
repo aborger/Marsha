@@ -22,8 +22,8 @@
         <arg name="launch_rviz" value="$(arg launch_rviz)"/>
     </include>
 
-    <node ns="left" name="unfold" pkg="arm2d2" type="unfold" args="home" machine="jet2"/>
-    <node ns="right" name="unfold" pkg="arm2d2" type="unfold" args="home" machine="jet2"/>
+    <node ns="left" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
+    <node ns="right" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
 
     <include file="$(find arm2d2_description)/launch/base.launch">
         <arg name="launch_world" value="false"/>
