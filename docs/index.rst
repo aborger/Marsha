@@ -17,6 +17,11 @@ Contents
 --------
 
 .. toctree::
+   :caption: Guides
 
-   usage
-   api
+   guide/install
+
+.. toctree::
+   :caption: Nodes
+
+   nodes/ai_node
