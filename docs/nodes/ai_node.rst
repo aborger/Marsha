@@ -5,7 +5,8 @@
 AI Node
 =======
 
-This is the node that runs the reinforcement learning.
+The AI node is the ROS node responsible for controlling the robot with reinforcement learning.
+
 
 
 Interfaces
