@@ -9,3 +9,4 @@ controller_list:
       - joint_3
       - joint_4
       - joint_5
+      - gripper_joint

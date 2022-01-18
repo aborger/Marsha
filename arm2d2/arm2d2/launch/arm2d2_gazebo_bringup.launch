@@ -4,6 +4,7 @@
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg launch_world)"/>
 
+
     <!-- Urdf for arm only -->
     <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns)"/>
 

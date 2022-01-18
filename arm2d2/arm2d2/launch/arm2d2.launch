@@ -3,6 +3,7 @@
   <arg name="machine" default="jet2"/>
   <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
+  <arg name="launch_world" default="true"/>
   
 
   
@@ -12,7 +13,7 @@
 
     <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch">
       <arg name="ns" value="$(arg ns)"/>
-      <arg name="launch_world" value="false"/>
+      <arg name="launch_world" value="$(arg launch_world)"/>
     </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch">

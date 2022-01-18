@@ -9,6 +9,7 @@
     <joint name="joint_3"/>
     <joint name="joint_4"/>
     <joint name="joint_5"/>
+    <joint name="gripper_joint"/>
   </group>
 
   <group_state name="left_home" group="manipulator">
@@ -17,6 +18,7 @@
     <joint name="joint_3" value="2.1435" />
     <joint name="joint_4" value="0" />
     <joint name="joint_5" value="-1.1909" />
+    <joint name="gripper_joint" value="0"/>
   </group_state>
 
   <group_state name="right_home" group="manipulator">
@@ -25,6 +27,7 @@
     <joint name="joint_3" value="-2.1435" />
     <joint name="joint_4" value="0" />
     <joint name="joint_5" value="1.1909" />
+    <joint name="gripper_joint" value="0"/>
   </group_state>
 
   <group_state name="straight" group="manipulator">
@@ -33,6 +36,7 @@
     <joint name="joint_3" value="0" />
     <joint name="joint_4" value="0" />
     <joint name="joint_5" value="0" />
+    <joint name="gripper_joint" value="0"/>
   </group_state>
 
   <!--<end_effector name="gripper" parent_link="link_4" group="manipulator"/>-->

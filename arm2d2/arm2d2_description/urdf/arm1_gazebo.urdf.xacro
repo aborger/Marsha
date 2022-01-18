@@ -4,6 +4,8 @@
 
   <xacro:arg name="include_arm_base" default="true"/>
   <xacro:arg name="ns" default="left"/>
+  <xacro:arg name="include_gripper" default="false"/>
+
 
   <!-- Convert arg to property -->
   <xacro:property name="ns" value="$(arg ns)"/>
@@ -231,7 +233,45 @@
     <axis xyz="1.0 -0.0 0.0" />
     <limit effort="100" lower="-2.268928" upper="2.268928" velocity="100" />
   </joint>
+
+  <!-- Fake link that allows gripper to "spin" even though the hardware does not have a revolute gripper joint -->
+  <xacro:if value="$(arg include_gripper)">
+    <link name="gripper_connector">
+      <inertial>
+        <origin rpy="0 0 0" xyz="2.9287E-10 -1.6472E-09 0.0091432"/>
+        <mass value="0.013863"/>
+        <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+      </inertial>
+    </link>
+  </xacro:if>
+
+  <!-- Box that provides gripper collider only for moveit so gazebo does not simulate collisions -->
+  <xacro:unless value="$(arg include_gripper)">
+    <link name="gripper_connector">
+      <xacro:unless value="$(arg include_gripper)">
+        <collision>
+          <origin xyz="0.025 0 0.075" rpy="0 0 0" />
+          <geometry>
+            <box size="0.05 0.05 0.05"/>
+          </geometry>
+        </collision>
+      </xacro:unless>
+      <visual>
+        <origin xyz="0.025 0 0.075" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.05 0.05"/>
+        </geometry>
+      </visual>
+    </link>
+  </xacro:unless>
   
+  <joint name="gripper_joint" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="link_5"/>
+    <child link="gripper_connector"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.1415" upper="3.1415" effort="100" velocity="100"/>
+  </joint>
   <transmission name="transmission_1">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="joint_1">
@@ -287,6 +327,17 @@
     </actuator>
   </transmission>
 
+  <transmission name="transmission_6">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gripper_joint">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_6">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <!--<robotNamespace>/</robotNamespace>-->
@@ -330,6 +381,13 @@
   </gazebo>
 
   <gazebo reference="link_5">
+    <material>Gazebo/Silver</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="gripper_joint">
     <material>Gazebo/Silver</material>
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>

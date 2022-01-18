@@ -29,3 +29,9 @@ joint_limits:
     has_acceleration_limits: true
     max_acceleration: 75
     has_jerk_limits: false
+  gripper_joint:
+    has_velocity_limits: true
+    max_velocity: 75
+    has_acceleration_limits: true
+    max_acceleration: 75
+    has_jerk_limits: false

@@ -34,7 +34,7 @@
   <!-- Connect arm and gripper -->
   <xacro:if value="$(arg include_arm)">
     <xacro:if value="$(arg include_gripper)">
-      <joint name="gripper_joint" type="fixed">
+      <joint name="gripper_connect_joint" type="fixed">
         <parent link="link_5"/>
         <child link="gripper_link"/>
         <xacro:if value="${is_left}">

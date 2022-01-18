@@ -1,5 +1,5 @@
 left:
-  num_joints: 5
+  num_joints: 6
   pose:
     handoff:
       position:
@@ -81,7 +81,7 @@ left:
 
 
 right:
-  num_joints: 5
+  num_joints: 6
   pose:
     pre_handoff:
       position:

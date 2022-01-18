@@ -10,6 +10,7 @@ arm2d2/controllers/position:
     - joint_3
     - joint_4
     - joint_5
+    - gripper_joint
 
   constraints:
     goal_time: 0.1
@@ -26,5 +27,8 @@ arm2d2/controllers/position:
         trajectory: 0.2
         goal: 0.1
     joint_5:
+        trajectory: 0.2
+        goal: 0.1
+    gripper_joint:
         trajectory: 0.2
         goal: 0.1

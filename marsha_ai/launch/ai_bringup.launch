@@ -1,5 +1,13 @@
 <launch>
-    <include file="$(find marsha_core)/launch/simulate.launch"/>
+    <!-- Robots currently supported:
+        - arm2d2
+        - ar3_gazebo
+        Will support:
+        - arm2d2_hw
+        - ar3_hw
+    -->
+    <arg name="robot" default="arm2d2"/>
+    <include file="$(find $(arg robot))/launch/simulate.launch"/>
 
     <arg name="machine" default="jet2"/>
 

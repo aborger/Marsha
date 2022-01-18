@@ -2,9 +2,20 @@
     
     <arg name="num_arms" default="1"/>
     <arg name="launch_rviz" default="false"/>
+    <arg name="load_time" default="15"/>
+    <arg name="launch_base" default="true"/>
 
     <include file="$(find marsha_core)/launch/satlab_net.machine"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+    <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
+    <include file="$(find arm2d2_description)/launch/base.launch" if="$(arg launch_base)">
+        <arg name="launch_world" value="false"/>
+        <arg name="top_plate" value="true"/>
+        <arg name="delay" value="$(arg load_time)"/>
+    </include>
+    <node pkg="rosservice" type="rosservice" name="delete_gnd" 
+          args="call /gazebo/delete_model ground_plane" launch-prefix="bash -c 'sleep $(arg load_time); $0 $@'"/>
+
 
 
     <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
@@ -14,21 +25,22 @@
         <arg name="ns" value="left"/>
         <arg name="machine" value="jet2"/>
         <arg name="launch_rviz" value="$(arg launch_rviz)"/>
+        <arg name="launch_world" value="false"/>
     </include>
 
     <include file="$(find arm2d2)/launch/arm2d2.launch" if="$(eval arg('num_arms') == 2)">
         <arg name="ns" value="right"/>
         <arg name="machine" value="jet2"/>
         <arg name="launch_rviz" value="$(arg launch_rviz)"/>
+        <arg name="launch_world" value="false"/>
     </include>
+
+    <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
+    <node pkg="marsha_gazebo" type="reset" name="reset" args="launch" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
 
     <node ns="left" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
     <node ns="right" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
 
-    <include file="$(find arm2d2_description)/launch/base.launch">
-        <arg name="launch_world" value="false"/>
-        <arg name="top_plate" value="true"/>
-        <arg name="delay" value="15"/>
-    </include>
+
 
 </launch>
