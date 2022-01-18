@@ -11,6 +11,8 @@ Welcome to Marsha's documentation!
 Contents
 --------
 
+Here are the contents:
+
 .. toctree::
    :caption: Guides
 
