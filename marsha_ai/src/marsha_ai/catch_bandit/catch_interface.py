@@ -45,6 +45,9 @@ def distance(pose1: Pose, pose2: Pose):
     return dist
 
 class CatchInterface(RosInterface):
+    """
+    CatchInterface provides an interface between the OpenAI gym environment and ROS.
+    """
     def __init__(self):
         super(CatchInterface, self).__init__()
 
