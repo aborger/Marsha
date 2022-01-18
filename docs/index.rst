@@ -14,7 +14,7 @@ Contents
 .. toctree::
    :caption: Guides
 
-   guide/install
+   guides/install
 
 .. toctree::
    :caption: Nodes
