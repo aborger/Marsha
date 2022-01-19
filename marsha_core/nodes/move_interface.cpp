@@ -142,6 +142,10 @@ class MarshaMoveInterface {
 
             ros::param::get(param, joint_group_positions);
 
+            while (joint_group_positions.size() < num_joints) {
+                joint_group_positions.push_back(0.0);
+            }
+
             move_group->setJointValueTarget(joint_group_positions);
 
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;

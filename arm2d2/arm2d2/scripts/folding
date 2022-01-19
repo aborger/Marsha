@@ -8,13 +8,20 @@ from marsha_msgs.srv import MoveCmd
 
 ns = rospy.get_namespace()
 
+print("waiting for services...")
+print("ns:", ns)
+
+
+
 rospy.wait_for_service(ns + 'joint_cmd')
 joint_cmd = rospy.ServiceProxy(ns + 'joint_cmd', MoveCmd)
 
 rospy.wait_for_service(ns + "gripper/grasp_cmd")
 grasp_cmd = rospy.ServiceProxy(ns + "gripper/grasp_cmd", MoveCmd)
 
+print("Services loaded!")
 def unfold():
+    print("unfolding...")
     joint_cmd("home")
     for i in range(0, 4):
         print(i)
@@ -22,6 +29,7 @@ def unfold():
 
 
 def fold():
+    print("folding...")
     grasp_cmd("close")
     for i in range(3, -1, -1):
         joint_cmd("folding/step_" + str(i))
@@ -42,7 +50,7 @@ def demo():
 
 if __name__ == "__main__":
     rospy.init_node('unfold_cmd')
-
+    print("starting...")
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "unfold":
