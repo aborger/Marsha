@@ -1,0 +1,2 @@
+gym
+stable-gaselines3[extra]
