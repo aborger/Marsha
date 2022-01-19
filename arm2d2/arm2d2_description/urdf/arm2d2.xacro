@@ -6,6 +6,7 @@
   <xacro:arg name="ns" default=""/>
   <xacro:arg name="include_arm" default="false"/>
   <xacro:arg name="include_gripper" default="false"/>
+  <xacro:arg name="top_plate" default="false"/>
   <!-- When true each arm comes with the base attached (always false in this file)-->
   <xacro:arg name="include_arm_base" default="false"/> 
 

@@ -5,6 +5,7 @@
   <xacro:arg name="include_arm_base" default="true"/>
   <xacro:arg name="ns" default="left"/>
   <xacro:arg name="include_gripper" default="false"/>
+  <xacro:arg name="top_plate" default="false"/>
 
 
   <!-- Convert arg to property -->

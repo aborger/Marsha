@@ -4,13 +4,14 @@
     <arg name="launch_rviz" default="false"/>
     <arg name="load_time" default="15"/>
     <arg name="launch_base" default="true"/>
+    <arg name="top_plate" default="true"/>
 
     <include file="$(find marsha_core)/launch/satlab_net.machine"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
     <include file="$(find marsha_gazebo)/launch/spawn_pickup.launch"/>
     <include file="$(find arm2d2_description)/launch/base.launch" if="$(arg launch_base)">
         <arg name="launch_world" value="false"/>
-        <arg name="top_plate" value="true"/>
+        <arg name="top_plate" value="$(arg top_plate)"/>
         <arg name="delay" value="$(arg load_time)"/>
     </include>
     <node pkg="rosservice" type="rosservice" name="delete_gnd" 
@@ -38,8 +39,8 @@
     <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
     <node pkg="marsha_gazebo" type="reset" name="reset" args="launch" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
 
-    <node ns="left" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
-    <node ns="right" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2"/>
+    <node ns="left" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2" if="$(eval arg('num_arms') >= 1)"/>
+    <node ns="right" name="homing" pkg="arm2d2" type="folding" args="home" machine="jet2" if="$(eval arg('num_arms') == 2)"/>
 
 
 

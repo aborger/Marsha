@@ -176,7 +176,7 @@
     <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so">
           <arm>
             <arm_name>tundra_gripper</arm_name>
-            <palm_link>link_6</palm_link> <!-- Gazebo combines everything with a fixed joint -->
+            <palm_link>link_5</palm_link> <!-- Gazebo combines everything with a fixed joint -->
             <gripper_link> actuator_1 </gripper_link>
             <gripper_link> actuator_2 </gripper_link>
             <gripper_link> actuator_3 </gripper_link>

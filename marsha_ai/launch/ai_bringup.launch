@@ -7,7 +7,9 @@
         - ar3_hw
     -->
     <arg name="robot" default="arm2d2"/>
-    <include file="$(find $(arg robot))/launch/simulate.launch"/>
+    <include file="$(find arm2d2)/launch/simulate.launch">
+        <arg name="top_plate" value="false"/>
+    </include>
 
     <arg name="machine" default="jet2"/>
 

@@ -69,6 +69,11 @@ arm2d2_fold.position.x = -0.025
 arm2d2_fold.position.y = -0.22
 arm2d2_fold.position.z = 0.125
 
+other_fold = Pose()
+other_fold.position.x = -1 #-0.3
+other_fold.position.y = 0.22 #-0.1
+other_fold.position.z = 0.125 #0.1
+
 
 
 gravity = True
@@ -77,15 +82,12 @@ def reset(req):
     print("Resetting...")
     #domain, dar = randomizer.get_domain(req.reward)
 
-    pose = Pose()
-    pose.position.x = -1 #-0.3
-    pose.position.y = 0.22 #-0.1
-    pose.position.z = 0.125 #0.1
+
     twist = Twist()
 
     success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=gravity)
     #print("gravity success: ", success)
-    desired_state = ModelState('pickup_object', pose, twist, 'world')
+    desired_state = ModelState('pickup_object', arm2d2_fold, twist, 'world')
 
     resp = set_model(desired_state)
     #print('dar:', dar, type(dar))
