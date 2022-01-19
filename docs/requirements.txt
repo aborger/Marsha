@@ -1,2 +1,2 @@
 gym
-stable-gaselines3[extra]
+stable-baselines3[extra]
