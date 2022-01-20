@@ -4,30 +4,31 @@ Move Interface
 ==============
 
 
-Pose Command Service
+Pose Command Service ``/rns/pose_cmd``
 --------------------
-``/rns/pose_cmd``
+Pose Command
 
-Async Pose Command Service
+
+Async Pose Command Service ``/rns/async_pose_cmd``
 --------------------------
-``/rns/async_pose_cmd``
+Async pose command
 
-Joint Command Service
+Joint Command Service ``/rns/joint_cmd``
 ---------------------
-``/rns/joint_cmd``
+joint command
 
-Position Command Service
+Position Command Service ``/rns/position_cmd``
 ------------------------
-``/rns/position_cmd
+position command
 
-Get Position Service
+Get Position Service ``/rns/get_pos``
 --------------------
-``/rns/get_pos``
+position service
 
-Posture Command Service
+Posture Command Service ``/rns/psoture_cmd``
 -----------------------
-``/rns/psoture_cmd``
+posture command
 
-Plan Grasp Service
+Plan Grasp Service ``/rns/plan_grasp``
 ------------------
-``/rns/plan_grasp``
+plan grasp
