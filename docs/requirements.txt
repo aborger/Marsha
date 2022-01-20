@@ -1,3 +1,2 @@
 gym
 stable-baselines3[extra]
-python-rospy

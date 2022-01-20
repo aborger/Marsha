@@ -22,3 +22,8 @@ Here are the contents:
    :caption: Nodes
 
    nodes/ai_node
+
+.. toctree::
+   :caption: Services
+
+   services/move_interface
