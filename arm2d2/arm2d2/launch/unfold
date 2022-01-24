@@ -1,0 +1,5 @@
+<launch>
+
+    <node ns="left" name="unfold" pkg="arm2d2" type="folding" args="unfold"/>
+    <node ns="right" name="unfold" pkg="arm2d2" type="folding" args="unfold"/>
+</launch>
