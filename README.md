@@ -11,4 +11,7 @@ This work proposes a method to train an agent in simulation with the TD3 algorit
 ## Branches
 This repository contains software to control the robotic arms from two different platforms. The Embedded-Platform branch is designed for an Nvidia Jetson Nano while the Auxiliary-Platform branch is designed for interfacing or simulating the robotic arms.
 
+## Current Progress
+This work is a work in progress so installation procedures have not been written yet. Documentation is currently being written and will be linked as soon as it is presentable. The software will be finalized by May 2022 as the payload is scheduled to launch in August 2022.
+
 
