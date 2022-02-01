@@ -3,6 +3,7 @@
 // Static variables
 Stepper* Stepper::steppers;
 int Stepper::num_steppers;
+bool Stepper::stepper_power;
 
 // ======================== Stepper with Encoder ==============================
 // Not using inheritance because of the static array of steppers.
@@ -20,7 +21,7 @@ Stepper::Stepper(int _step_pin, int _dir_pin, int enc_pinA, int enc_pinB, bool f
 }
 
 void Stepper::step_w_encoder() {
-  current_step = encoder->read();
+  enc_step = int(encoder->read()/1.25); // 1 Step = 1.25 encoder steps
   
   if (digitalRead(step_pin) == HIGH && timer > on_time) {
     digitalWrite(step_pin, LOW);
@@ -28,13 +29,24 @@ void Stepper::step_w_encoder() {
   }
   else {
     if (timer > off_time) {
-      if (current_step < desired_step) {
+      // Tolerance is necessary because encoder steps are smaller so the perfect enc step may never be reached
+      if (enc_step < desired_step - TOLERANCE) {
         digitalWrite(dir_pin, pos_dir);
         digitalWrite(step_pin, HIGH);
+        if (stepper_power && current_step < desired_step) {
+          current_step += 1;
+        }
         current_dir = true;
-      } else if (current_step > desired_step) {
+      } else if (enc_step > desired_step + TOLERANCE) {
         digitalWrite(dir_pin, !pos_dir);
         digitalWrite(step_pin, HIGH);
+        if (stepper_power && current_step < desired_step) {
+          current_step -= 1;
+        }
+      }
+      else {
+        current_step = enc_step;
+        error_sum = 0;
       }
       timer = 0;
     } else {
@@ -62,6 +74,7 @@ void Stepper::init(int _step_pin, int _dir_pin) {
   timer = 0;
 
   current_dir = true;
+  stepper_power = false;
 
   // defaults
   on_time = 1;
@@ -69,6 +82,7 @@ void Stepper::init(int _step_pin, int _dir_pin) {
 
   pinMode(step_pin, OUTPUT);
   pinMode(dir_pin, OUTPUT);
+
 }
 
 void Stepper::set_speed(int _on_time, int _off_time) {
@@ -76,19 +90,22 @@ void Stepper::set_speed(int _on_time, int _off_time) {
   off_time = _off_time;
 }
 void Stepper::set_speed(int velocity_percent) {
-  int max_delay = 200;
-  int min_delay = 5;
 
-  off_time = (int)map(velocity_percent, 0, 100, max_delay, min_delay);
-  if (off_time > max_delay) {
-    off_time = max_delay;
+
+  off_time = (int)map(velocity_percent, 0, 100, MAX_DELAY, MIN_DELAY);
+  if (off_time > MAX_DELAY) {
+    off_time = MAX_DELAY;
   }
-  if (off_time < min_delay) {
-    off_time = min_delay;
+  if (off_time < MIN_DELAY) {
+    off_time = MIN_DELAY;
   }
 }
 
 int Stepper::get_speed() {
+  return velocity_out;
+}
+
+int Stepper::get_off_time() {
   return off_time;
 }
 
@@ -102,17 +119,24 @@ void Stepper::set_bounds(int upper, int lower) {
 }
 
 void Stepper::watch_bounds() {
-  if (get_current_step() > upper_bound) {
+  if (get_enc_step() > upper_bound) {
     set_point(lower_bound - 1);
   }
-  if (get_current_step() < lower_bound) {
+  if (get_enc_step() < lower_bound) {
     set_point(upper_bound + 1);
   }
 }
 
 void Stepper::velPID() {
-  int error = abs(desired_step - current_step);
-  set_speed((int)P_val * error);
+  error = abs(desired_step - enc_step);
+  enc_error = abs(current_step - enc_step);
+  error_sum += enc_error;
+  velocity_out = (int)(K_P*error - K_I*error_sum);
+  if (velocity_out < 0) {
+    velocity_out = 0;
+  }
+  
+  set_speed(velocity_out);
 }
 
 void Stepper::step() {
@@ -135,9 +159,11 @@ void Stepper::step() {
           if (current_dir) {
             // Go forwards
             current_step += 1;
+            enc_step += 1;
           }
           else {
             current_step -= 1;
+            enc_step -= 1;
           }
           digitalWrite(step_pin, HIGH);
         }
@@ -156,7 +182,6 @@ void Stepper::step() {
 
 
 void Stepper::set_point(int step_position) {
-  digitalWrite(13, HIGH);
   desired_step = step_position;
   if (current_step < desired_step) {
     digitalWrite(dir_pin, pos_dir);
@@ -166,10 +191,11 @@ void Stepper::set_point(int step_position) {
     digitalWrite(dir_pin, !pos_dir);
     current_dir = false;
   }
+  
 }
 
-int Stepper::get_current_step() {
-  return current_step;
+int Stepper::get_enc_step() {
+  return enc_step;
 }
 int Stepper::get_desired_step() {
   return desired_step;
@@ -184,4 +210,11 @@ void Stepper::setSteppers(Stepper* _steppers, int _num_steppers) {
   num_steppers = _num_steppers;
   Timer1.initialize(TIMER_INTERVAL);
   Timer1.attachInterrupt(timerCallBack);
+
+  
+}
+
+// To be called when stepper power activates
+void Stepper::update_step_cnt() {
+  current_step = enc_step;
 }
