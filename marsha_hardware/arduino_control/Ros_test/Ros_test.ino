@@ -2,19 +2,15 @@
 
 #include "Stepper.h"
 #include "Comm.h"
-#include <ros.h>
-#include <std_msgs/Int16.h>
-#include <std_msgs/Int32MultiArray.h>
-
-
 
 #define BAUD_RATE       115200
-#define SPIN_RATE       10
-#define FEEDBACK_RATE   1000
+
+#define SPIN_RATE       100
+#define FEEDBACK_RATE   1000000
 #define NUM_JOINTS      6
 
 #define NUM_INFO        3
-#define DEBUG_STEPPER    4
+#define DEBUG_STEPPER    3
 
 
 // Note: It should attempt to stay at zero when turned on, if it continuously spins in one direction, flip the direction
@@ -24,48 +20,41 @@ int led = 13;
 int spinCounter = 0;
 int feedbackCounter = 0;
 
-int num_flips = 0;
-
 
 Comm comm_handle;
 
-std_msgs::Int32MultiArray feedback_multiArr;
-int feedback_arr[NUM_JOINTS];
 
-// Debug
-std_msgs::Int32MultiArray info_feedback;
-int info_arr[NUM_INFO];
-
-
-void rosVELCallback(const std_msgs::Int16 &msg) {
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    steppers[i].set_speed(msg.data);
-  }
-  
-}
-
+/*
 void rosCMDCallback(const std_msgs::Int16 &msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
     steppers[DEBUG_STEPPER].set_point(msg.data);
   }
   
 }
+*/
 
 void ledCallback(RxPacket &rx) {
   digitalWrite(13, rx.led_state);
   
-  num_flips++;
-  TxPacket tx(num_flips);
-  comm_handle.transmit(tx);
   
 }
 
 
-
-// debug
-ros::Publisher info_pub("info_feedback", &info_feedback);
-
 void sendFeedback() {
+  int feedback_arr[NUM_JOINTS];
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    feedback_arr[i] = steppers[i].get_enc_step();
+  }
+  TxPacket tx(feedback_arr, NUM_JOINTS);
+
+  tx.doc["curr_step"] = steppers[DEBUG_STEPPER].current_step;
+  tx.doc["curr_speed"] = steppers[DEBUG_STEPPER].get_speed();
+  tx.doc["err_sum"] = steppers[DEBUG_STEPPER].error_sum;
+  
+  comm_handle.transmit(tx);
+}
+
+/*void sendFeedback() {
   for (int i = 0; i < NUM_JOINTS; i++) {
     feedback_arr[i] = steppers[i].get_enc_step();
   }
@@ -79,7 +68,7 @@ void sendFeedback() {
   
   info_pub.publish(&info_feedback);
   
-}
+}*/
 
 
 
@@ -93,18 +82,9 @@ void stepper_power_callback() {
 }
 
 void setup() {
-  feedback_multiArr.data_length = NUM_JOINTS;
-  feedback_multiArr.data = feedback_arr;
-
-  info_feedback.data_length = NUM_INFO;
-  info_feedback.data = info_arr;
-  // put your setup code here, to run once:
   pinMode(led, OUTPUT);
 
-
   comm_handle.set_callback(ledCallback);
-
-  // debug
 
 
   steppers[0].tune_controller(0.6, 0.00001, 20, 175);
@@ -121,12 +101,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (spinCounter > SPIN_RATE) {
-
     comm_handle.spin();
     spinCounter = 0;
   }
   if (feedbackCounter > FEEDBACK_RATE) {
-    //sendFeedback();
+    sendFeedback();
     feedbackCounter = 0;
   }
 
