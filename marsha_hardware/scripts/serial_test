@@ -36,13 +36,14 @@ while True:
     data_bytes = data_str.encode('utf-8')
     print('Cmd:', data_bytes)
     arduino.write(data_bytes)
-    time.sleep(.1)
+    time.sleep(0.1)
     led_cmd = not led_cmd
 
     # read
     #char = arduino.read().decode()
-    num_waiting = arduino.in_waiting
-    json_string = arduino.read(num_waiting).decode()
-    rx_dict = json.loads(json_string)
-    print('num_flips:', rx_dict["flips"])
+    data_available = arduino.in_waiting
+    if data_available > 0:
+        json_string = arduino.read(data_available).decode()
+        rx_dict = json.loads(json_string)
+        print('num_flips:', rx_dict["flips"])
     #print(char)

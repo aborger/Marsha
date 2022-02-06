@@ -1,6 +1,7 @@
 
 
 #include "Stepper.h"
+#include "Comm.h"
 #include <ros.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Int32MultiArray.h>
@@ -8,7 +9,7 @@
 
 
 #define BAUD_RATE       115200
-#define SPIN_RATE       100
+#define SPIN_RATE       10
 #define FEEDBACK_RATE   1000
 #define NUM_JOINTS      6
 
@@ -23,7 +24,11 @@ int led = 13;
 int spinCounter = 0;
 int feedbackCounter = 0;
 
-ros::NodeHandle nh;
+int num_flips = 0;
+
+
+Comm comm_handle;
+
 std_msgs::Int32MultiArray feedback_multiArr;
 int feedback_arr[NUM_JOINTS];
 
@@ -46,9 +51,16 @@ void rosCMDCallback(const std_msgs::Int16 &msg) {
   
 }
 
-ros::Publisher feedback_pub("enc_feedback", &feedback_multiArr);
-ros::Subscriber<std_msgs::Int16> cmd_sub("cmd", &rosCMDCallback);
-ros::Subscriber<std_msgs::Int16> vel_sub("vel", &rosVELCallback);
+void ledCallback(RxPacket &rx) {
+  digitalWrite(13, rx.led_state);
+  
+  num_flips++;
+  TxPacket tx(num_flips);
+  comm_handle.transmit(tx);
+  
+}
+
+
 
 // debug
 ros::Publisher info_pub("info_feedback", &info_feedback);
@@ -57,7 +69,7 @@ void sendFeedback() {
   for (int i = 0; i < NUM_JOINTS; i++) {
     feedback_arr[i] = steppers[i].get_enc_step();
   }
-  feedback_pub.publish(&feedback_multiArr);
+  //feedback_pub.publish(&feedback_multiArr);
 
   // debug
   info_arr[0] = steppers[DEBUG_STEPPER].current_step;
@@ -89,14 +101,11 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(led, OUTPUT);
 
-  nh.getHardware()->setBaud(BAUD_RATE);
-  nh.initNode();
-  nh.subscribe(cmd_sub);
-  nh.subscribe(vel_sub);
-  nh.advertise(feedback_pub);
+
+  comm_handle.set_callback(ledCallback);
 
   // debug
-  nh.advertise(info_pub);
+
 
   steppers[0].tune_controller(0.6, 0.00001, 20, 175);
   steppers[1].tune_controller(0.6, 0.00001, 40, 75);
@@ -112,11 +121,12 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (spinCounter > SPIN_RATE) {
-    nh.spinOnce();
+
+    comm_handle.spin();
     spinCounter = 0;
   }
   if (feedbackCounter > FEEDBACK_RATE) {
-    sendFeedback();
+    //sendFeedback();
     feedbackCounter = 0;
   }
 
