@@ -21,7 +21,7 @@ Stepper::Stepper(int _step_pin, int _dir_pin, int enc_pinA, int enc_pinB, bool f
 }
 
 void Stepper::step_w_encoder() {
-  enc_step = int(encoder->read()/1.25); // 1 Step = 1.25 encoder steps
+  enc_step = int(encoder->read());///1.25); // 1 Step = 1.25 encoder steps
   
   if (digitalRead(step_pin) == HIGH && timer > on_time) {
     digitalWrite(step_pin, LOW);
@@ -92,12 +92,12 @@ void Stepper::set_speed(int _on_time, int _off_time) {
 void Stepper::set_speed(int velocity_percent) {
 
 
-  off_time = (int)map(velocity_percent, 0, 100, MAX_DELAY, MIN_DELAY);
-  if (off_time > MAX_DELAY) {
-    off_time = MAX_DELAY;
+  off_time = (int)map(velocity_percent, 0, 100, max_delay, min_delay);
+  if (off_time > max_delay) {
+    off_time = max_delay;
   }
-  if (off_time < MIN_DELAY) {
-    off_time = MIN_DELAY;
+  if (off_time < min_delay) {
+    off_time = min_delay;
   }
 }
 
@@ -127,11 +127,21 @@ void Stepper::watch_bounds() {
   }
 }
 
+void Stepper::tune_controller(float p, float i, int _min_delay, int _max_delay) {
+  K_P = p;
+  K_I = i;
+  min_delay = _min_delay;
+  max_delay = _max_delay;
+}
+
 void Stepper::velPID() {
   error = abs(desired_step - enc_step);
-  enc_error = abs(current_step - enc_step);
+  enc_error = K_I*abs(current_step - enc_step);
   error_sum += enc_error;
-  velocity_out = (int)(K_P*error - K_I*error_sum);
+  if (error_sum > MAX_ERROR_SUM) {
+    error_sum = MAX_ERROR_SUM;
+  }
+  velocity_out = (int)(K_P*error - error_sum);
   if (velocity_out < 0) {
     velocity_out = 0;
   }

@@ -8,13 +8,16 @@
 
 
 #define BAUD_RATE       115200
-#define SPIN_RATE       1000
-#define FEEDBACK_RATE   10000
+#define SPIN_RATE       100
+#define FEEDBACK_RATE   1000
 #define NUM_JOINTS      6
+
+#define NUM_INFO        3
+#define DEBUG_STEPPER    4
 
 
 // Note: It should attempt to stay at zero when turned on, if it continuously spins in one direction, flip the direction
-Stepper steppers[] = {Stepper(33, 34, 21, 22), Stepper(32, 31, 19, 20), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(28, 27), Stepper(26, 25)};
+Stepper steppers[] = {Stepper(33, 34, 21, 22), Stepper(32, 31, 19, 20), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(26, 25, 40, 41), Stepper(26, 25)};
 
 int led = 13;
 int spinCounter = 0;
@@ -24,9 +27,10 @@ ros::NodeHandle nh;
 std_msgs::Int32MultiArray feedback_multiArr;
 int feedback_arr[NUM_JOINTS];
 
-// debug
-std_msgs::Int16 step_feedback;
-std_msgs::Int16 vel_feedback;
+// Debug
+std_msgs::Int32MultiArray info_feedback;
+int info_arr[NUM_INFO];
+
 
 void rosVELCallback(const std_msgs::Int16 &msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
@@ -37,7 +41,7 @@ void rosVELCallback(const std_msgs::Int16 &msg) {
 
 void rosCMDCallback(const std_msgs::Int16 &msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
-    steppers[2].set_point(msg.data);
+    steppers[DEBUG_STEPPER].set_point(msg.data);
   }
   
 }
@@ -47,8 +51,7 @@ ros::Subscriber<std_msgs::Int16> cmd_sub("cmd", &rosCMDCallback);
 ros::Subscriber<std_msgs::Int16> vel_sub("vel", &rosVELCallback);
 
 // debug
-ros::Publisher step_feedback_pub("step_feedback", &step_feedback);
-ros::Publisher vel_feedback_pub("vel_feedback", &vel_feedback);
+ros::Publisher info_pub("info_feedback", &info_feedback);
 
 void sendFeedback() {
   for (int i = 0; i < NUM_JOINTS; i++) {
@@ -57,11 +60,12 @@ void sendFeedback() {
   feedback_pub.publish(&feedback_multiArr);
 
   // debug
-  step_feedback.data = steppers[1].get_off_time();
-  vel_feedback.data = steppers[1].get_speed();
+  info_arr[0] = steppers[DEBUG_STEPPER].current_step;
+  info_arr[1] = steppers[DEBUG_STEPPER].get_speed();
+  info_arr[2] = (int)steppers[DEBUG_STEPPER].error_sum;
+ 
   
-  step_feedback_pub.publish(&step_feedback);
-  vel_feedback_pub.publish(&vel_feedback);
+  info_pub.publish(&info_feedback);
   
 }
 
@@ -79,6 +83,9 @@ void stepper_power_callback() {
 void setup() {
   feedback_multiArr.data_length = NUM_JOINTS;
   feedback_multiArr.data = feedback_arr;
+
+  info_feedback.data_length = NUM_INFO;
+  info_feedback.data = info_arr;
   // put your setup code here, to run once:
   pinMode(led, OUTPUT);
 
@@ -89,9 +96,12 @@ void setup() {
   nh.advertise(feedback_pub);
 
   // debug
-  nh.advertise(step_feedback_pub);
-  nh.advertise(vel_feedback_pub);
+  nh.advertise(info_pub);
 
+  steppers[0].tune_controller(0.6, 0.00001, 20, 175);
+  steppers[1].tune_controller(0.6, 0.00001, 40, 75);
+  steppers[2].tune_controller(1, 0.0001, 10, 75);
+  steppers[3].tune_controller(0.6, 0.00001, 10, 150);
 
   Stepper::setSteppers(steppers, 6);
 

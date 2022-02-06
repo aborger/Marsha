@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+import serial
+import time
+import json
+from sys import exit
+
+connected = False
+while not connected:
+    try:
+        arduino = serial.Serial(
+            port = '/dev/ttyACM0',
+            baudrate = 115200,
+            bytesize = serial.EIGHTBITS,
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE,
+            timeout = 0.01,
+            xonxoff = False,
+            rtscts = False,
+            dsrdtr = False,
+            writeTimeout = 2
+        )
+        connected = True
+    except KeyboardInterrupt:
+        exit()
+    except Exception as e:
+        print(e)
+        time.sleep(1)
+
+
+led_cmd = False
+
+while True:
+    # Transmit
+    data = {"led": int(led_cmd)}
+    data_str = json.dumps(data) + '\n'
+    data_bytes = data_str.encode('utf-8')
+    print('Cmd:', data_bytes)
+    arduino.write(data_bytes)
+    time.sleep(.1)
+    led_cmd = not led_cmd
+
+    # read
+    #char = arduino.read().decode()
+    num_waiting = arduino.in_waiting
+    json_string = arduino.read(num_waiting).decode()
+    rx_dict = json.loads(json_string)
+    print('num_flips:', rx_dict["flips"])
+    #print(char)
