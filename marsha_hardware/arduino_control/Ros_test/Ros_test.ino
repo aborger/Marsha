@@ -24,20 +24,12 @@ int feedbackCounter = 0;
 Comm comm_handle;
 
 
-/*
-void rosCMDCallback(const std_msgs::Int16 &msg) {
+void CMDCallback(RxPacket &rx) {
   for (int i = 0; i < NUM_JOINTS; i++) {
-    steppers[DEBUG_STEPPER].set_point(msg.data);
+    steppers[i].set_point(rx.step_cmd[i]);
   }
-  
 }
-*/
 
-void ledCallback(RxPacket &rx) {
-  digitalWrite(13, rx.led_state);
-  
-  
-}
 
 
 void sendFeedback() {
@@ -54,24 +46,6 @@ void sendFeedback() {
   comm_handle.transmit(tx);
 }
 
-/*void sendFeedback() {
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    feedback_arr[i] = steppers[i].get_enc_step();
-  }
-  //feedback_pub.publish(&feedback_multiArr);
-
-  // debug
-  info_arr[0] = steppers[DEBUG_STEPPER].current_step;
-  info_arr[1] = steppers[DEBUG_STEPPER].get_speed();
-  info_arr[2] = (int)steppers[DEBUG_STEPPER].error_sum;
- 
-  
-  info_pub.publish(&info_feedback);
-  
-}*/
-
-
-
 
 void stepper_power_callback() {
   Stepper::stepper_power = digitalRead(STEPPER_POWER_PIN);
@@ -84,7 +58,7 @@ void stepper_power_callback() {
 void setup() {
   pinMode(led, OUTPUT);
 
-  comm_handle.set_callback(ledCallback);
+  comm_handle.set_callback(CMDCallback);
 
 
   steppers[0].tune_controller(0.6, 0.00001, 20, 175);
