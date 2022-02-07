@@ -1,0 +1,118 @@
+#!/usr/bin/env python2
+
+import rospy
+import serial
+import time
+import json
+
+from std_msgs.msg import Int16
+
+class Interface():
+
+    def __init__(self):
+        rospy.init_node('teensy_interface')
+
+        self.led_cmd = False
+        self.tx_rate = 1000
+        self.tx_cnt = 0
+        self.connected = False
+
+        rospy.Subscriber('/steppers/J0/cmd', Int16, self.j0CmdCallback)
+        rospy.Subscriber('/steppers/J1/cmd', Int16, self.j1CmdCallback)
+        rospy.Subscriber('/steppers/J2/cmd', Int16, self.j2CmdCallback)
+        rospy.Subscriber('/steppers/J3/cmd', Int16, self.j3CmdCallback)
+        rospy.Subscriber('/steppers/J4/cmd', Int16, self.j4CmdCallback)
+        rospy.Subscriber('/steppers/grip/cmd', Int16, self.gripCmdCallback)
+
+        self.step_cmd = [0, 0, 0, 0, 0, 0]
+
+        while not self.connected:
+            try:
+                self.arduino = serial.Serial(
+                    port = '/dev/ttyACM0',
+                    baudrate = 115200,
+                    bytesize = serial.EIGHTBITS,
+                    parity = serial.PARITY_NONE,
+                    stopbits = serial.STOPBITS_ONE,
+                    timeout = 0.01,
+                    xonxoff = False,
+                    rtscts = False,
+                    dsrdtr = False,
+                    writeTimeout = 2
+                )
+                self.connected = True
+            except KeyboardInterrupt:
+                exit()
+            except Exception as e:
+                print(e)
+                time.sleep(1)
+
+
+    def j0CmdCallback(self, msg):
+        self.step_cmd[0] = msg.data
+
+    def j1CmdCallback(self, msg):
+        self.step_cmd[1] = msg.data
+
+    def j2CmdCallback(self, msg):
+        self.step_cmd[2] = msg.data
+
+    def j3CmdCallback(self, msg):
+        self.step_cmd[3] = msg.data
+
+    def j4CmdCallback(self, msg):
+        self.step_cmd[4] = msg.data
+
+    def j5CmdCallback(self, msg):
+        self.step_cmd[5] = msg.data
+
+    def gripCmdCallback(self, msg):
+        self.step_cmd[6] = msg.data
+
+    def transmit_step(self):
+        data = {"steps": self.step_cmd}
+        data_str = json.dumps(data) + '\n'
+        data_bytes = data_str.encode('utf-8')
+
+        self.arduino.write(data_bytes)
+
+    def transmit_led(self):
+        data = {"led": int(self.led_cmd)}
+        data_str = json.dumps(data) + '\n'
+        data_bytes = data_str.encode('utf-8')
+        print('Cmd:', data_bytes)
+        self.arduino.write(data_bytes)
+        self.led_cmd = not self.led_cmd
+
+
+
+    def run(self):
+        self.arduino.reset_input_buffer()
+        while not rospy.is_shutdown():
+            if self.tx_cnt > self.tx_rate:
+                self.transmit_step()
+                self.tx_cnt = 0
+            else:
+                self.tx_cnt += 1
+
+
+
+            # read
+            #char = arduino.read().decode()
+            data_available = self.arduino.in_waiting
+            if data_available > 0:
+                try:
+                    json_string = self.arduino.read(data_available).decode()
+                    rx_dict = json.loads(json_string)
+                    print ('Encoders: ' +  str(rx_dict["enc_feedback"]) +
+                          ' Step: ' +  str(rx_dict["curr_step"]) +
+                          ' Speed: ' + str(rx_dict["curr_speed"]) +
+                          ' Err Sum: ' + str(rx_dict["err_sum"]))
+                except: 
+                    print("Error!")
+        
+
+if __name__ == "__main__":
+    interface = Interface()
+
+    interface.run()
