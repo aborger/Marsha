@@ -2,15 +2,22 @@
 
 import rospy
 from std_msgs.msg import Int16MultiArray
+from std_msgs.msg import Int16
 from time import sleep
 
 
-step_pub = rospy.Publisher('stepper_step', Int16MultiArray, queue_size=10)
+step_pub = rospy.Publisher('cmd', Int16, queue_size=10)
 
 rospy.init_node('node_name')
 
-which = int(input("1 for repeat, 2 for select: "))
+step = int(input("Enter step value: "))
 
+while not rospy.is_shutdown():
+    msg = Int16(step)
+    step_pub.publish(msg)
+    sleep(0.5)
+
+"""
 if (which == 1):
 
     while not rospy.is_shutdown():
@@ -51,3 +58,4 @@ else:
         step_pub.publish(arr)
 
         sleep(1)
+"""

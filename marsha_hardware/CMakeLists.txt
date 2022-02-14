@@ -53,6 +53,7 @@ catkin_install_python(
     PROGRAMS
     scripts/pub_step
     scripts/serial_test
+    scripts/teensy_interface
     nodes/diablo_controller
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
