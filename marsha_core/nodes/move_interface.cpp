@@ -14,6 +14,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
+/*
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 
@@ -21,20 +22,29 @@
 #include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
-
+*/
 #include <ros/ros.h>
-#include "geometry_msgs/Pose.h" // Replace with geometry_msgs/Pose.msg
-#include "marsha_msgs/MoveCmd.h"
-#include "marsha_msgs/PositionCmd.h"
-#include "marsha_msgs/GetPos.h"
-#include "marsha_msgs/PostureCmd.h"
-#include "marsha_msgs/PlanGrasp.h"
+#include <geometry_msgs/Pose.h>
 
 #include <std_msgs/Empty.h>
 #include <string>
 
 #include <geometry_msgs/Pose.h>
 
+#include <marsha_msgs/MoveCmd.h>
+#include <marsha_msgs/PositionCmd.h>
+#include <marsha_msgs/GetPos.h>
+#include <marsha_msgs/PostureCmd.h>
+#include <marsha_msgs/PlanGrasp.h>
+
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <trajectory_msgs/MultiDOFJointTrajectoryPoint.h>
+
+
+// Testing
+#include <iostream>
+#include <iterator>
+// ------
 
 #include <vector>
 
@@ -65,6 +75,9 @@ class MarshaMoveInterface {
         std::string joint_param;
         
         int num_joints;
+
+        // Default RTT planning timeout
+        float ik_timeout;
 
 
         bool poseCmd(marsha_msgs::MoveCmd::Request &req,
@@ -132,6 +145,7 @@ class MarshaMoveInterface {
         }
 
         // Note: joint values in yaml file must be in radians
+        // Convert this to trajectory
         bool jointCmd(marsha_msgs::MoveCmd::Request &req,
                       marsha_msgs::MoveCmd::Response &res)
         {
@@ -168,22 +182,60 @@ class MarshaMoveInterface {
 
         }
 
+        // Moveit has cartesian path planning with waypoints, but either it is broken or I cannot get it to work
+        // Errors involve waypoints not stricly increasing in time and not having a reliable success rate for planning the path.
+        // Also moveit does not provide any documentation for how to execute the trajectory after planning it.
+
+        // Moveit RobotModel also provides a distance function between different states which could be usefull for ensuring the planned path
+        // is optimized to the shortest path
+
+    
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
+
             std::string param = "open";
             bool g_success = grasp(param);
+
+            float planning_time = ros::Time::now().toSec() - req.time_to_maneuver.data.toSec();
+
+            move_group->setPlanningTime(planning_time);
+
+
             move_group->setPoseTarget(req.preGrasp);
             GraspPlan grasp_plan;
 
             bool pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_INFO("Pre Grasp plan: %s", pre_grasp_success ? "SUCCESSFUL" : "FAILED");
             if (pre_grasp_success) {
+                res.planning_punishment = grasp_plan.pre_grasp.planning_time_/2;
                 move_group->execute(grasp_plan.pre_grasp);
+
+                /* An attempt at constraining to the grasp vector. It did not work very well.
+                moveit_msgs::OrientationConstraint ocm;
+                ocm.link_name = "gripper_connector";
+                ocm.header.frame_id = "world";
+                ocm.orientation = req.preGrasp.orientation;
+                ocm.absolute_x_axis_tolerance = 0.1;
+                ocm.absolute_y_axis_tolerance = 0.1;
+                ocm.absolute_z_axis_tolerance = 0.1;
+                ocm.weight = 1.0;
+
+                moveit_msgs::Constraints ee_constraint;
+                ee_constraint.orientation_constraints.push_back(ocm);
+                move_group->setPathConstraints(ee_constraint);
+
+                robot_state::RobotState start_state(*move_group->getCurrentState());
+                move_group->setStartState(start_state);
+                */
+
                 move_group->setPoseTarget(req.Grasp);
                 bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+                ROS_INFO("Grasp plan: %s", grasp_success ? "SUCCESSFUL" : "FAILED");
                 if (grasp_success) {
+                    res.planning_punishment += grasp_plan.grasp.planning_time_/2;
                     param = "close";
-                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_offset.data.toSec());
-                    while (ros::Time::now() < req.time_offset.data) {
+                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_to_maneuver.data.toSec());
+                    while (ros::Time::now() < req.time_to_maneuver.data) {
                         // Not good way of waiting because it blocks
                         ros::Duration(0.1).sleep();
                     }
@@ -191,15 +243,21 @@ class MarshaMoveInterface {
                     move_group->asyncExecute(grasp_plan.grasp);
                     ros::Duration(req.grasp_time.data).sleep();
                     g_success = grasp(param);
-
+                    res.planning_punishment += grasp_plan.grasp.planning_time_/2;
                     res.success = true;
                 } else {
+                    res.planning_punishment += planning_time;
                     res.success = false;
                 }
+
+                move_group->clearPathConstraints();
             }
             else {
+                res.planning_punishment = 2*planning_time;
                 res.success = false;
             }
+            
+            
             
             return true;
         }
@@ -309,7 +367,7 @@ class MarshaMoveInterface {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
             //hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
 
-            float ik_timeout;
+            
 
             ros::param::get(ros::this_node::getNamespace() + "/IK_timeout", ik_timeout);
             move_group->setPlanningTime(ik_timeout);

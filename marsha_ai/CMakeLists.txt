@@ -58,11 +58,18 @@ include_directories(
 
 
 
-catkin_install_python(PROGRAMS
+catkin_install_python(
+  PROGRAMS
    nodes/ai_node
    nodes/mdp_ai_node
    nodes/spawn_tensorboard
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+catkin_install_python(
+    PROGRAMS
+      tests/test_move_interface
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 add_executable(grasp_generator nodes/grasp_generator.cpp)

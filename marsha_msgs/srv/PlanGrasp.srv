@@ -1,6 +1,7 @@
 geometry_msgs/Pose preGrasp
 geometry_msgs/Pose Grasp
-std_msgs/Time time_offset
+std_msgs/Time time_to_maneuver
 std_msgs/Float32 grasp_time
 ---
+float32 planning_punishment
 bool success

@@ -107,10 +107,10 @@ class CatchInterface(RosInterface):
         #print("Time until predicted:", time_until)
 
         # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
-        move_success = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5])).success
+        plan_results = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5]))
 
         if DEBUG:
-            print("Move Success:", move_success)
+            print("Move Success:", plan_results.success)
 
         dist_at_grasp = distance(self.observe(), grasp)
         
@@ -119,10 +119,10 @@ class CatchInterface(RosInterface):
         
         
 
-        if move_success:
+        if plan_results.success:
             sleep(2)
         else:
-            reward -= 1
+            reward -= plan_results.planning_punishment
 
 
         catch_success = self.is_grasped().success
@@ -133,9 +133,11 @@ class CatchInterface(RosInterface):
             sleep(1)
             self.grasp_cmd("open")
             sleep(1)
-            reward = 10
+            reward += 10
 
-        return reward, move_success
+        info = {'catch_success': catch_success, 'plan_results': plan_results}
+
+        return reward, plan_results.success, info
 
 
 

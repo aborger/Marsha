@@ -1,0 +1,218 @@
+#!/usr/bin/env python
+
+import rospy
+import smach
+import smach_ros
+
+from marsha_msgs.srv import StateComm
+
+from marsha_core.marsha_services.move_cmds import *
+from marsha_core.marsha_services.gripper_cmds import *
+
+
+import time
+
+ns = rospy.get_namespace()
+# ---------------------------------------------------------------- #
+#                          States                                  #
+# ---------------------------------------------------------------- #
+
+class Fold(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success', 'Failed'])
+
+    def execute(self, userdata):
+        if fold_cmd('fold'):
+            return 'Success'
+        else:
+            return 'Failed'
+
+class Home(smach.State):
+    def __init__(self, state_comm):
+        smach.State.__init__(self, outcomes=['Success', 'Wait', 'Failed'])
+
+        self.read_state_comm = state_comm
+
+
+    def execute(self, userdata):
+        rospy.loginfo('Waiting for both arms to home...')
+        other_state = self.read_state_comm().current_state
+
+        # Success if both arms are home
+        if other_state == 'Home' or other_state == 'Wait_for_TE' or other_state == 'Unfold':
+            return 'Success'
+        else:
+            return 'Wait'
+
+
+
+class Wait_for_TE(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['TE_detected', 'Wait', 'TE_Error'])
+
+
+    def execute(self, userdata):
+        return 'TE_detected'
+
+class Unfold(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success', 'Failed'])
+
+    def execute(self, userdata):
+        if fold_cmd('unfold'):
+            return 'Success'
+        else:
+            return 'Failed'
+
+class Wait_for_Pass(smach.State):
+    def __init__(self, state_comm):
+        smach.State.__init__(self, outcomes=['Continue', 'Wait'])
+
+        self.read_state_comm = state_comm
+
+    def execute(self, userdata):
+        other_state = self.read_state_comm().current_state
+
+        if other_state == 'Wait_for_Pass' or other_state == 'Throw' or other_state == 'Catch':
+            return 'Continue'
+        else:
+            return 'Wait'
+
+class Throw(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success', 'Failed'])
+
+    def execute(self, userdata):
+        # If any fail return Failed, else success
+        maneuver_success = True
+        if not pose_cmd('pre_throw'):
+            maneuver_success = False
+        time.sleep(0.72)
+        if not async_pose_cmd('post_throw'):
+            maneuver_success = False
+        if not grasp_cmd('open'):
+            maneuver_success = False
+
+        if maneuver_success:
+            return 'Success'
+        else:
+            return 'Failed'
+
+class Catch(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Caught', 'Missed', 'Failed'])
+    
+    def execute(self, userdata):
+        grasp_cmd('open')
+        if pose_cmd('catch'):
+            if grasp_cmd('close'):
+                return 'Success'
+            else:
+                return 'Failed'
+        else:
+            return 'Failed'
+
+        
+
+
+
+# ---------------------------------------------------------------- #
+#                       State Machine                              #
+# ---------------------------------------------------------------- #
+
+class Arm_SM:
+    def __init__(self):
+
+        # Create a stateComm server for this arm
+        self.stateComm = rospy.Service('stateComm', StateComm, self.state_comm_callback)
+
+        # Create a SMACH state machine
+        self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
+
+        other_arm = None
+        if rospy.get_namespace() == "/left/":
+            other_arm = "/right/"
+        else:
+            other_arm = "/left/"
+
+        rospy.loginfo('Waiting for service...')
+        rospy.wait_for_service(other_arm + 'stateComm')
+        self.read_state_comm = rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
+
+        if rospy.get_namespace() == "/left/":
+            self.throw_arm_sm()
+        else:
+            self.catch_arm_sm()  
+
+    def state_comm_callback(self, req):
+        states = self.sm.get_active_states()
+        return states[0]
+
+    def throw_arm_sm(self):
+        with self.sm:
+            smach.StateMachine.add('Fold', Fold(), # Only first for sim
+                                transitions={'Success': 'Home',
+                                             'Failed': 'Mission_Fail'})
+
+            smach.StateMachine.add('Home', Home(self.read_state_comm),
+                                transitions={'Success': 'Wait_for_TE',
+                                             'Wait': 'Home',
+                                             'Failed': 'Mission_Fail'})
+            
+            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(),
+                                transitions={'TE_detected': 'Unfold',
+                                             'Wait': 'Wait_for_TE',
+                                             'TE_Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Unfold', Unfold(),
+                                transitions={'Success': 'Wait_for_Pass',
+                                             'Failed': 'Mission_Fail'})
+                                            
+            smach.StateMachine.add('Wait_for_Pass', Wait_for_Pass(self.read_state_comm),
+                                transitions={'Continue': 'Throw',
+                                             'Wait': 'Wait_for_Pass'})
+
+            smach.StateMachine.add('Throw', Throw(),
+                                transitions={'Success': 'Fold',
+                                             'Failed': 'Mission_Fail'})
+
+    def catch_arm_sm(self):
+        with self.sm:
+            smach.StateMachine.add('Fold', Fold(), # Only first for sim
+                                transitions={'Success': 'Home',
+                                             'Failed': 'Mission_Fail'})
+
+            smach.StateMachine.add('Home', Home(self.read_state_comm),
+                                transitions={'Success': 'Wait_for_TE',
+                                             'Wait': 'Home',
+                                             'Failed': 'Mission_Fail'})
+            
+            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(),
+                                transitions={'TE_detected': 'Unfold',
+                                             'Wait': 'Wait_for_TE',
+                                             'TE_Error': 'Mission_Fail'})
+                                             
+            smach.StateMachine.add('Unfold', Unfold(),
+                                transitions={'Success': 'Wait_for_Pass',
+                                             'Failed': 'Mission_Fail'})
+
+            smach.StateMachine.add('Wait_for_Pass', Wait_for_Pass(self.read_state_comm),
+                                transitions={'Continue': 'Catch',
+                                             'Wait': 'Wait_for_Pass'})
+
+            smach.StateMachine.add('Catch', Catch(),
+                                transitions={'Caught': 'Fold',
+                                             'Missed': 'Fold', 
+                                             'Failed': 'Mission_Fail'})
+
+    def run(self):
+        # Execute SMACH plan
+        outcome = self.sm.execute()
+
+def main():
+    rospy.init_node('main_sm')
+    sm = Arm_SM()
+    sm.run()
+
+if __name__ == "__main__":
+    main()

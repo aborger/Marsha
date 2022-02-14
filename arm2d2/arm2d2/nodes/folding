@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import rospy
+import time
+import sys
+
+from marsha_msgs.srv import MoveCmd
+
+ns = rospy.get_namespace()
+
+print("waiting for services...")
+print("ns:", ns)
+
+
+
+rospy.wait_for_service(ns + 'joint_cmd')
+joint_cmd = rospy.ServiceProxy(ns + 'joint_cmd', MoveCmd)
+
+rospy.wait_for_service(ns + "gripper/grasp_cmd")
+grasp_cmd = rospy.ServiceProxy(ns + "gripper/grasp_cmd", MoveCmd)
+
+print("Services loaded!")
+def unfold():
+    print("unfolding...")
+    joint_cmd("home")
+    for i in range(0, 4):
+        print(i)
+        joint_cmd("folding/step_" + str(i))
+
+
+def fold():
+    print("folding...")
+    grasp_cmd("close")
+    for i in range(3, -1, -1):
+        joint_cmd("folding/step_" + str(i))
+    grasp_cmd("half")
+    joint_cmd("home")
+    grasp_cmd("close")
+
+def home():
+    print("Folding...")
+    grasp_cmd("half")
+    joint_cmd("home")
+    grasp_cmd("close")
+
+def demo():
+    unfold()
+    time.sleep(1)
+    fold()
+
+def foldingCallback(req):
+    cmd = req.pose_name
+    print("cmd:", cmd)
+    if cmd == "unfold":
+        print("unfolding")
+        unfold()
+
+    elif cmd == "home":
+        print("home")
+        home()
+
+    elif cmd == "fold":
+        print("fold")
+        fold()
+    else:
+        print("demo")
+        demo()
+    return True
+
+
+def main():
+    rospy.init_node('fold_node')
+    server = rospy.Service(rospy.get_namespace() + 'folding', MoveCmd, foldingCallback)
+    rospy.spin()
+
+if __name__ == "__main__":
+
+    main()

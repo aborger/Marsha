@@ -21,7 +21,7 @@ from time import sleep
 from marsha_ai import catch_bandit
 
 MAX_REWARD = 100
-MAX_EPISODE_LENGTH = 20
+MAX_EPISODE_LENGTH = 1
 
 class MarshaGym(gym.Env):
     def __init__(self, ros_interface):
@@ -39,7 +39,7 @@ class MarshaGym(gym.Env):
 
 
     def step(self, action):
-        reward, done = self.ros_interface.perform_action(action)
+        reward, move_success, info = self.ros_interface.perform_action(action)
         observation = self.ros_interface.perform_observation()
 
         self.current_step += 1
@@ -47,9 +47,11 @@ class MarshaGym(gym.Env):
         # TODO: make done when ball is above distance away from arm or max episode (a lot higher)
         if self.current_step > MAX_EPISODE_LENGTH:
             done = True
+        else:
+            done = move_success
 
         # observation, reward, done, info
-        return observation, reward, done, {}
+        return observation, reward, done, info
 
     def reset(self):
         self.ros_interface.reset_simulation()
