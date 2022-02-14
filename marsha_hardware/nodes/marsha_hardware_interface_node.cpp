@@ -1,6 +1,6 @@
 #include <controller_manager/controller_manager.h>
 #include "marsha_hardware_interface.hpp"
-#include "arm2d2_hardware_interface.hpp"
+//#include "arm2d2_hardware_interface.hpp"
 
 int main(int argc, char** argv)
 {

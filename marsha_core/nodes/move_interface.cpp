@@ -58,6 +58,9 @@ static const std::string ARM_PLANNING_GROUP = "manipulator";
 class MarshaMoveInterface {
     private:
         moveit::planning_interface::MoveGroupInterface* move_group;
+
+        // Used for toggling collision objects, could maybe be put in a different file
+        moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
         
         ros::ServiceServer poseService;
         ros::ServiceServer asyncPoseService;
@@ -66,6 +69,7 @@ class MarshaMoveInterface {
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
         ros::ServiceServer planGraspService;
+        ros::ServiceServer toggleCollisionsService;
         //ros::Subscriber position_sub;
         ros::Subscriber get_pose_sub;
 
@@ -193,23 +197,21 @@ class MarshaMoveInterface {
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
 
-            std::string param = "open";
-            bool g_success = grasp(param);
+            // Open gripper before planning TODO: Ensure this does not block as that would slow down planning
+            bool g_success = grasp("open");
 
-            float planning_time = ros::Time::now().toSec() - req.time_to_maneuver.data.toSec();
-
-            move_group->setPlanningTime(planning_time);
-
-
+            // Plan maneuver to preGrasp position
             move_group->setPoseTarget(req.preGrasp);
             GraspPlan grasp_plan;
+            res.pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS); // Plan and check if succeeded
+            ROS_INFO("Pre Grasp plan: %s", res.pre_grasp_success ? "SUCCESSFUL" : "FAILED");
 
-            bool pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_INFO("Pre Grasp plan: %s", pre_grasp_success ? "SUCCESSFUL" : "FAILED");
-            if (pre_grasp_success) {
-                res.planning_punishment = grasp_plan.pre_grasp.planning_time_/2;
+
+            // TODO: Plan preGrasp and grasp simultaneously
+            // Current method plans pregrasp then grasp if successfull, this causes the arm to move to preGrasp even if postGrasp isnt possible
+            if (res.pre_grasp_success) {
                 move_group->execute(grasp_plan.pre_grasp);
-
+                
                 /* An attempt at constraining to the grasp vector. It did not work very well.
                 moveit_msgs::OrientationConstraint ocm;
                 ocm.link_name = "gripper_connector";
@@ -229,36 +231,24 @@ class MarshaMoveInterface {
                 */
 
                 move_group->setPoseTarget(req.Grasp);
-                bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-                ROS_INFO("Grasp plan: %s", grasp_success ? "SUCCESSFUL" : "FAILED");
-                if (grasp_success) {
-                    res.planning_punishment += grasp_plan.grasp.planning_time_/2;
-                    param = "close";
+                res.grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS); // Plan and check if succeeded
+                ROS_INFO("Grasp plan: %s", res.grasp_success ? "SUCCESSFUL" : "FAILED");
+
+                // Perform grasp if successful
+                if (res.grasp_success) {
                     ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_to_maneuver.data.toSec());
                     while (ros::Time::now() < req.time_to_maneuver.data) {
-                        // Not good way of waiting because it blocks
+                        // Not a good way of waiting because it blocks
                         ros::Duration(0.1).sleep();
                     }
                     
+                    // Move to grasp, wait grasp time, then close gripper
                     move_group->asyncExecute(grasp_plan.grasp);
                     ros::Duration(req.grasp_time.data).sleep();
-                    g_success = grasp(param);
-                    res.planning_punishment += grasp_plan.grasp.planning_time_/2;
-                    res.success = true;
-                } else {
-                    res.planning_punishment += planning_time;
-                    res.success = false;
+                    res.gripper_success = grasp("close");
                 }
 
-                move_group->clearPathConstraints();
             }
-            else {
-                res.planning_punishment = 2*planning_time;
-                res.success = false;
-            }
-            
-            
-            
             return true;
         }
 
@@ -362,6 +352,50 @@ class MarshaMoveInterface {
             return true;
         }
 
+        // Request of on adds collision objects request of off removes them
+        // TODO: make this a bool service
+        // TODO: develop mechanism to prevent turning on if already on 
+        bool toggleCollisions(marsha_msgs::MoveCmd::Request &req,
+                              marsha_msgs::MoveCmd::Response &res) {
+            if (req.pose_name == "add") {
+                // Vector holds collision objects
+                std::vector<moveit_msgs::CollisionObject> collision_objects;
+                collision_objects.resize(1);
+
+                // Add payload divider
+                collision_objects[0].id = "payload_divider";
+                collision_objects[0].header.frame_id = "base_link";
+
+                collision_objects[0].primitives.resize(1);
+                collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
+                collision_objects[0].primitives[0].dimensions.resize(3);
+                collision_objects[0].primitives[0].dimensions[0] = 0.01;
+                collision_objects[0].primitives[0].dimensions[1] = 0.29;
+                collision_objects[0].primitives[0].dimensions[2] = 0.19;
+
+                collision_objects[0].primitive_poses.resize(1);
+                collision_objects[0].primitive_poses[0].position.x = 0.07;
+                collision_objects[0].primitive_poses[0].position.y = -0.09;
+                collision_objects[0].primitive_poses[0].position.z = 0.18;
+
+                planning_scene_interface.applyCollisionObjects(collision_objects);
+
+                res.done = true;
+
+            } 
+            else if (req.pose_name == "remove") {
+                std::vector<std::string> object_ids;
+                object_ids.push_back("payload_divider");
+                planning_scene_interface.removeCollisionObjects(object_ids);
+                res.done = true;
+            }
+            else {
+                ROS_WARN(" %s is not a toggleCollisions option. Only 'add' and 'remove' are allowed.", req.pose_name.c_str());
+                return false;
+            }
+            return true;
+        }
+
     public:
         MarshaMoveInterface(ros::NodeHandle *nh) {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
@@ -389,6 +423,8 @@ class MarshaMoveInterface {
             postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
             planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
+
+            toggleCollisionsService = nh->advertiseService("toggle_collisions", &MarshaMoveInterface::toggleCollisions, this);
 
             ros::param::get(ros::this_node::getNamespace() + "/num_joints", num_joints);
 

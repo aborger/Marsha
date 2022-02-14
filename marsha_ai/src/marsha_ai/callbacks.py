@@ -11,8 +11,7 @@ class TensorboardCallback(BaseCallback):
         reward = self.locals['reward'][0]
         if self.locals['infos'][0]['catch_success']:
             self.num_catches += 1
-        planning_punishment = self.locals['infos'][0]['plan_results'].planning_punishment
-        plan_success = self.locals['infos'][0]['plan_results'].success        
+        plan_results = self.locals['infos'][0]['plan_results']        
 
 
         #info = self.locals['infos'][0]
@@ -21,8 +20,9 @@ class TensorboardCallback(BaseCallback):
 
         self.logger.record('Reward', reward)
         self.logger.record('Catches', self.num_catches)
-        self.logger.record('Planning/Timing_punishment', planning_punishment)
-        self.logger.record('Planning/Successful_Plan', plan_success)
+        self.logger.record('Planning/Pre_grasp_planning', plan_results.pre_grasp_success)
+        self.logger.record('Planning/Grasp_planning', plan_results.grasp_success)
+
         #self.logger.record('Time: ' + info['timing']['func_name'], info['timing']['elapsed_time'])
         #self.logger.record('ADR Difficulty', info['difficulty'])
         return True

@@ -28,6 +28,10 @@ import math
 PRE_GRASP_DISTANCE = 2
 POST_GRASP_DISTANCE = 0.5 # May want to learn this
 
+
+PRE_GRASP_FAIL_PUNISHMENT = 4
+GRASP_PLAN_FAIL_PUNISHMENT = 2
+
 DEBUG = True
 
 def object_to_world(obj_space, obj_pos):
@@ -109,8 +113,10 @@ class CatchInterface(RosInterface):
         # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
         plan_results = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5]))
 
-        if DEBUG:
-            print("Move Success:", plan_results.success)
+
+        rospy.logdebug("Pre-grasp success:", plan_results.pre_grasp_success)
+        rospy.logdebug("Grasp plan success:", plan_results.grasp_success)
+        rospy.logdebug("Gripper close success:", plan_results.gripper_success)
 
         dist_at_grasp = distance(self.observe(), grasp)
         
@@ -119,15 +125,24 @@ class CatchInterface(RosInterface):
         
         
 
-        if plan_results.success:
-            sleep(2)
+        if plan_results.pre_grasp_success:
+            if plan_results.grasp_success:
+                if plan_results.gripper_success:
+                    sleep(2) # wait a bit then check if its caught
+                else:
+                    # The gripper only fails if simulation or control errors occur
+                    rospy.logerr("Gripper failed to close! Check for issues.")
+            else:
+                reward -= GRASP_PLAN_FAIL_PUNISHMENT
         else:
-            reward -= plan_results.planning_punishment
+            reward -= PRE_GRASP_FAIL_PUNISHMENT
+        
+        plan_success = plan_results.pre_grasp_success and plan_results.grasp_success
+
 
 
         catch_success = self.is_grasped().success
-        if DEBUG:
-            print("Catch success: ", catch_success)
+        rospy.logdebug("Catch success: ", catch_success)
 
         if catch_success:
             sleep(1)
@@ -137,7 +152,7 @@ class CatchInterface(RosInterface):
 
         info = {'catch_success': catch_success, 'plan_results': plan_results}
 
-        return reward, plan_results.success, info
+        return reward, plan_success, info
 
 
 
