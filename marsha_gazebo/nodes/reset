@@ -65,14 +65,14 @@ ar3_pickup.position.y = -0.1
 ar3_pickup.position.z = 0.1
 
 arm2d2_fold = Pose()
-arm2d2_fold.position.x = -0.025
-arm2d2_fold.position.y = -0.22
+arm2d2_fold.position.x = -0.035
+arm2d2_fold.position.y = -0.20
 arm2d2_fold.position.z = 0.125
 
 other_fold = Pose()
-other_fold.position.x = -1 #-0.3
-other_fold.position.y = 0.22 #-0.1
-other_fold.position.z = 0.125 #0.1
+other_fold.position.x = -0.025
+other_fold.position.y = -0.205
+other_fold.position.z = 0.125
 
 
 
@@ -132,7 +132,7 @@ class l_dir:
 
 ar3_launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
 
-arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
+arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125)]#, l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
 
 
 def launcher(data):

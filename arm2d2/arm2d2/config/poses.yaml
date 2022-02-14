@@ -1,10 +1,10 @@
 left:
   num_joints: 6
   pose:
-    handoff:
+    post_throw:
       position:
         x: -0.003
-        y: 0.243
+        y: 0.23
         z: 0.132
       orientation:
         x: 0.0215694
@@ -12,16 +12,62 @@ left:
         z: 0.00727993
         w: 0.711407
 
-    pre_handoff:
+    pre_throw:
       position:
-        x: -0.003
-        y: 0.243
+        x: -0.1
+        y: 0.2
         z: 0.132
       orientation:
-        x: 0.00554178
-        y: -0.000009
-        z: -0.000007
-        w: 0.99998
+        x: 0.0215694
+        y: 0.702411
+        z: 0.00727993
+        w: 0.711407
+
+    avoidance_1:
+      position:
+        x: 0
+        y: 0.2
+        z: 0.2
+      orientation:
+        x: 1
+        y: 0
+        z: 0
+        w: 0
+
+    avoidance_2:
+      position:
+        x: 0.22098
+        y: 0.0346
+        z: 0.199
+      orientation:
+        x: 0.7945
+        y: 0
+        z: 0.607
+        w: 0
+
+    avoidance_3:
+      position:
+        x: 0.189
+        y: -0.179
+        z: 0.208
+      orientation:
+        x: 0.794
+        y: 0
+        z: 0.607
+        w: 0
+
+    avoidance_4:
+      position:
+        x: -0.0476
+        y: -0.249
+        z: 0.1329
+      orientation:
+        x: 0.9343
+        y: -0.0895
+        z: -0.0327
+        w: 0.3432
+
+
 
     straight:
       position:
@@ -43,11 +89,19 @@ left:
       - 0.0
 
     home:
-      - -0.1909
-      - 0.523599
-      - 2.1435
-      - 0
-      - -1.0472
+      - 0.314159
+      - 0.436332
+      - 2.25147
+      - 0.575959
+      - -1.13446
+
+    home2:
+      - -0.436332
+      - 0.401426
+      - 2.25147
+      - -0.279253
+      - -1.0821
+      - 0.10472
 
     folding:
       step_0:
@@ -83,16 +137,27 @@ left:
 right:
   num_joints: 6
   pose:
-    pre_handoff:
+    catch:
       position:
-        x: 0.1401
-        y: 0.243
-        z: 0.132
+        x: 0.27
+        y: 0.2075
+        z: 0.12
       orientation:
-        x: 0.00554178
-        y: -0.000009
-        z: -0.000007
-        w: 0.99998
+        x: 0.708137
+        y: 0
+        z: -0.706075
+        w: 0
+
+    pre_catch:
+      position:
+        x: 0.29
+        y: 0.2
+        z: 0.12
+      orientation:
+        x: 0.708137
+        y: 0
+        z: -0.706075
+        w: 0
 
   joints:
     straight:

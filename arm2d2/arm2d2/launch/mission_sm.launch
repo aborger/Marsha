@@ -1,0 +1,7 @@
+<launch>
+    <include file="$(find marsha_core)/launch/satlab_net.machine"/>
+    
+    <node ns="left" pkg="marsha_core" type="mission_sm" name="mission_sm" machine="jet2"/>
+    <node ns="right" pkg="marsha_core" type="mission_sm" name="mission_sm" machine="jet2"/>
+
+</launch>
