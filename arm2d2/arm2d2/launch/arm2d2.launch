@@ -9,7 +9,7 @@
   
 
   <group ns="$(arg ns)">
-    <rosparam param="IK_timeout">1</rosparam>
+    <rosparam param="IK_timeout">10</rosparam>
 
     <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch">
       <arg name="ns" value="$(arg ns)"/>
@@ -23,6 +23,7 @@
     </include>
 
     <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+    <node name="fold_interface" pkg="arm2d2" type="folding" machine="$(arg machine)"/>
 
     <include file="$(find tundra_gripper)/launch/gripper.launch">
       <arg name="machine" value="$(arg machine)"/>

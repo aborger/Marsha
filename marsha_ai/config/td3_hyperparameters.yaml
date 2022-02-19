@@ -1,4 +1,4 @@
 hyperparameters:
   total_timesteps: 10000 # Number of timesteps to train on
   eval_frequency: 50 # How many timesteps before evaluating
-  n_eval_ep: 1 # Number of evaluation episodes
+  n_eval_ep: 0 # Number of evaluation episodes
