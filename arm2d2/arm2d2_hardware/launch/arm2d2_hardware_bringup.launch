@@ -1,0 +1,23 @@
+<launch>
+    <arg name="machine" default="jet1"/>
+    <arg name="ns" default=""/>
+
+    <rosparam file="$(find arm2d2_hardware)/config/controllers.yaml" command="load"/>
+    <rosparam file="$(find arm2d2_moveit_config)/config/joint_limits.yaml" command="load"/>
+
+    <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns)"/>
+
+    <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen" machine="$(arg machine)">
+        <param name="port" value="/dev/ttyACM0"/>
+        <param name="baud" value="115200"/>
+    </node>
+
+    <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="/arm2d2/controllers/state
+              /arm2d2/controllers/position"
+        machine="$(arg machine)"/>
+
+</launch>
+
