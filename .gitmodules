@@ -1,3 +1,0 @@
-[submodule "marsha_detection/src/Mask_RCNN"]
-	path = marsha_detection/src/Mask_RCNN
-	url = https://github.com/matterport/Mask_RCNN

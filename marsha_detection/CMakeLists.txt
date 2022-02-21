@@ -22,6 +22,7 @@ include_directories(
 
 catkin_install_python(
     PROGRAMS
-        scripts/marsha_locate.py
+        scripts/locate
+        scripts/train
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

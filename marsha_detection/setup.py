@@ -4,7 +4,7 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 setup_args = generate_distutils_setup(
-    packages=['marsha_detection', 'Mask_RCNN'],
+    packages=['marsha_detection', 'mrcnn'],
     package_dir={'': 'src'}
 )
 

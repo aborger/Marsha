@@ -1,0 +1,8 @@
+<launch>
+
+    <node name="trainer" pkg="marsha_detection" type="train"
+    args="train --dataset=/home/cyborg/catkin_ws/src/marsha/marsha_detection/ai/datasets
+    --weights=/home/cyborg/catkin_ws/src/marsha/marsha_detection/ai/models/ball_model.h5
+    --subset=train"/>
+
+</launch>
