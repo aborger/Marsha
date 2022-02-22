@@ -28,10 +28,11 @@ def grasp_planning():
     grasp = pre_grasp
     grasp.position.z = 0.2
 
-    time_offset = Time(rospy.Time.now() + rospy.Duration(10))
-    grasp_time = Float32(0.5)
+    time_offset = Time(rospy.Time.now() + rospy.Duration(940))
+    grasp_time = Float32(0)
 
-    plan_grasp(pre_grasp, grasp, time_offset, grasp_time)
+    response = plan_grasp(pre_grasp, grasp, time_offset, grasp_time)
+    print(response)
 
 
 if __name__ == "__main__":

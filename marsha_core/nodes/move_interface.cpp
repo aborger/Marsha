@@ -210,9 +210,10 @@ class MarshaMoveInterface {
             // TODO: Plan preGrasp and grasp simultaneously
             // Current method plans pregrasp then grasp if successfull, this causes the arm to move to preGrasp even if postGrasp isnt possible
             if (res.pre_grasp_success) {
+                ROS_INFO("Pre grasp success");
                 move_group->execute(grasp_plan.pre_grasp);
                 
-                /* An attempt at constraining to the grasp vector. It did not work very well.
+                // An attempt at constraining to the grasp vector. It doesnt work great, but is ok for now I suppose
                 moveit_msgs::OrientationConstraint ocm;
                 ocm.link_name = "gripper_connector";
                 ocm.header.frame_id = "world";
@@ -228,6 +229,34 @@ class MarshaMoveInterface {
 
                 robot_state::RobotState start_state(*move_group->getCurrentState());
                 move_group->setStartState(start_state);
+                
+
+                /* Other constraint method
+                planning_interface::MotionPlanRequest motionReq;
+                planning_interface::MotionPlanResponse motionRes;
+                planning_interface::PlannerManagerPtr planner_interface;
+                geometry_msgs::PoseStamped grasp_pose;
+
+                motionReq.group_name = ARM_PLANNING_GROUP;
+                grasp_pose.header.frame_id = "base_link";
+                std::vector<double> tolerance_pose(3, 0.01);
+                std::vector<double> tolerance_angle(3, 0.01);
+
+                grasp_pose.pose = req.Grasp;
+                moveit_msgs::Constrains grasp_pose_goal = 
+                    kinematic_constraints::constructGoalConstraints("gripper_connector", grasp_pose, tolerance_pose, tolerance_angle);
+
+                // Add path constraint
+                geometry_msgs::QuaternionStamped constraint_quaternion;
+                constraint_quaternion.header.frame_id = "base_link";
+                constraint_quaternion.quaternion = req.Grasp.orientation;
+                req.path_constraints = kinematic_constraints::constructGoalConstraints("gripper_connector", constraint_quaternion);
+                
+                // Set bounding box for arm workspace from (-1, 1) for all directions.
+                req.workspace_parameters.min_corner.x = req.workspace_parameters.min_corner.y = req.workspace_parameters.min_corner.z = -1.0;
+                req.workspace_parameters.max_corner.x = req.workspace_parameters.max_corner.y = req.workspace_parameters.max_corner.z = 1.0;
+
+                planning_interfacce::PlanningContextPtr context = 
                 */
 
                 move_group->setPoseTarget(req.Grasp);
@@ -236,6 +265,7 @@ class MarshaMoveInterface {
 
                 // Perform grasp if successful
                 if (res.grasp_success) {
+                    ROS_INFO("Grasp success");
                     ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_to_maneuver.data.toSec());
                     while (ros::Time::now() < req.time_to_maneuver.data) {
                         // Not a good way of waiting because it blocks
@@ -248,7 +278,10 @@ class MarshaMoveInterface {
                     res.gripper_success = grasp("close");
                 }
 
+                move_group->clearPathConstraints();
+
             }
+
             return true;
         }
 
