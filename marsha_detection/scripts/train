@@ -38,7 +38,8 @@ print("Mask_RCNN Imported")
 # Path to trained wights file
 COCO_WEIGHTS_PATH = DETECTION_DIR + "models/mrcnn_coco.h5"
 COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
-SAVE_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model2.h5"
+TRAINING_ANNOTATION_FILE = "Balls_test.json"
+SAVE_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model3.h5"
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
@@ -138,7 +139,7 @@ class blossomDataset(utils.Dataset):
         print("Loading annotations...")
 
         # Load annotations
-        annotations = json.load(open(os.path.join(dataset_dir, "Balls.json")))
+        annotations = json.load(open(os.path.join(dataset_dir, TRAINING_ANNOTATION_FILE)))
         annotations = annotations['_via_img_metadata']
         annotations = list(annotations.values())
 

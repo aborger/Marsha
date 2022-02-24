@@ -27,6 +27,7 @@ add_service_files(
     StateComm.srv
     GenerateGrasp.srv
     PostureCmd.srv
+    GetFrame.srv
 )
 
 add_action_files(
