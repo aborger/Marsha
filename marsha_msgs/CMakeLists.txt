@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(marsha_msgs)  
+project(marsha_msgs)
 
 find_package(catkin REQUIRED
     COMPONENTS
@@ -26,10 +26,8 @@ add_service_files(
     Reset.srv
     StateComm.srv
     GenerateGrasp.srv
-    PostureCmd.srv 
-    PredictPosition.srv
-    PlanGrasp.srv 
-    ObjectObservation.srv   
+    PostureCmd.srv
+    GetFrame.srv
 )
 
 add_action_files(
