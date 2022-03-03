@@ -15,7 +15,7 @@ include_directories(include)
 
 catkin_package(
     CATKIN_DEPENDS
-        rospy
+        rospy 
 )
 
 include_directories(
@@ -27,5 +27,7 @@ catkin_install_python(
         scripts/locate
         scripts/train
         scripts/record
+        scripts/view
+        scripts/smoother
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

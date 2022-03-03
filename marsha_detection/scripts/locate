@@ -13,7 +13,14 @@ import cv2
 
 from marsha_detection import *
 
+from std_msgs.msg import UInt8
+from std_msgs.msg import UInt32
+from std_msgs.msg import Int16
+
+from geometry_msgs.msg import Point
+
 from marsha_msgs.srv import GetFrame
+from marsha_msgs.srv import GetDepth
 
 
 
@@ -23,7 +30,7 @@ BALL_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model2.h5"
 LOGS_DIR = DETECTION_DIR + "logs"
 COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
 
-DETECTION_THRESHOLD = 0.92
+DETECTION_THRESHOLD = 0.9
 
 MODEL_PATH = None
 CONFIG = None
@@ -61,6 +68,9 @@ class cocoConfig(Config):
     DETECTION_MIN_CONFIDENCE = 0
 
     USE_MINI_MASK = True
+
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
 
 class ballConfig(Config):
     """Configuration for training on balls
@@ -111,34 +121,48 @@ def draw_box(frame, bounding_boxes, class_ids):
         cv2.line(frame, (x1, y1), (x1, y2), color, 1) # Left vertical
         cv2.line(frame, (x2, y1), (x2, y2), color, 1) # Right vertical
 
-
-    cv2.imshow("Detection Frame", frame)
+    bigger_frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow("Detection Frame", bigger_frame)
 
 def draw_mask(frame, masks):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame_mask = np.zeros(shape=(masks[0].shape[0], masks[0].shape[1], 3), dtype=np.uint8)
-    for mask in masks:
-        bw_mask = mask*255
-        object_mask = np.zeros(shape=(bw_mask.shape[0], bw_mask.shape[1], 3))
-        object_mask[:,:,0] = bw_mask
-        object_mask[:,:,1] = bw_mask
-        object_mask[:,:,2] = bw_mask
+    person_detected = True
 
-        object_mask = object_mask.astype(np.uint8)  
-        single_mask = cv2.bitwise_and(frame, object_mask)
-        frame_mask = cv2.bitwise_or(frame_mask, single_mask)
+    try:
+        frame_mask = np.zeros(shape=(masks[0].shape[0], masks[0].shape[1], 3), dtype=np.uint8)
+        display_frame = None
 
-        mask_inv = cv2.bitwise_not(bw_mask)
-        mask_inv = mask_inv.astype(np.uint8)
-        gray_frame = cv2.bitwise_and(gray_frame, mask_inv)
+        for mask in masks:
+            bw_mask = mask*255
+            object_mask = np.zeros(shape=(bw_mask.shape[0], bw_mask.shape[1], 3))
+            object_mask[:,:,0] = bw_mask
+            object_mask[:,:,1] = bw_mask
+            object_mask[:,:,2] = bw_mask
+
+            object_mask = object_mask.astype(np.uint8)  
+            single_mask = cv2.bitwise_and(frame, object_mask)
+            frame_mask = cv2.bitwise_or(frame_mask, single_mask)
+
+            mask_inv = cv2.bitwise_not(bw_mask)
+            mask_inv = mask_inv.astype(np.uint8)
+            gray_frame = cv2.bitwise_and(gray_frame, mask_inv)
 
 
-    gray_frame = np.stack((gray_frame,)*3, axis=-1)
+        gray_frame = np.stack((gray_frame,)*3, axis=-1)
+    
+    except IndexError:
+        print('No people detected!')
+        person_detected = False
 
-    display_frame = gray_frame + frame_mask
+    if person_detected:
+        display_frame = gray_frame + frame_mask
+    else:
+        display_frame = frame
+
+    bigger_frame = cv2.resize(display_frame, (1280, 720))
 
 
-    cv2.imshow('Detection', display_frame)
+    cv2.imshow('Detection', bigger_frame)
 
 def draw_center(frame, bboxes, positions):
     for box, position in zip(bboxes, positions):
@@ -149,7 +173,8 @@ def draw_center(frame, bboxes, positions):
         cv2.line(frame, (cx, y1), (cx, y2), color, 1)
         cv2.line(frame, (x1, cy), (x2, cy), color, 1)
 
-    cv2.imshow('Detection', frame)
+    bigger_frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow('Detection', bigger_frame)
 
 
 
@@ -157,47 +182,6 @@ def draw_center(frame, bboxes, positions):
 ############################################################
 #  Detecting
 ############################################################
-
-def detect(model, frame):
-    # Note: You could detect using multiple frames to speed up
-    results = model.detect([frame])[0] # Returns dict with 'rois', 'class_ids', 'scores', 'masks'
-    num_detections = results['rois'].shape[0]
-
-    if not num_detections:
-        print("Nothing detected...")
-    else:
-        # Make sure everything is the same size
-        assert results['rois'].shape[0] == results['masks'].shape[-1] == results['class_ids'].shape[0]
-
-    print(results['masks'].shape)
-    boxes = []
-    IDs = []
-    masks = []
-    positions = []
-    for i in range(num_detections):
-        if not np.any(results['rois'][i]):
-            continue # This instance has no bbox
-    
-        class_id = results['class_ids'][i] - 1 # in results class_id of 0 is nothing, but in classes 
-        class_name = CLASSES[class_id]
-        y1, x1, y2, x2 = results['rois'][i]
-
-        frame_height, frame_width, _ = frame.shape
-        
-        if results['scores'][i] > DETECTION_THRESHOLD:
-            boxes.append([x1, y1, x2, y2])
-            IDs.append(class_id)
-            masks.append(results['masks'][:,:,i])
-            cx = (x1 + x2) // 2
-            cy = (y1 + y2) // 2
-            #depth = depth_frame[cy, cx]
-            #positions.append((cx, cy, depth))
-            print('Detected', class_name, 'at', '(', cx, cy, ')', 'with confidence', results['scores'][i])
-        
-    draw_box(frame, boxes, IDs)
-    #draw_mask(frame, masks)
-    #draw_center(frame, boxes, positions)
-
 
 def load_model():
     config = CONFIG()
@@ -212,61 +196,89 @@ def load_model():
     print("Weights loaded!")
     return model
 
-def main():
-    rospy.init_node('locate')
+class Locator():
+    def __init__(self):
+        rospy.init_node('locate')
 
-    rospy.wait_for_service('get_rgb_frame')
-    get_frame = rospy.ServiceProxy('get_rgb_frame', GetFrame)
+        rospy.wait_for_service('get_rgb_frame')
+        self.get_frame = rospy.ServiceProxy('get_rgb_frame', GetFrame)
 
-    model = load_model()
+        rospy.wait_for_service('get_depth')
+        self.get_depth = rospy.ServiceProxy('get_depth', GetDepth)
 
-    print('Running...')
-    while not rospy.is_shutdown():
-        multi_array_frame = get_frame().frame
-        frame_height = multi_array_frame.layout.dim[0].size
-        frame_width = multi_array_frame.layout.dim[1].size
-        frame_channels = multi_array_frame.layout.dim[2].size
+        self.pos_pub = rospy.Publisher('object_pos', Point, queue_size=10)
 
-        np_frame = np.array(list(multi_array_frame.data))
-        frame = np.reshape(np_frame, (frame_height, frame_width, frame_channels)).astype(np.uint8)
-
-        detect(model, frame)
-        #cv2.imshow('Detection', frame)
-
-        key = cv2.waitKey(1)
-        if key == 27:
-            break
-
-    cv2.destroyAllWindows()
+        self.model = load_model()
 
 
-if __name__ == "__main__":
-    main()
+    def detect(self, frame_id, frame):
+        # Note: You could detect using multiple frames to speed up
+        results = self.model.detect([frame])[0] # Returns dict with 'rois', 'class_ids', 'scores', 'masks'
+        num_detections = results['rois'].shape[0]
 
+        if not num_detections:
+            print("Nothing detected...")
+        else:
+            # Make sure everything is the same size
+            assert results['rois'].shape[0] == results['masks'].shape[-1] == results['class_ids'].shape[0]
 
+        #print(results['masks'].shape)
+        boxes = []
+        IDs = []
+        masks = []
+        positions = []
+        for i in range(num_detections):
+            if not np.any(results['rois'][i]):
+                continue # This instance has no bbox
+        
+            class_id = results['class_ids'][i] - 1 # in results class_id of 0 is nothing, but in classes 
+            class_name = CLASSES[class_id]
+            y1, x1, y2, x2 = results['rois'][i]
 
+            frame_height, frame_width, _ = frame.shape
+            
+            if results['scores'][i] > DETECTION_THRESHOLD and class_name == "person":
+                boxes.append([x1, y1, x2, y2])
+                IDs.append(class_id)
+                masks.append(results['masks'][:,:,i])
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
 
+                position = self.get_depth(frame_id, Int16(int(cx)), Int16(int(cy))).object_pos
+                #depth = depth_frame[cy, cx]
+                positions.append((cx, cy, position.z))
+                self.pos_pub.publish(position)
+                print('Detected', class_name, 'at', '(', position.x, position.y, position.z, ')', 'with confidence', results['scores'][i])
 
-    """
-    
+            
+        #draw_box(frame, boxes, IDs)
+        #draw_mask(frame, masks)
+        #draw_center(frame, boxes, positions)
 
-    try:
-        while True:
-            print('----------------- New Frame ------------------')
-            # Get frame from realsense camera
-            ret, bgr_frame, depth_frame = rs.get_frame_stream()
+    def run(self):
+        print('Running...')
+        while not rospy.is_shutdown():
+            frame_msg = self.get_frame()
+            multi_array_frame = frame_msg.frame
+            frame_height = multi_array_frame.layout.dim[0].size
+            frame_width = multi_array_frame.layout.dim[1].size
+            frame_channels = multi_array_frame.layout.dim[2].size
 
-            detect(model, bgr_frame, depth_frame)
+            np_frame = np.array(list(multi_array_frame.data))
+            frame = np.reshape(np_frame, (frame_height, frame_width, frame_channels)).astype(np.uint8)
+
+            
+            self.detect(frame_msg.frame_id, frame)
+            #cv2.imshow('Detection', frame)
 
             key = cv2.waitKey(1)
             if key == 27:
                 break
-    except Exception as e:
-        raise e
-    finally:
-        rs.release()
+
         cv2.destroyAllWindows()
 
-    rs.release()
-    cv2.destroyAllWindows()
-    """
+
+if __name__ == "__main__":
+    locator = Locator()
+    locator.run()
+
