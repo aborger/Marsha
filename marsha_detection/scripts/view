@@ -93,7 +93,9 @@ def main():
         np_frame = np.array(list(multi_array_frame.data))
         frame = np.reshape(np_frame, (frame_height, frame_width, frame_channels)).astype(np.uint8)
 
-        cv2.imshow('Detection', frame)
+        bigger_frame = cv2.resize(frame, (1280, 720))
+        cv2.imshow('Detection', bigger_frame)
+
 
         key = cv2.waitKey(1)
         if key == 27:

@@ -23,6 +23,9 @@ import datetime
 import numpy as np
 import skimage.draw
 import skimage.color, skimage.io, skimage.transform
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 from marsha_detection import *
 
@@ -38,7 +41,7 @@ print("Mask_RCNN Imported")
 # Path to trained wights file
 COCO_WEIGHTS_PATH = DETECTION_DIR + "models/mrcnn_coco.h5"
 COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
-TRAINING_ANNOTATION_FILE = "Balls_test.json"
+TRAINING_ANNOTATION_FILE = "train_balls.json"
 SAVE_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model3.h5"
 
 # Directory to save logs and model checkpoints, if not provided
@@ -58,7 +61,7 @@ class blossomConfig(Config):
     Overides Config values to blossom values
     """
     
-    NAME = "ball"
+    NAME = "ball_training"
     
 
     IMAGES_PER_GPU = 1
@@ -129,7 +132,7 @@ class blossomDataset(utils.Dataset):
         """
 
         print("Loading classes...")
-        # Add classes
+        # Add clannotationsasses
         self.load_classes()
 
         # Check if dataset is train or validation
@@ -139,14 +142,14 @@ class blossomDataset(utils.Dataset):
         print("Loading annotations...")
 
         # Load annotations
-        annotations = json.load(open(os.path.join(dataset_dir, TRAINING_ANNOTATION_FILE)))
+        annotations = json.load(open(os.path.join(dataset_dir, subset + ".json")))
         annotations = annotations['_via_img_metadata']
         annotations = list(annotations.values())
 
-        print("Annotations loaded")
-        
+        curr_image = 0
         # Add images
         for a in annotations:
+            print('Loading image', curr_image, 'of', len(annotations))
             # Get x, y coordinates of points on outline.
             if type(a['regions']) is dict:
                 polygons = [r['shape_attributes'] for r in a  ['regions'].values()]
@@ -156,6 +159,7 @@ class blossomDataset(utils.Dataset):
             # Load_mask() needs image size to convert polygons to masks.
             # Do this by reading image, only possible with small dataset
             image_path = os.path.join(dataset_dir, a['filename'])
+            print("path:", image_path)
             image = skimage.io.imread(image_path)
             height, width = image.shape[:2]
         
@@ -165,6 +169,11 @@ class blossomDataset(utils.Dataset):
                 path = image_path,
                 width = width, height = height,
                 polygons = polygons)
+
+            curr_image += 1
+
+        print("Annotations loaded!")
+        
         
     def load_mask(self, image_id):
         """Generates a mask for an image.

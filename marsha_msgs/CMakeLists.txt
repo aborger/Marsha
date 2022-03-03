@@ -28,6 +28,7 @@ add_service_files(
     GenerateGrasp.srv
     PostureCmd.srv
     GetFrame.srv  
+    GetDepth.srv 
 )
 
 add_action_files(

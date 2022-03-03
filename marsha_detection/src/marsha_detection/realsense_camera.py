@@ -25,6 +25,7 @@ class RealsenseCamera:
         aligned_frames = self.align.process(frames)
         depth_frame = aligned_frames.get_depth_frame()
         color_frame = aligned_frames.get_color_frame()
+
         
         if not depth_frame or not color_frame:
             # If there is no frame, probably camera not connected, return False
@@ -50,12 +51,17 @@ class RealsenseCamera:
         # print("distance", distance)
         depth_image = np.asanyarray(filled_depth.get_data())
         color_image = np.asanyarray(color_frame.get_data())
-
         # cv2.imshow("Colormap", depth_colormap)
         # cv2.imshow("depth img", depth_image)
 
-        return True, color_image, depth_image
-    
+        return True, color_image, depth_frame
+
+    def pixel_to_point(self, depth_frame, x_pix, y_pix):
+        depth = depth_frame.get_distance(x_pix, y_pix)
+        depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
+        point = rs.rs2_deproject_pixel_to_point(depth_intrin, [x_pix, y_pix], depth)
+        return point
+
     def release(self):
         self.pipeline.stop()
         #print(depth_image)
