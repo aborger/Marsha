@@ -132,7 +132,7 @@ class l_dir:
 
 ar3_launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
 
-arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125)]#, l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
+arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
 
 
 def launcher(data):

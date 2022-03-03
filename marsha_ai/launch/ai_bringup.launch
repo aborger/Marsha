@@ -9,6 +9,7 @@
     <arg name="robot" default="arm2d2"/>
     <include file="$(find arm2d2)/launch/simulate.launch">
         <arg name="top_plate" value="false"/>
+        <arg name="launch_base" value="false"/>
         <arg name="launch_rviz" value="false"/>
     </include>
 
