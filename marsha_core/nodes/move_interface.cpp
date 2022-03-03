@@ -30,6 +30,7 @@
 #include <string>
 
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 
 #include <marsha_msgs/MoveCmd.h>
 #include <marsha_msgs/PositionCmd.h>
@@ -71,7 +72,7 @@ class MarshaMoveInterface {
         ros::ServiceServer planGraspService;
         ros::ServiceServer toggleCollisionsService;
         //ros::Subscriber position_sub;
-        ros::Subscriber get_pose_sub;
+        ros::Subscriber get_obj_pos;
 
         ros::ServiceClient graspClient;
 
@@ -429,6 +430,40 @@ class MarshaMoveInterface {
             return true;
         }
 
+    void visualizeObject (const geometry_msgs::Point::ConstPtr& msg) {
+        ROS_INFO("Vizualizing...");
+        std::vector<std::string> object_ids;
+        object_ids.push_back("ball");
+        planning_scene_interface.removeCollisionObjects(object_ids);
+
+        std::vector<moveit_msgs::CollisionObject> collision_objects;
+        collision_objects.resize(1);
+
+        collision_objects[0].id = "ball";
+        collision_objects[0].header.frame_id = "base_link";
+
+        collision_objects[0].primitives.resize(1);
+        collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
+        collision_objects[0].primitives[0].dimensions.resize(3);
+        collision_objects[0].primitives[0].dimensions[0] = 0.1;
+        collision_objects[0].primitives[0].dimensions[1] = 0.1;
+        collision_objects[0].primitives[0].dimensions[2] = 0.2;
+
+        collision_objects[0].primitive_poses.resize(1);
+        collision_objects[0].primitive_poses[0].position.x = msg->x;
+        collision_objects[0].primitive_poses[0].position.y = msg->y;
+        collision_objects[0].primitive_poses[0].position.z = msg->z;
+        collision_objects[0].primitive_poses[0].orientation.x = 0;
+        collision_objects[0].primitive_poses[0].orientation.y = 0;
+        collision_objects[0].primitive_poses[0].orientation.z = 0;
+        collision_objects[0].primitive_poses[0].orientation.w = 1;
+
+
+        ROS_INFO("Object set at %f, %f, %f", msg->x, msg->y, msg->z);
+
+        planning_scene_interface.applyCollisionObjects(collision_objects);
+    }
+
     public:
         MarshaMoveInterface(ros::NodeHandle *nh) {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
@@ -451,7 +486,7 @@ class MarshaMoveInterface {
 
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
-            //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
+            get_obj_pos = nh->subscribe("/object_pos", 1000, &MarshaMoveInterface::visualizeObject, this);
 
             postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
