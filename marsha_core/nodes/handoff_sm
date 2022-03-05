@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# THIS NEEDS TO BE MOVED OUT OF AI PACKAGE
-
 import rospy
 import smach
 import smach_ros
@@ -261,6 +259,7 @@ class Arm_SM:
         else:
             self.get_recieve_sm()  
 
+        # Debug GUI
         sis = smach_ros.IntrospectionServer(rospy.get_namespace() + 'server_name', self.sm, rospy.get_namespace() + 'SM_ROOT')
         sis.start()
 

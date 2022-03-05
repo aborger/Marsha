@@ -14,6 +14,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
+/*
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 
@@ -21,20 +22,30 @@
 #include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
-
+*/
 #include <ros/ros.h>
-#include "geometry_msgs/Pose.h" // Replace with geometry_msgs/Pose.msg
-#include "marsha_msgs/MoveCmd.h"
-#include "marsha_msgs/PositionCmd.h"
-#include "marsha_msgs/GetPos.h"
-#include "marsha_msgs/PostureCmd.h"
-#include "marsha_msgs/PlanGrasp.h"
+#include <geometry_msgs/Pose.h>
 
 #include <std_msgs/Empty.h>
 #include <string>
 
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 
+#include <marsha_msgs/MoveCmd.h>
+#include <marsha_msgs/PositionCmd.h>
+#include <marsha_msgs/GetPos.h>
+#include <marsha_msgs/PostureCmd.h>
+#include <marsha_msgs/PlanGrasp.h>
+
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <trajectory_msgs/MultiDOFJointTrajectoryPoint.h>
+
+
+// Testing
+#include <iostream>
+#include <iterator>
+// ------
 
 #include <vector>
 
@@ -48,6 +59,9 @@ static const std::string ARM_PLANNING_GROUP = "manipulator";
 class MarshaMoveInterface {
     private:
         moveit::planning_interface::MoveGroupInterface* move_group;
+
+        // Used for toggling collision objects, could maybe be put in a different file
+        moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
         
         ros::ServiceServer poseService;
         ros::ServiceServer asyncPoseService;
@@ -56,8 +70,9 @@ class MarshaMoveInterface {
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
         ros::ServiceServer planGraspService;
+        ros::ServiceServer toggleCollisionsService;
         //ros::Subscriber position_sub;
-        ros::Subscriber get_pose_sub;
+        ros::Subscriber get_obj_pos;
 
         ros::ServiceClient graspClient;
 
@@ -65,6 +80,9 @@ class MarshaMoveInterface {
         std::string joint_param;
         
         int num_joints;
+
+        // Default RTT planning timeout
+        float ik_timeout;
 
 
         bool poseCmd(marsha_msgs::MoveCmd::Request &req,
@@ -132,6 +150,7 @@ class MarshaMoveInterface {
         }
 
         // Note: joint values in yaml file must be in radians
+        // Convert this to trajectory
         bool jointCmd(marsha_msgs::MoveCmd::Request &req,
                       marsha_msgs::MoveCmd::Response &res)
         {
@@ -168,39 +187,102 @@ class MarshaMoveInterface {
 
         }
 
+        // Moveit has cartesian path planning with waypoints, but either it is broken or I cannot get it to work
+        // Errors involve waypoints not stricly increasing in time and not having a reliable success rate for planning the path.
+        // Also moveit does not provide any documentation for how to execute the trajectory after planning it.
+
+        // Moveit RobotModel also provides a distance function between different states which could be usefull for ensuring the planned path
+        // is optimized to the shortest path
+
+    
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
-            std::string param = "open";
-            bool g_success = grasp(param);
+
+            // Open gripper before planning TODO: Ensure this does not block as that would slow down planning
+            bool g_success = grasp("open");
+
+            // Plan maneuver to preGrasp position
             move_group->setPoseTarget(req.preGrasp);
             GraspPlan grasp_plan;
+            res.pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS); // Plan and check if succeeded
+            ROS_INFO("Pre Grasp plan: %s", res.pre_grasp_success ? "SUCCESSFUL" : "FAILED");
 
-            bool pre_grasp_success = (move_group->plan(grasp_plan.pre_grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            if (pre_grasp_success) {
+
+            // TODO: Plan preGrasp and grasp simultaneously
+            // Current method plans pregrasp then grasp if successfull, this causes the arm to move to preGrasp even if postGrasp isnt possible
+            if (res.pre_grasp_success) {
+                ROS_INFO("Pre grasp success");
                 move_group->execute(grasp_plan.pre_grasp);
+                
+                // An attempt at constraining to the grasp vector. It doesnt work great, but is ok for now I suppose
+                moveit_msgs::OrientationConstraint ocm;
+                ocm.link_name = "gripper_connector";
+                ocm.header.frame_id = "world";
+                ocm.orientation = req.preGrasp.orientation;
+                ocm.absolute_x_axis_tolerance = 0.1;
+                ocm.absolute_y_axis_tolerance = 0.1;
+                ocm.absolute_z_axis_tolerance = 0.1;
+                ocm.weight = 1.0;
+
+                moveit_msgs::Constraints ee_constraint;
+                ee_constraint.orientation_constraints.push_back(ocm);
+                move_group->setPathConstraints(ee_constraint);
+
+                robot_state::RobotState start_state(*move_group->getCurrentState());
+                move_group->setStartState(start_state);
+                
+
+                /* Other constraint method
+                planning_interface::MotionPlanRequest motionReq;
+                planning_interface::MotionPlanResponse motionRes;
+                planning_interface::PlannerManagerPtr planner_interface;
+                geometry_msgs::PoseStamped grasp_pose;
+
+                motionReq.group_name = ARM_PLANNING_GROUP;
+                grasp_pose.header.frame_id = "base_link";
+                std::vector<double> tolerance_pose(3, 0.01);
+                std::vector<double> tolerance_angle(3, 0.01);
+
+                grasp_pose.pose = req.Grasp;
+                moveit_msgs::Constrains grasp_pose_goal = 
+                    kinematic_constraints::constructGoalConstraints("gripper_connector", grasp_pose, tolerance_pose, tolerance_angle);
+
+                // Add path constraint
+                geometry_msgs::QuaternionStamped constraint_quaternion;
+                constraint_quaternion.header.frame_id = "base_link";
+                constraint_quaternion.quaternion = req.Grasp.orientation;
+                req.path_constraints = kinematic_constraints::constructGoalConstraints("gripper_connector", constraint_quaternion);
+                
+                // Set bounding box for arm workspace from (-1, 1) for all directions.
+                req.workspace_parameters.min_corner.x = req.workspace_parameters.min_corner.y = req.workspace_parameters.min_corner.z = -1.0;
+                req.workspace_parameters.max_corner.x = req.workspace_parameters.max_corner.y = req.workspace_parameters.max_corner.z = 1.0;
+
+                planning_interfacce::PlanningContextPtr context = 
+                */
+
                 move_group->setPoseTarget(req.Grasp);
-                bool grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-                if (grasp_success) {
-                    param = "close";
-                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_offset.data.toSec());
-                    while (ros::Time::now() < req.time_offset.data) {
-                        // Not good way of waiting because it blocks
+                res.grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS); // Plan and check if succeeded
+                ROS_INFO("Grasp plan: %s", res.grasp_success ? "SUCCESSFUL" : "FAILED");
+
+                // Perform grasp if successful
+                if (res.grasp_success) {
+                    ROS_INFO("Grasp success");
+                    ROS_INFO("Now: %f, grasp: %f", ros::Time::now().toSec(), req.time_to_maneuver.data.toSec());
+                    while (ros::Time::now() < req.time_to_maneuver.data) {
+                        // Not a good way of waiting because it blocks
                         ros::Duration(0.1).sleep();
                     }
                     
+                    // Move to grasp, wait grasp time, then close gripper
                     move_group->asyncExecute(grasp_plan.grasp);
                     ros::Duration(req.grasp_time.data).sleep();
-                    g_success = grasp(param);
-
-                    res.success = true;
-                } else {
-                    res.success = false;
+                    res.gripper_success = grasp("close");
                 }
+
+                move_group->clearPathConstraints();
+
             }
-            else {
-                res.success = false;
-            }
-            
+
             return true;
         }
 
@@ -304,12 +386,90 @@ class MarshaMoveInterface {
             return true;
         }
 
+        // Request of on adds collision objects request of off removes them
+        // TODO: make this a bool service
+        // TODO: develop mechanism to prevent turning on if already on 
+        bool toggleCollisions(marsha_msgs::MoveCmd::Request &req,
+                              marsha_msgs::MoveCmd::Response &res) {
+            if (req.pose_name == "add") {
+                // Vector holds collision objects
+                std::vector<moveit_msgs::CollisionObject> collision_objects;
+                collision_objects.resize(1);
+
+                // Add payload divider
+                collision_objects[0].id = "payload_divider";
+                collision_objects[0].header.frame_id = "base_link";
+
+                collision_objects[0].primitives.resize(1);
+                collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
+                collision_objects[0].primitives[0].dimensions.resize(3);
+                collision_objects[0].primitives[0].dimensions[0] = 0.01;
+                collision_objects[0].primitives[0].dimensions[1] = 0.29;
+                collision_objects[0].primitives[0].dimensions[2] = 0.19;
+
+                collision_objects[0].primitive_poses.resize(1);
+                collision_objects[0].primitive_poses[0].position.x = 0.07;
+                collision_objects[0].primitive_poses[0].position.y = -0.09;
+                collision_objects[0].primitive_poses[0].position.z = 0.18;
+
+                planning_scene_interface.applyCollisionObjects(collision_objects);
+
+                res.done = true;
+
+            } 
+            else if (req.pose_name == "remove") {
+                std::vector<std::string> object_ids;
+                object_ids.push_back("payload_divider");
+                planning_scene_interface.removeCollisionObjects(object_ids);
+                res.done = true;
+            }
+            else {
+                ROS_WARN(" %s is not a toggleCollisions option. Only 'add' and 'remove' are allowed.", req.pose_name.c_str());
+                return false;
+            }
+            return true;
+        }
+
+    void visualizeObject (const geometry_msgs::Point::ConstPtr& msg) {
+        ROS_INFO("Vizualizing...");
+        std::vector<std::string> object_ids;
+        object_ids.push_back("ball");
+        planning_scene_interface.removeCollisionObjects(object_ids);
+
+        std::vector<moveit_msgs::CollisionObject> collision_objects;
+        collision_objects.resize(1);
+
+        collision_objects[0].id = "ball";
+        collision_objects[0].header.frame_id = "base_link";
+
+        collision_objects[0].primitives.resize(1);
+        collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
+        collision_objects[0].primitives[0].dimensions.resize(3);
+        collision_objects[0].primitives[0].dimensions[0] = 0.1;
+        collision_objects[0].primitives[0].dimensions[1] = 0.1;
+        collision_objects[0].primitives[0].dimensions[2] = 0.2;
+
+        collision_objects[0].primitive_poses.resize(1);
+        collision_objects[0].primitive_poses[0].position.x = msg->x;
+        collision_objects[0].primitive_poses[0].position.y = msg->y;
+        collision_objects[0].primitive_poses[0].position.z = msg->z;
+        collision_objects[0].primitive_poses[0].orientation.x = 0;
+        collision_objects[0].primitive_poses[0].orientation.y = 0;
+        collision_objects[0].primitive_poses[0].orientation.z = 0;
+        collision_objects[0].primitive_poses[0].orientation.w = 1;
+
+
+        ROS_INFO("Object set at %f, %f, %f", msg->x, msg->y, msg->z);
+
+        planning_scene_interface.applyCollisionObjects(collision_objects);
+    }
+
     public:
         MarshaMoveInterface(ros::NodeHandle *nh) {
             move_group = new moveit::planning_interface::MoveGroupInterface(ARM_PLANNING_GROUP);
             //hand_group = new moveit::planning_interface::MoveGroupInterface(GRIPPER_PLANNING_GROUP);
 
-            float ik_timeout;
+            
 
             ros::param::get(ros::this_node::getNamespace() + "/IK_timeout", ik_timeout);
             move_group->setPlanningTime(ik_timeout);
@@ -326,11 +486,13 @@ class MarshaMoveInterface {
 
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
-            //get_pose_sub = nh->subscribe("get_state", 1000, &MarshaMoveInterface::getPose, this);
+            get_obj_pos = nh->subscribe("/object_pos", 1000, &MarshaMoveInterface::visualizeObject, this);
 
             postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
             planGraspService = nh->advertiseService("plan_grasp", &MarshaMoveInterface::planGrasp, this);
+
+            toggleCollisionsService = nh->advertiseService("toggle_collisions", &MarshaMoveInterface::toggleCollisions, this);
 
             ros::param::get(ros::this_node::getNamespace() + "/num_joints", num_joints);
 

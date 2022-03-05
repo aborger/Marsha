@@ -15,6 +15,8 @@ find_package(catkin REQUIRED
         tf
 )
 
+catkin_python_setup()
+
 include_directories(include)
 
 catkin_package(
@@ -31,6 +33,7 @@ include_directories(
 
 catkin_install_python(
     PROGRAMS
+        nodes/mission_sm
         scripts/motor.py
         scripts/throw
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -8,6 +8,8 @@ catkin_package()
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 catkin_install_python(PROGRAMS
-    scripts/folding
+    scripts/fold_cmd
+    scripts/avoidance
+    nodes/folding
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

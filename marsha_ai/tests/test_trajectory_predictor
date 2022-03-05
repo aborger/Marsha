@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+import rospy
+
+from std_msgs.msg import Empty
+
+from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Vector3
+
+from marsha_msgs.srv import PredictPosition
+from marsha_msgs.srv import ObjectObservation
+
+rospy.init_node('trajectory_prediction_tester')
+
+rospy.wait_for_service('predict_position')
+predict_position = rospy.ServiceProxy('predict_position', PredictPosition)
+
+rospy.wait_for_service('observe_trajectory')
+observe_trajectory = rospy.ServiceProxy('observe_trajectory', ObjectObservation)
+
+object_pos_pub = rospy.Publisher('object_pos', Pose, queue_size=10)
+acceleration_pub = rospy.Publisher('acceleration', Vector3, queue_size=10)
+reset_pub = rospy.Publisher('reset', Empty, queue_size=10)
+
+
+def test():
+
+    reset_pub.publish()
+
+    acc = Vector3()
+    acc.x = 0
+    acc.y = 0
+    acc.z = 0
+
+    acceleration_pub.publish(acc)
+
+
+    for i in range(10):
+        obj_pos = Pose()
+        obj_pos.position.x = 0
+        obj_pos.position.y = i
+        obj_pos.position.z = 0
+        object_pos_pub.publish(obj_pos)
+
+        observation = observe_trajectory()
+        print('---------------')
+        print('obj pos:', obj_pos)
+        print('obs:', observation)
+
+    
+
+
+
+
+if __name__ == '__main__':
+    test()

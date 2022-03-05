@@ -15,17 +15,18 @@ async_pose_cmd = rospy.ServiceProxy('/left/async_pose_cmd', MoveCmd)
 rospy.wait_for_service('/left/gripper/grasp_cmd')
 grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
 
+rospy.wait_for_service('/left/folding')
+fold_cmd = rospy.ServiceProxy('/left/folding', MoveCmd)
+
 reset_pub = rospy.Publisher('/reset', Empty, queue_size=5)
 
 def throw():
     rospy.init_node('throw_controller')
     reset_pub.publish()
-    pose_cmd("preGrasp")
-    grasp_cmd("open")
-    pose_cmd("0g_pickup")
-    grasp_cmd("close")
-    pose_cmd("preThrow")
-    async_pose_cmd("postThrow")
+
+    fold_cmd('fold')
+    pose_cmd("pre_handoff")
+    async_pose_cmd("handoff")
     grasp_cmd("open")
 
 if __name__ == "__main__":

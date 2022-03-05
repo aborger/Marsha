@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import rospy
+
+from geometry_msgs.msg import Point
+from std_msgs.msg import Float64
+
+MOVING_AVG_NUM = 10
+
+class Smoother():
+    
+    def __init__(self):
+        rospy.init_node('dist_smoother')
+        rospy.Subscriber("/object_pos", Point, self.pos_callBack)
+
+        self.point_list = [0]
+
+        self.dist_pub = rospy.Publisher('obj_dist', Float64, queue_size=10)
+        print('Running...')
+        rospy.spin()
+
+    def pos_callBack(self, msg):
+        print('msg:', msg)
+        dist = msg.y
+
+        if dist > 3000 and dist < 5000:
+            self.point_list.append(dist)
+
+        if len(self.point_list) > MOVING_AVG_NUM:
+            self.point_list.pop(0)
+
+        avg = sum(self.point_list) / len(self.point_list)
+        print("Avg:", avg)
+        self.dist_pub.publish(avg)
+        
+
+
+if __name__ == "__main__":
+    smoother = Smoother()
