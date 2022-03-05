@@ -34,6 +34,7 @@ catkin_package(
         include
     LIBRARIES
         marsha_hardware_interface
+        arm2d2_hardware_interface
         marsha_hardware_driver
     CATKIN_DEPENDS
         hardware_interface
@@ -64,6 +65,9 @@ catkin_install_python(
 add_library(marsha_hardware_interface src/marsha_hardware_interface.cpp)
 target_link_libraries(marsha_hardware_interface ${catkin_LIBRARIES})
 
+add_library(arm2d2_hardware_interface src/arm2d2_hardware_interface.cpp)
+target_link_libraries(arm2d2_hardware_interface ${catkin_LIBRARIES})
+
 #add_executable(hardware_driver src/marsha_hardware_driver.cpp)
 add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_node.cpp)
 
@@ -74,6 +78,7 @@ add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_no
 
 target_link_libraries(marsha_hardware_interface_node 
     marsha_hardware_interface
+    arm2d2_hardware_interface
     #marsha_hardware_driver
     ${catkin_LIBRARIES}
 )
@@ -81,6 +86,7 @@ target_link_libraries(marsha_hardware_interface_node
 
 add_dependencies(marsha_hardware_interface_node 
     marsha_hardware_interface
+    arm2d2_hardware_interface
     #marsha_hardware_driver
     ${${PROJECT_NAME}_EXPORTED_TARGETS} 
     ${catkin_EXPORTED_TARGETS}
