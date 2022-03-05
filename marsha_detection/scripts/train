@@ -23,8 +23,7 @@ import datetime
 import numpy as np
 import skimage.draw
 import skimage.color, skimage.io, skimage.transform
-from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 
 from marsha_detection import *
@@ -95,8 +94,8 @@ class blossomConfig(Config):
 
     USE_MINI_MASK = True
     IMAGE_RESIZE_MODE = "square" # Pads width and height with zeros
-    IMAGE_MIN_DIM = 512
-    IMAGE_MAX_DIM = 512
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
     
     
 ############################################################

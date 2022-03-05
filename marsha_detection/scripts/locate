@@ -26,11 +26,11 @@ from marsha_msgs.srv import GetDepth
 
 # Define Constants
 COCO_MODEL_PATH = DETECTION_DIR + "models/mrcnn_coco.h5"
-BALL_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model2.h5"
+BALL_MODEL_PATH = DETECTION_DIR + "models/120_epoch_balls.h5"
 LOGS_DIR = DETECTION_DIR + "logs"
 COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
 
-DETECTION_THRESHOLD = 0.9
+DETECTION_THRESHOLD = 0.7
 
 MODEL_PATH = None
 CONFIG = None
@@ -38,15 +38,15 @@ CONFIG = None
 CLASSES = []
 COLORS = np.random.randint(0, 255, (90, 3))
 
-DETECTING_BALLS = False
+DETECTING_BALLS = True
 
 if DETECTING_BALLS:
     CLASSES.append("ball")
-else:
-    with open(COCO_CLASSES_PATH, "r") as file_object:
-        for class_name in file_object.readlines():
-            class_name = class_name.strip()
-            CLASSES.append(class_name)
+
+with open(COCO_CLASSES_PATH, "r") as file_object:
+    for class_name in file_object.readlines():
+        class_name = class_name.strip()
+        CLASSES.append(class_name)
 
 
 class cocoConfig(Config):
@@ -84,8 +84,7 @@ class ballConfig(Config):
     
     GPU_COUNT = 1
 
-    # Coco has 80 classes
-    NUM_CLASSES = 1 + 1
+    NUM_CLASSES = 1 + 81
 
     # Number of required detections per image
     DETECTION_MIN_CONFIDENCE = 0
@@ -237,7 +236,7 @@ class Locator():
 
             frame_height, frame_width, _ = frame.shape
             
-            if results['scores'][i] > DETECTION_THRESHOLD and class_name == "person":
+            if results['scores'][i] > DETECTION_THRESHOLD: # and class_name == "ball":
                 boxes.append([x1, y1, x2, y2])
                 IDs.append(class_id)
                 masks.append(results['masks'][:,:,i])
@@ -251,7 +250,7 @@ class Locator():
                 print('Detected', class_name, 'at', '(', position.x, position.y, position.z, ')', 'with confidence', results['scores'][i])
 
             
-        #draw_box(frame, boxes, IDs)
+        draw_box(frame, boxes, IDs)
         #draw_mask(frame, masks)
         #draw_center(frame, boxes, positions)
 

@@ -78,7 +78,7 @@ def draw_center(frame, bboxes, positions):
 
 
 def main():
-    rospy.init_node('locate')
+    rospy.init_node('view_depth_cam')
 
     rospy.wait_for_service('get_rgb_frame')
     get_frame = rospy.ServiceProxy('get_rgb_frame', GetFrame)
