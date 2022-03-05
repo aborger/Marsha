@@ -194,10 +194,10 @@ class MarshaMoveInterface {
         // Moveit RobotModel also provides a distance function between different states which could be usefull for ensuring the planned path
         // is optimized to the shortest path
 
-    
+        
         bool planGrasp(marsha_msgs::PlanGrasp::Request &req,
                        marsha_msgs::PlanGrasp::Response &res) {
-
+            /* Does not compile for some reason
             // Open gripper before planning TODO: Ensure this does not block as that would slow down planning
             bool g_success = grasp("open");
 
@@ -258,7 +258,7 @@ class MarshaMoveInterface {
                 req.workspace_parameters.max_corner.x = req.workspace_parameters.max_corner.y = req.workspace_parameters.max_corner.z = 1.0;
 
                 planning_interfacce::PlanningContextPtr context = 
-                */
+                
 
                 move_group->setPoseTarget(req.Grasp);
                 res.grasp_success = (move_group->plan(grasp_plan.grasp) == moveit::planning_interface::MoveItErrorCode::SUCCESS); // Plan and check if succeeded
@@ -282,7 +282,7 @@ class MarshaMoveInterface {
                 move_group->clearPathConstraints();
 
             }
-
+            */
             return true;
         }
 

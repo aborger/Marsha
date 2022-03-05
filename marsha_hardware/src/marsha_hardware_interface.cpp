@@ -1,4 +1,4 @@
-#include "marsha_hardware_interface.hpp"
+#include <marsha_hardware/marsha_hardware_interface.h>
 #include <std_msgs/MultiArrayDimension.h>
 #include <std_msgs/Bool.h>
 

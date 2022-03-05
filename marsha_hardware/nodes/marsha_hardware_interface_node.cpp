@@ -1,6 +1,6 @@
 #include <controller_manager/controller_manager.h>
-//#include "marsha_hardware_interface.hpp"
-#include "arm2d2_hardware_interface.hpp"
+//#include "marsha_hardware_interface.h"
+#include <marsha_hardware/arm2d2_hardware_interface.h>
 
 int main(int argc, char** argv)
 {
@@ -10,6 +10,7 @@ int main(int argc, char** argv)
 
     MarshaArm arm(nh);
 
+
     controller_manager::ControllerManager cm(&arm);
 
     ros::AsyncSpinner spinner(1);
@@ -18,6 +19,7 @@ int main(int argc, char** argv)
     ros::Time prev_time = ros::Time::now();
     ros::Rate rate(10.0);
 
+
     while(ros::ok()) {
         const ros::Time time = ros::Time::now();
         const ros::Duration period = time - prev_time;
@@ -25,6 +27,7 @@ int main(int argc, char** argv)
         arm.read();
 
         cm.update(time, period);
+
 
         arm.write();
 
