@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
         std_msgs
         hardware_interface
         controller_manager
+        control_msgs
 )
 
 # Boost
@@ -52,9 +53,11 @@ include_directories(
 )
 
 add_library(marsha_hardware_interface src/marsha_hardware_interface.cpp)
+add_dependencies(marsha_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(marsha_hardware_interface ${catkin_LIBRARIES})
 
 add_library(arm2d2_hardware_interface src/arm2d2_hardware_interface.cpp)
+add_dependencies(arm2d2_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(arm2d2_hardware_interface ${catkin_LIBRARIES})
 
 catkin_install_python(
@@ -70,7 +73,7 @@ catkin_install_python(
 
 
 add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_node.cpp)
-
-target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface marsha_hardware_interface ${catkin_LIBRARIES})
+add_dependencies(marsha_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface ${catkin_LIBRARIES})
 
 

@@ -24,7 +24,7 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
         joint_position_interface.registerHandle(position_handle);
 
     }
-    /*
+    
     int grip_id = NUM_JOINTS - 1;
     ROS_INFO("gripper name: %s", joint_names[grip_id].c_str());
     hardware_interface::JointStateHandle gripper_state_handle(joint_names[grip_id], &pos[grip_id], &vel[grip_id], &eff[grip_id]);
@@ -35,7 +35,7 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     registerInterface(&joint_state_interface);
     registerInterface(&joint_position_interface);
     registerInterface(&gripper_effort_handle);
-    */
+
     // Initialize output values
     for (int i = 0; i < NUM_JOINTS; i++) {
         pos[i] = 0.0;
@@ -49,13 +49,16 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
 
 void MarshaArm::read() {
     // Read encoders currently done in encoderCallBack
-    //for(int i = 0; i < 6; i++) {
-
-    //}
+    for(int i = 0; i < NUM_JOINTS; i++) {
+        pos[i] = 0.0;
+        vel[i] = 0.0;
+        eff[i] = 0.0;
+    }
 }
 
 void MarshaArm::write() {
 
+    ROS_INFO("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
     float deg_per_steps = 1.8;
     std_msgs::Int16 num_steps;
     num_steps.data = int(radToDeg(cmd[0]) / deg_per_steps);

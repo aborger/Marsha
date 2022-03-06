@@ -7,8 +7,7 @@
 
 #define SPIN_RATE       100
 #define FEEDBACK_RATE   1000000
-#define NUM_JOINTS      6
-
+#define NUM_JOINTS      4
 #define NUM_INFO        3
 #define DEBUG_STEPPER    3
 
@@ -74,6 +73,7 @@ void setup() {
 }
 
 void loop() {
+  
   // put your main code here, to run repeatedly:
   if (spinCounter > SPIN_RATE) {
     comm_handle.spin();

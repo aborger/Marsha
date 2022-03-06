@@ -34,7 +34,7 @@ class Interface():
                     bytesize = serial.EIGHTBITS,
                     parity = serial.PARITY_NONE,
                     stopbits = serial.STOPBITS_ONE,
-                    timeout = 0.01,
+                    timeout = 5,
                     xonxoff = False,
                     rtscts = False,
                     dsrdtr = False,
