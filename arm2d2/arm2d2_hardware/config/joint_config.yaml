@@ -1,0 +1,16 @@
+stepper_config:
+  num_joints: 6
+  joint_names:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - gripper_joint
+  deg_per_step:
+    - 1.0
+    - 1.0
+    - 1.0
+    - 1.0
+    - 1.0
+    - 1.0
