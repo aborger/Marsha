@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 arm2d2/controllers:
+=======
+/left/arm2d2/controllers:
+>>>>>>> c4a7e163cce220aed217432c8f714c396da78be7
   state:
     type: "joint_state_controller/JointStateController"
     publish_rate: 50

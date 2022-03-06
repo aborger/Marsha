@@ -1,0 +1,5 @@
+std_msgs/UInt32 frame_id
+std_msgs/Int16 x_pixel
+std_msgs/Int16 y_pixel
+---
+geometry_msgs/Point object_pos
