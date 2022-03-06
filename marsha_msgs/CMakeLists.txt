@@ -14,6 +14,7 @@ add_message_files(
     FILES
     Timer.msg
     Polar.msg
+    TeensyMsg.msg
 )
   
 add_service_files(
@@ -29,6 +30,7 @@ add_service_files(
     PostureCmd.srv
     GetFrame.srv  
     GetDepth.srv 
+
 )
 
 add_action_files(

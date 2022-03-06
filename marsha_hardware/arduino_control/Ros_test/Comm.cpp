@@ -61,7 +61,6 @@ void Comm::transmit(TxPacket tx) {
 
 
 void Comm::spin() {
-  digitalWrite(13, HIGH);
   if (Serial.available()) {
 
     char ch = Serial.read(); // Read a single character

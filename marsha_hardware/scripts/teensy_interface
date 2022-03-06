@@ -5,7 +5,7 @@ import serial
 import time
 import json
 
-from std_msgs.msg import Int16
+from marsha_msgs.msg import TeensyMsg
 
 class Interface():
 
@@ -17,12 +17,8 @@ class Interface():
         self.tx_cnt = 0
         self.connected = False
 
-        rospy.Subscriber('/steppers/J0/cmd', Int16, self.j0CmdCallback)
-        rospy.Subscriber('/steppers/J1/cmd', Int16, self.j1CmdCallback)
-        rospy.Subscriber('/steppers/J2/cmd', Int16, self.j2CmdCallback)
-        rospy.Subscriber('/steppers/J3/cmd', Int16, self.j3CmdCallback)
-        rospy.Subscriber('/steppers/J4/cmd', Int16, self.j4CmdCallback)
-        rospy.Subscriber('/steppers/grip/cmd', Int16, self.gripCmdCallback)
+        rospy.Subscriber('/teensy_cmd', Int16, self.teensyCmdCallback)
+        self.enc_pub = rospy.Publisher('/enc_feedback', TeensyMsg, queue_size=10)
 
         self.step_cmd = [0, 0, 0, 0, 0, 0]
 
@@ -48,26 +44,9 @@ class Interface():
                 time.sleep(1)
 
 
-    def j0CmdCallback(self, msg):
-        self.step_cmd[0] = msg.data
+    def teensyCmdCallback(self, msg):
+        self.step_cmd = msg.steps
 
-    def j1CmdCallback(self, msg):
-        self.step_cmd[1] = msg.data
-
-    def j2CmdCallback(self, msg):
-        self.step_cmd[2] = msg.data
-
-    def j3CmdCallback(self, msg):
-        self.step_cmd[3] = msg.data
-
-    def j4CmdCallback(self, msg):
-        self.step_cmd[4] = msg.data
-
-    def j5CmdCallback(self, msg):
-        self.step_cmd[5] = msg.data
-
-    def gripCmdCallback(self, msg):
-        self.step_cmd[6] = msg.data
 
     def transmit_step(self):
         data = {"steps": self.step_cmd}
@@ -104,10 +83,12 @@ class Interface():
                 try:
                     json_string = self.arduino.read(data_available).decode()
                     rx_dict = json.loads(json_string)
+                    encoders = rx_dict["enc_feedback"]
+                    self.enc_pub(encoders)
                     print ('Encoders: ' +  str(rx_dict["enc_feedback"]) +
-                          ' Step: ' +  str(rx_dict["curr_step"]) +
-                          ' Speed: ' + str(rx_dict["curr_speed"]) +
-                          ' Err Sum: ' + str(rx_dict["err_sum"]))
+                          ' Step: ' +  str(rx_dict["curr_step"]))
+                          #' Speed: ' + str(rx_dict["curr_speed"]) +
+                          #' Err Sum: ' + str(rx_dict["err_sum"]))
                 except: 
                     print("Error!")
         
