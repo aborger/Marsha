@@ -71,6 +71,6 @@ catkin_install_python(
 
 add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_node.cpp)
 
-target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface ${catkin_LIBRARIES})
+target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface marsha_hardware_interface ${catkin_LIBRARIES})
 
 

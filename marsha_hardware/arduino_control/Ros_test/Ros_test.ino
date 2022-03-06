@@ -14,8 +14,8 @@
 
 
 // Note: It should attempt to stay at zero when turned on, if it continuously spins in one direction, flip the direction
-//Stepper steppers[] = {Stepper(33, 34, 35, 22), Stepper(32, 31, 5, 4, true), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(12, 11, 40, 41), Stepper(26, 25)};
-Stepper steppers[] = {Stepper(23,22), Stepper(37,38), Stepper(35,36), Stepper(33,34)};
+Stepper steppers[] = {Stepper(33, 34, 21, 22), Stepper(32, 31, 19, 20), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(12, 11, 40, 41), Stepper(26, 25)};
+
 
 int led = 13;
 int spinCounter = 0;
@@ -64,9 +64,8 @@ void setup() {
 
   steppers[0].tune_controller(0.6, 0.00001, 20, 175);
   steppers[1].tune_controller(0.6, 0.00001, 40, 75);
-  steppers[2].tune_controller(0.6, 0.00001, 20, 40);
+  steppers[2].tune_controller(1, 0.0001, 10, 75);
   steppers[3].tune_controller(0.6, 0.00001, 10, 150);
-  steppers[4].tune_controller(0.6, 0.00001, 10, 150);
 
   Stepper::setSteppers(steppers, 6);
 

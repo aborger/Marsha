@@ -10,7 +10,7 @@
 #include <std_msgs/Int16.h>
 
 
-#define NUM_JOINTS 7
+#define NUM_JOINTS 6
 
 class MarshaArm : public hardware_interface::RobotHW 
 {

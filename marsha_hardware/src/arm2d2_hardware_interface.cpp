@@ -15,7 +15,8 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
 
     // Note: This should be put in a loop for each controller
 
-    for (int i = 0; i < NUM_JOINTS - 1; i++) {
+    for (int i = 0; i < NUM_JOINTS; i++) {
+        ROS_INFO("Initiallizing joint: %s", joint_names[i].c_str());
         hardware_interface::JointStateHandle state_handle(joint_names[i], &pos[i], &vel[i], &eff[i]);
         joint_state_interface.registerHandle(state_handle);
 
@@ -23,8 +24,9 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
         joint_position_interface.registerHandle(position_handle);
 
     }
-
+    /*
     int grip_id = NUM_JOINTS - 1;
+    ROS_INFO("gripper name: %s", joint_names[grip_id].c_str());
     hardware_interface::JointStateHandle gripper_state_handle(joint_names[grip_id], &pos[grip_id], &vel[grip_id], &eff[grip_id]);
     joint_state_interface.registerHandle(gripper_state_handle);
     hardware_interface::JointHandle gripper_effort_handle(gripper_state_handle, &cmd[grip_id]);
@@ -33,7 +35,7 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     registerInterface(&joint_state_interface);
     registerInterface(&joint_position_interface);
     registerInterface(&gripper_effort_handle);
-
+    */
     // Initialize output values
     for (int i = 0; i < NUM_JOINTS; i++) {
         pos[i] = 0.0;

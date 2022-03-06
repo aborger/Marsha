@@ -1,6 +1,6 @@
 #include <controller_manager/controller_manager.h>
-//#include "marsha_hardware_interface.h"
-#include <marsha_hardware/arm2d2_hardware_interface.h>
+#include "marsha_hardware/marsha_hardware_interface.h"
+//#include <marsha_hardware/arm2d2_hardware_interface.h>
 
 int main(int argc, char** argv)
 {
@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 
 
     while(ros::ok()) {
+        ROS_INFO("HW Interface running...");
         const ros::Time time = ros::Time::now();
         const ros::Duration period = time - prev_time;
 
