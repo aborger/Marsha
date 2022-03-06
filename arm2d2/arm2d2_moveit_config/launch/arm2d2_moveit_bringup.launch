@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="ns" default=""/>
+    <arg name="ns" default="left"/>
     <arg name="machine" default=""/>
     <arg name="launch_rviz" default="false"/>
 

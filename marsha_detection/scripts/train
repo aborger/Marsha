@@ -78,7 +78,7 @@ class blossomConfig(Config):
     
     # Minimum probability to be accepted as a detected object
     # Default = 0.7
-    # DETECTION_MIN_CONFIDENCE = 0.9
+    DETECTION_MIN_CONFIDENCE = 0.7
     
     # Number of validation steps run at the end of every training epoch.
     # Bigger number = greater accuracy, but slower training
@@ -86,7 +86,7 @@ class blossomConfig(Config):
     VALIDATION_STEPS = 10
     
     # Number of required detections per image
-    TRAIN_ROIS_PER_IMAGE = 10
+    #TRAIN_ROIS_PER_IMAGE = 10
 
     BATCH_SIZE = 1
 
