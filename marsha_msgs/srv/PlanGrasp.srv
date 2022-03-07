@@ -1,0 +1,8 @@
+geometry_msgs/Pose preGrasp
+geometry_msgs/Pose Grasp
+std_msgs/Time time_to_maneuver
+std_msgs/Float32 grasp_time
+---
+bool pre_grasp_success
+bool grasp_success
+bool gripper_success
