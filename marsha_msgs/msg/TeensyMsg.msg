@@ -1,1 +1,1 @@
-std_msgs/Int16[] steps
+int16[] steps
