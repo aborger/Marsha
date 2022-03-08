@@ -10,7 +10,6 @@
 
 import rospy
 from std_msgs.msg import Int16
-from marsha_msgs.msg import TeensyMsg
 from marsha_hardware.diablo.diabloStepper import Stepper
 import time
 
@@ -22,7 +21,7 @@ def rosCmdCallback(msg):
 
 rospy.init_node('diablo_controller')
 
-rospy.Subscriber("/diablo_cmd", TeensyMsg, rosCmdCallback)
+rospy.Subscriber("/diablo_cmd", Int16, rosCmdCallback)
 enc_pub = rospy.Publisher('/diablo_feedback', Int16, queue_size=10)
 
 
