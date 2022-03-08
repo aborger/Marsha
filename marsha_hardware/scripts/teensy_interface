@@ -17,7 +17,7 @@ class Interface():
         self.tx_cnt = 0
         self.connected = False
 
-        rospy.Subscriber('/teensy_cmd', Int16, self.teensyCmdCallback)
+        rospy.Subscriber('/teensy_cmd', TeensyMsg, self.teensyCmdCallback)
         self.enc_pub = rospy.Publisher('/enc_feedback', TeensyMsg, queue_size=10)
 
         self.step_cmd = [0, 0, 0, 0, 0, 0]
@@ -46,6 +46,7 @@ class Interface():
 
     def teensyCmdCallback(self, msg):
         self.step_cmd = msg.steps
+        print ('Command: ' +  str(msg.steps))
 
 
     def transmit_step(self):
@@ -84,13 +85,13 @@ class Interface():
                     json_string = self.arduino.read(data_available).decode()
                     rx_dict = json.loads(json_string)
                     encoders = rx_dict["enc_feedback"]
-                    self.enc_pub(encoders)
-                    print ('Encoders: ' +  str(rx_dict["enc_feedback"]) +
-                          ' Step: ' +  str(rx_dict["curr_step"]))
+                    self.enc_pub.publish(encoders)
+                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
+                          #' Step: ' +  str(rx_dict["curr_step"]))
                           #' Speed: ' + str(rx_dict["curr_speed"]) +
                           #' Err Sum: ' + str(rx_dict["err_sum"]))
-                except: 
-                    print("Error!")
+                except Exception as e: 
+                    print("Error:", e)
         
 
 if __name__ == "__main__":

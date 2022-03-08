@@ -4,18 +4,28 @@
 
 MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     nh = nh_;
-    //step_pub = nh.advertise<std_msgs::Int16MultiArray>("stepper_step", 10);
-    j0_step_pub = nh.advertise<std_msgs::Int16>("/steppers/J0/cmd", 10);
-    j1_step_pub = nh.advertise<std_msgs::Int16>("/steppers/J1/cmd", 10);
-    j2_step_pub = nh.advertise<std_msgs::Int16>("/steppers/J2/cmd", 10);
-    j3_step_pub = nh.advertise<std_msgs::Int16>("/steppers/J3/cmd", 10);
-    j4_step_pub = nh.advertise<std_msgs::Int16>("/steppers/J4/cmd", 10);
-    grip_pub = nh.advertise<std_msgs::Int16>("/steppers/grip/cmd", 10);
-    //ros::Subscriber enc_sub = nh.subscribe("encoder_feedback", 100, &MarshaArm::encoderCallBack, this);
+    
+    try {
+        ros::param::get("stepper_config/num_joints", num_joints);
+        ros::param::get("stepper_config/joint_names", joint_names);
+        ros::param::get("stepper_config/deg_per_step", deg_per_steps);
+    }
+    catch (int e) {
+        ROS_ERROR("Stepper Config Parameters Not Loaded!");
+    }
+
+    cmd.resize(num_joints);
+    pos.resize(num_joints);
+    vel.resize(num_joints);
+    eff.resize(num_joints);
+
+    step_pub = nh.advertise<marsha_msgs::TeensyMsg>("/teensy_cmd", 10);
+
+    ros::Subscriber enc_sub = nh.subscribe("enc_feedback", 100, &MarshaArm::encoderCallBack, this);
 
     // Note: This should be put in a loop for each controller
 
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < num_joints; i++) {
         ROS_INFO("Initiallizing joint: %s", joint_names[i].c_str());
         hardware_interface::JointStateHandle state_handle(joint_names[i], &pos[i], &vel[i], &eff[i]);
         joint_state_interface.registerHandle(state_handle);
@@ -25,7 +35,7 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
 
     }
     
-    int grip_id = NUM_JOINTS - 1;
+    int grip_id = num_joints - 1;
     ROS_INFO("gripper name: %s", joint_names[grip_id].c_str());
     hardware_interface::JointStateHandle gripper_state_handle(joint_names[grip_id], &pos[grip_id], &vel[grip_id], &eff[grip_id]);
     joint_state_interface.registerHandle(gripper_state_handle);
@@ -36,8 +46,9 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
     registerInterface(&joint_position_interface);
     registerInterface(&gripper_effort_handle);
 
-    // Initialize output values
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    // Initialize values
+    for (int i = 0; i < num_joints; i++) {
+        cmd[i] = 0.0;
         pos[i] = 0.0;
         vel[i] = 0.0;
         eff[i] = 0.0;
@@ -48,36 +59,40 @@ MarshaArm::MarshaArm(ros::NodeHandle &nh_) {
 }
 
 void MarshaArm::read() {
-    // Read encoders currently done in encoderCallBack
-    for(int i = 0; i < NUM_JOINTS; i++) {
-        pos[i] = 0.0;
-        vel[i] = 0.0;
-        eff[i] = 0.0;
-    }
+
 }
 
+// This math could be performed with a matrices for efficiency
 void MarshaArm::write() {
 
-    ROS_INFO("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
-    float deg_per_steps = 1.8;
-    std_msgs::Int16 num_steps;
-    num_steps.data = int(radToDeg(cmd[0]) / deg_per_steps);
-    j0_step_pub.publish(num_steps);
+    ROS_DEBUG("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
 
-    num_steps.data = int(radToDeg(cmd[1]) / deg_per_steps);
-    j1_step_pub.publish(num_steps);
+    marsha_msgs::TeensyMsg msg;
 
-    num_steps.data = int(radToDeg(cmd[2]) / deg_per_steps);
-    j2_step_pub.publish(num_steps);
+    for(int i = 0; i < num_joints; i++) {
+        short num_steps;
+        num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]);
+        ROS_INFO("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
+        msg.steps.push_back(num_steps);
+    }
 
-    num_steps.data = int(radToDeg(cmd[3]) / deg_per_steps);
-    j3_step_pub.publish(num_steps);
 
-    num_steps.data = int(radToDeg(cmd[4]) / deg_per_steps);
-    j4_step_pub.publish(num_steps);
+    step_pub.publish(msg);
+
+
+
     //grip_pub.publish(cmd[0]);
 
 
+}
+
+void MarshaArm::encoderCallBack(const marsha_msgs::TeensyMsg &msg) {
+
+    for(int i = 0; i < num_joints; i++) {
+        pos[i] = msg.steps[i] * deg_per_steps[i];
+        vel[i] = 0.0;
+        eff[i] = 0.0;
+    }
 }
 
 /*void MarshaArm::encoderCallBack(const std_msgs::Int16MultiArray &msg) {

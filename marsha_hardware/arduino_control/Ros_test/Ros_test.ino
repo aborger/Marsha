@@ -13,7 +13,7 @@
 
 
 // Note: It should attempt to stay at zero when turned on, if it continuously spins in one direction, flip the direction
-Stepper steppers[] = {Stepper(33, 34, 21, 22, true), Stepper(32, 31, 5, 4), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(12, 11, 40, 41), Stepper(26, 25)};
+Stepper steppers[] = {Stepper(33, 34, 21, 22, true), Stepper(32, 31, 7, 6), Stepper(30, 29, 17, 18, true), Stepper(28, 27, 15, 16), Stepper(12, 11, 40, 41), Stepper(26, 25)};
 //Stepper steppers[] = {Stepper(23, 22, 35, 21), Stepper(38, 37, 5, 4, true), Stepper(36, 35, 17, 18, true), Stepper(34, 33, 15, 16), Stepper(12, 11, 40, 41), Stepper(26, 25)};
 //Stepper steppers[] = {Stepper(23,22), Stepper(38,37), Stepper(36,35), Stepper(34,33)};
 
