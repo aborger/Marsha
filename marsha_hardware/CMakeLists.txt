@@ -52,9 +52,9 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-add_library(marsha_hardware_interface src/marsha_hardware_interface.cpp)
-add_dependencies(marsha_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(marsha_hardware_interface ${catkin_LIBRARIES})
+add_library(ar3_hardware_interface src/ar3_hardware_interface.cpp)
+add_dependencies(ar3_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(ar3_hardware_interface ${catkin_LIBRARIES})
 
 add_library(arm2d2_hardware_interface src/arm2d2_hardware_interface.cpp)
 add_dependencies(arm2d2_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -73,7 +73,6 @@ catkin_install_python(
 
 
 add_executable(marsha_hardware_interface_node nodes/marsha_hardware_interface_node.cpp)
-add_dependencies(marsha_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface ${catkin_LIBRARIES})
+target_link_libraries(marsha_hardware_interface_node arm2d2_hardware_interface ar3_hardware_interface ${catkin_LIBRARIES})
 
 

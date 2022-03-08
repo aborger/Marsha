@@ -1,5 +1,8 @@
-#ifndef ARM2D2_HARDWARE_INTERFACE_H
-#define ARM2D2_HARDWARE_INTERFACE_H
+#ifndef AR3_HARDWARE_INTERFACE_H
+#define AR3_HARDWARE_INTERFACE_H
+
+// Note: The only change from arm2d2 interface and ar3 is the use of the
+// diablo controller on joint 2
 
 #include <ros/ros.h>
 #include <hardware_interface/joint_state_interface.h>
@@ -11,21 +14,24 @@
 #include <marsha_msgs/TeensyMsg.h>
 
 
-class Arm2D2Interface : public hardware_interface::RobotHW 
+class AR3Interface : public hardware_interface::RobotHW 
 {
     public:
-        Arm2D2Interface(ros::NodeHandle &nh_);
-        ~Arm2D2Interface();
+        AR3Interface(ros::NodeHandle &nh_);
+        ~AR3Interface();
 
         void read();
         void write();
         void update(const ros::TimerEvent &e);
 
         void encoderCallBack(const marsha_msgs::TeensyMsg &msg);
+        void diabloCallBack(const std_msgs::Int16 &msg);
         //void graspCallBack(const std_msgs::Bool &msg);
     private:
         ros::NodeHandle nh;
         ros::Publisher step_pub;
+        ros::Publisher diablo_step_pub;
+        
 
         
         //ros::Subscriber grip_sub;

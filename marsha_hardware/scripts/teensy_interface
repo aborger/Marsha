@@ -20,7 +20,8 @@ class Interface():
         rospy.Subscriber('/teensy_cmd', TeensyMsg, self.teensyCmdCallback)
         self.enc_pub = rospy.Publisher('/enc_feedback', TeensyMsg, queue_size=10)
 
-        self.step_cmd = [0, 0, 0, 0, 0, 0]
+        #self.step_cmd = [0, 0, 0, 0, 0, 0]
+        self.step_cmd = [] # Replacing ^^ I just want to make sure it works first
 
         while not self.connected:
             try:

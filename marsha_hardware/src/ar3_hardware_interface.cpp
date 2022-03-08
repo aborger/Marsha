@@ -1,8 +1,8 @@
-#include <marsha_hardware/arm2d2_hardware_interface.h>
+#include <marsha_hardware/ar3_hardware_interface.h>
 
 
 
-Arm2D2Interface::Arm2D2Interface(ros::NodeHandle &nh_) {
+AR3Interface::AR3Interface(ros::NodeHandle &nh_) {
     nh = nh_;
     
     try {
@@ -20,8 +20,10 @@ Arm2D2Interface::Arm2D2Interface(ros::NodeHandle &nh_) {
     eff.resize(num_joints);
 
     step_pub = nh.advertise<marsha_msgs::TeensyMsg>("/teensy_cmd", 10);
+    diablo_step_pub = nh.advertise<std_msgs::Int16>("/diablo_cmd", 10);
 
-    ros::Subscriber enc_sub = nh.subscribe("enc_feedback", 100, &Arm2D2Interface::encoderCallBack, this);
+    ros::Subscriber enc_sub = nh.subscribe("enc_feedback", 100, &AR3Interface::encoderCallBack, this);
+    ros::Subscriber diablo_enc_sub = nh.subscribe("/diablo_feedback", 100, &AR3Interface::diabloCallBack, this);
 
     // Note: This should be put in a loop for each controller
 
@@ -58,12 +60,12 @@ Arm2D2Interface::Arm2D2Interface(ros::NodeHandle &nh_) {
 
 }
 
-void Arm2D2Interface::read() {
+void AR3Interface::read() {
 
 }
 
 // This math could be performed with a matrices for efficiency
-void Arm2D2Interface::write() {
+void AR3Interface::write() {
 
     ROS_DEBUG("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
 
@@ -73,7 +75,16 @@ void Arm2D2Interface::write() {
         short num_steps;
         num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]);
         ROS_INFO("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
-        msg.steps.push_back(num_steps);
+
+        if (i == 1) {
+            std_msgs::Int16 step_msg;
+            step_msg.data = num_steps;
+            diablo_step_pub.publish(step_msg);
+        }
+        else {
+            msg.steps.push_back(num_steps);
+        }
+        
     }
 
 
@@ -86,7 +97,7 @@ void Arm2D2Interface::write() {
 
 }
 
-void Arm2D2Interface::encoderCallBack(const marsha_msgs::TeensyMsg &msg) {
+void AR3Interface::encoderCallBack(const marsha_msgs::TeensyMsg &msg) {
 
     for(int i = 0; i < num_joints; i++) {
         pos[i] = msg.steps[i] * deg_per_steps[i];
@@ -95,7 +106,11 @@ void Arm2D2Interface::encoderCallBack(const marsha_msgs::TeensyMsg &msg) {
     }
 }
 
-/*void Arm2D2Interface::encoderCallBack(const std_msgs::Int16MultiArray &msg) {
+void AR3Interface::diabloCallBack(const std_msgs::Int16 &msg) {
+    pos[1] = msg.data * deg_per_steps[1];
+}
+
+/*void AR3Interface::encoderCallBack(const std_msgs::Int16MultiArray &msg) {
     // msg.data contains number of steps
     std::vector<float> deg_per_steps;
     ros::param::get("/ar3/stepper_config/deg_per_step", deg_per_steps);
@@ -104,12 +119,12 @@ void Arm2D2Interface::encoderCallBack(const marsha_msgs::TeensyMsg &msg) {
     }
 }*/
 
-double Arm2D2Interface::radToDeg(double rad) {
+double AR3Interface::radToDeg(double rad) {
 	return rad / M_PI * 180.0;
 }
 
-double Arm2D2Interface::degToRad(double deg) {
+double AR3Interface::degToRad(double deg) {
     return deg / 180.0 * M_PI;
 }
 
-Arm2D2Interface::~Arm2D2Interface() {}
+AR3Interface::~AR3Interface() {}

@@ -9,23 +9,27 @@
 # Author: Aaron Borger unfortunately...
 
 import rospy
-from std_msgs.msg import Int16MultiArray
+from std_msgs.msg import Int16
+from marsha_msgs.msg import TeensyMsg
 from marsha_hardware.diablo.diabloStepper import Stepper
 import time
 
-stepper = Stepper(28, 2.8, 0.9)
+stepper = Stepper(12, 2.8, 0.9)
 
 def rosCmdCallback(msg):
-    stepper.set_point(msg.data[1])
+    print('moving:', msg.steps[1])
+    stepper.set_point(msg.steps[1])
 
 rospy.init_node('diablo_controller')
 
-rospy.Subscriber("stepper_step", Int16MultiArray, rosCmdCallback)
+rospy.Subscriber("/diablo_cmd", TeensyMsg, rosCmdCallback)
+enc_pub = rospy.Publisher('/diablo_feedback', Int16, queue_size=10)
 
 
 def main():
     while not rospy.is_shutdown():
-        stepper.step()
+        curr_step = stepper.step()
+        enc_pub.publish(curr_step)
 
 
 if __name__ == "__main__":

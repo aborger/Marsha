@@ -111,6 +111,8 @@ class Stepper:
             sleep(self.stepDelay)
             self.current_step += dir
 
+        return self.current_step
+
     # Function to switch to holding power
     def HoldPosition(self):
         # For the current step set the required holding drive values

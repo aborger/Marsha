@@ -1,9 +1,12 @@
 #include <controller_manager/controller_manager.h>
-//#include "marsha_hardware/marsha_hardware_interface.h"
 #include <marsha_hardware/arm2d2_hardware_interface.h>
+#include <marsha_hardware/ar3_hardware_interface.h>
+
+typedef AR3Interface MarshaArm;
 
 int main(int argc, char** argv)
 {
+    
     ROS_INFO("Starting node");
     ros::init(argc, argv, "marsha_hardware_interface");
 
