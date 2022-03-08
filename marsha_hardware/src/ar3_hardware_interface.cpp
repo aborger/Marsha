@@ -19,11 +19,11 @@ AR3Interface::AR3Interface(ros::NodeHandle &nh_) {
     vel.resize(num_joints);
     eff.resize(num_joints);
 
-    step_pub = nh.advertise<marsha_msgs::TeensyMsg>("/teensy_cmd", 10);
-    diablo_step_pub = nh.advertise<std_msgs::Int16>("/diablo_cmd", 10);
+    step_pub = nh.advertise<marsha_msgs::TeensyMsg>("teensy_cmd", 10);
+    diablo_step_pub = nh.advertise<std_msgs::Int16>("diablo_cmd", 10);
 
     ros::Subscriber enc_sub = nh.subscribe("enc_feedback", 100, &AR3Interface::encoderCallBack, this);
-    ros::Subscriber diablo_enc_sub = nh.subscribe("/diablo_feedback", 100, &AR3Interface::diabloCallBack, this);
+    ros::Subscriber diablo_enc_sub = nh.subscribe("diablo_feedback", 100, &AR3Interface::diabloCallBack, this);
 
     // Note: This should be put in a loop for each controller
 

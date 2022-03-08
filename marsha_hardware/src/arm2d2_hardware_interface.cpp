@@ -19,7 +19,7 @@ Arm2D2Interface::Arm2D2Interface(ros::NodeHandle &nh_) {
     vel.resize(num_joints);
     eff.resize(num_joints);
 
-    step_pub = nh.advertise<marsha_msgs::TeensyMsg>("/teensy_cmd", 10);
+    step_pub = nh.advertise<marsha_msgs::TeensyMsg>("teensy_cmd", 10);
 
     ros::Subscriber enc_sub = nh.subscribe("enc_feedback", 100, &Arm2D2Interface::encoderCallBack, this);
 
