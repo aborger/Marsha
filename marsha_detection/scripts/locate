@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+
+# Replace mrcnn with https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/install.html
 # This file should be adapted to use oop
 import os
 import sys
@@ -26,11 +28,11 @@ from marsha_msgs.srv import GetDepth
 
 # Define Constants
 COCO_MODEL_PATH = DETECTION_DIR + "models/mrcnn_coco.h5"
-BALL_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model2.h5"
+BALL_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model.h5"
 LOGS_DIR = DETECTION_DIR + "logs"
 COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
 
-DETECTION_THRESHOLD = 0.9
+DETECTION_THRESHOLD = 0.8
 
 MODEL_PATH = None
 CONFIG = None
@@ -38,7 +40,7 @@ CONFIG = None
 CLASSES = []
 COLORS = np.random.randint(0, 255, (90, 3))
 
-DETECTING_BALLS = False
+DETECTING_BALLS = True
 
 if DETECTING_BALLS:
     CLASSES.append("ball")
@@ -84,16 +86,15 @@ class ballConfig(Config):
     
     GPU_COUNT = 1
 
-    # Coco has 80 classes
     NUM_CLASSES = 1 + 1
 
     # Number of required detections per image
-    DETECTION_MIN_CONFIDENCE = 0
+    DETECTION_MIN_CONFIDENCE = 0.9
 
     USE_MINI_MASK = True
-    #IMAGE_RESIZE_MODE = "square" # Pads width and height with zeros
-    #IMAGE_MIN_DIM = 512
-    #IMAGE_MAX_DIM = 512
+    IMAGE_RESIZE_MODE = "square" # Pads width and height with zeros
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
 
 if DETECTING_BALLS:
     MODEL_PATH = BALL_MODEL_PATH
@@ -208,7 +209,7 @@ class Locator():
 
         self.pos_pub = rospy.Publisher('object_pos', Point, queue_size=10)
 
-        self.model = load_model()
+        #self.model = load_model()
 
 
     def detect(self, frame_id, frame):
@@ -237,7 +238,7 @@ class Locator():
 
             frame_height, frame_width, _ = frame.shape
             
-            if results['scores'][i] > DETECTION_THRESHOLD and class_name == "person":
+            if results['scores'][i] > DETECTION_THRESHOLD: # and class_name == "ball":
                 boxes.append([x1, y1, x2, y2])
                 IDs.append(class_id)
                 masks.append(results['masks'][:,:,i])
@@ -251,9 +252,56 @@ class Locator():
                 print('Detected', class_name, 'at', '(', position.x, position.y, position.z, ')', 'with confidence', results['scores'][i])
 
             
-        #draw_box(frame, boxes, IDs)
+        draw_box(frame, boxes, IDs)
         #draw_mask(frame, masks)
         #draw_center(frame, boxes, positions)
+
+    def detect_color(self, frame_id, frame):
+        #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_bound = np.array([10, 10, 120])
+        upper_bound = np.array([50, 50, 255])
+
+        mask = cv2.inRange(frame, lower_bound, upper_bound)
+
+        kernel = np.ones((7,7), np.uint8)
+
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+        # Contains the elements of pixels for everywhere the ball is
+        ball_pixels = np.where(mask)
+
+        color = (0, 255, 0)
+        """
+        try:
+            y1 = np.min(ball_pixels[0])
+            y2 = np.max(ball_pixels[0])
+
+            x1 = np.min(ball_pixels[1])
+            x2 = np.max(ball_pixels[1])
+
+            cv2.line(frame, (x1, y1), (x2, y1), color, 1) # Top horizontal
+            cv2.line(frame, (x1, y2), (x2, y2), color, 1) # Bottom horizontal
+            cv2.line(frame, (x1, y1), (x1, y2), color, 1) # Left vertical
+            cv2.line(frame, (x2, y1), (x2, y2), color, 1) # Right vertical
+
+            cx = (x1 + x2) // 2
+            cy = (y1 + y2) // 2
+
+            position = self.get_depth(frame_id, Int16(int(cx)), Int16(int(cy))).object_pos
+            self.pos_pub.publish(position)
+
+            print('Detected ball at', '(', position.x, position.y, position.z, ')')
+        except ValueError:
+            print('No object')
+        """
+
+        #contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #output = cv2.drawContours(frame, contours, -1, (0, 255, 0), 2)
+
+        bigger_frame = cv2.resize(mask, (1280, 720))
+        cv2.imshow('Detection', bigger_frame)
+
 
     def run(self):
         print('Running...')
@@ -268,7 +316,7 @@ class Locator():
             frame = np.reshape(np_frame, (frame_height, frame_width, frame_channels)).astype(np.uint8)
 
             
-            self.detect(frame_msg.frame_id, frame)
+            self.detect_color(frame_msg.frame_id, frame)
             #cv2.imshow('Detection', frame)
 
             key = cv2.waitKey(1)

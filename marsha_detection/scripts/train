@@ -23,8 +23,7 @@ import datetime
 import numpy as np
 import skimage.draw
 import skimage.color, skimage.io, skimage.transform
-from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 
 from marsha_detection import *
@@ -79,7 +78,7 @@ class blossomConfig(Config):
     
     # Minimum probability to be accepted as a detected object
     # Default = 0.7
-    # DETECTION_MIN_CONFIDENCE = 0.9
+    DETECTION_MIN_CONFIDENCE = 0.7
     
     # Number of validation steps run at the end of every training epoch.
     # Bigger number = greater accuracy, but slower training
@@ -87,7 +86,7 @@ class blossomConfig(Config):
     VALIDATION_STEPS = 10
     
     # Number of required detections per image
-    TRAIN_ROIS_PER_IMAGE = 10
+    #TRAIN_ROIS_PER_IMAGE = 10
 
     BATCH_SIZE = 1
 
@@ -95,8 +94,8 @@ class blossomConfig(Config):
 
     USE_MINI_MASK = True
     IMAGE_RESIZE_MODE = "square" # Pads width and height with zeros
-    IMAGE_MIN_DIM = 512
-    IMAGE_MAX_DIM = 512
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
     
     
 ############################################################

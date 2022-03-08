@@ -7,7 +7,7 @@ find_package(catkin REQUIRED
         std_msgs
 )
 
-find_package(OpenCV)
+find_package(OpenCV 3 REQUIRED)
 
 catkin_python_setup()
 
