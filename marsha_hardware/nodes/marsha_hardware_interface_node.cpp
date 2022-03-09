@@ -2,7 +2,7 @@
 #include <marsha_hardware/arm2d2_hardware_interface.h>
 #include <marsha_hardware/ar3_hardware_interface.h>
 
-typedef AR3Interface MarshaArm;
+typedef Arm2D2Interface MarshaArm;
 
 int main(int argc, char** argv)
 {
