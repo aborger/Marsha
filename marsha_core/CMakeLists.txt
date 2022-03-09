@@ -36,6 +36,7 @@ catkin_install_python(
         nodes/mission_sm
         scripts/motor.py
         scripts/throw
+        scripts/follow_ball
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

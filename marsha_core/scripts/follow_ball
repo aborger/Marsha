@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+import rospy
+import math
+from random import uniform
+
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Pose
+
+from marsha_msgs.srv import PostureCmd
+from marsha_msgs.srv import GenerateGrasp
+
+
+FOLLOW_DELAY = 10
+
+def object_to_world(obj_space, obj_pos):
+    world = Pose()
+    world.position.x = obj_pos.x + obj_space.position.x
+    world.position.y = obj_pos.y + obj_space.position.y
+    world.position.z = obj_pos.z + obj_space.position.z
+    world.orientation = obj_space.orientation
+    return world
+
+class Follower():
+    def __init__(self):
+        rospy.init_node('follower')
+
+        rospy.wait_for_service('/left/posture_cmd')
+        self.posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
+
+        rospy.wait_for_service('generate_grasp')
+        self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
+
+        rospy.Subscriber('/object_pos', Point, self.pos_callBack)
+        print('Running')
+
+        rospy.spin()
+
+    # Should probably avg ball position
+    def pos_callBack(self, msg):
+        print('Pos:', msg)
+        r = 2
+        theta = uniform(0, math.pi)
+        phi = uniform(0, 2*math.pi)
+
+        print('theta:', theta, 'phi:', phi)
+
+        obj_space_grasp = self.generate_grasp(r, theta, phi).grasp
+        grasp = object_to_world(obj_space_grasp, msg)
+
+        print("grasp:", grasp)
+        self.posture_cmd(grasp)
+
+
+if __name__ == "__main__":
+    follower = Follower()
