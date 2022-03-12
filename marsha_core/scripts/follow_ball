@@ -28,8 +28,10 @@ class Follower():
         rospy.wait_for_service('/left/posture_cmd')
         self.posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
 
-        rospy.wait_for_service('generate_grasp')
-        self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
+        self.pose_delay = 0
+
+        #rospy.wait_for_service('generate_grasp')
+        #self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
 
         rospy.Subscriber('/object_pos', Point, self.pos_callBack)
         print('Running')
@@ -38,18 +40,33 @@ class Follower():
 
     # Should probably avg ball position
     def pos_callBack(self, msg):
-        print('Pos:', msg)
-        r = 2
-        theta = uniform(0, math.pi)
-        phi = uniform(0, 2*math.pi)
+        if self.pose_delay > 2:
+            pose = Pose()
+            pose.orientation.x = -0.999911
+            pose.orientation.y = 0.006463
+            pose.orientation.z = -0.007255
+            pose.orientation.w = -0.009191
 
-        print('theta:', theta, 'phi:', phi)
+            #pose.orientation.x = 1
+            #pose.orientation.y = 0
+            #pose.orientation.z = 0
+            #pose.orientation.w = 0
 
-        obj_space_grasp = self.generate_grasp(r, theta, phi).grasp
-        grasp = object_to_world(obj_space_grasp, msg)
+            #pose.orientation.x = 0
+            #pose.orientation.y = -1
+            #pose.orientation.z = 0
+            #pose.orientation.w = 0
 
-        print("grasp:", grasp)
-        self.posture_cmd(grasp)
+            pose.position = msg
+            pose.position.z = pose.position.z + 0.01
+
+
+            rospy.loginfo(pose)
+
+            self.posture_cmd(pose)
+            self.pose_delay = 0
+        else:
+            self.pose_delay += 1
 
 
 if __name__ == "__main__":

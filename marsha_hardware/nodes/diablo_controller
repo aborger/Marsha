@@ -25,6 +25,8 @@ rospy.Subscriber("diablo_cmd", Int16, rosCmdCallback)
 enc_pub = rospy.Publisher('diablo_feedback', Int16, queue_size=10)
 
 
+
+
 def main():
     while not rospy.is_shutdown():
         curr_step = stepper.step()

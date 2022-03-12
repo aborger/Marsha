@@ -18,6 +18,9 @@ DRIVE_LEVEL = 1.0
 HOLD_LEVEL = 1.0
 TOLERANCE = 1
 
+MIN_DELAY = 0.001
+MAX_DELAY = 0.005
+
 
 class Stepper:
     def __init__(self, voltageIn, stepperCurrent, stepperResistance):
@@ -73,6 +76,15 @@ class Stepper:
         self.desired_step = self.current_step + num_steps
         while (self.desired_step != self.current_step):
             self.step()
+
+    # speed is a value between 0 and 100
+    # maps 0 to max delay and 100 to min delay
+    def set_speed(self, speed):
+        self.stepDelay = speed * (MIN_DELAY - MAX_DELAY) / (100) + MAX_DELAY
+
+    def velPID(self):
+        error = abs(self.desired_step - self.current_step)
+
         
 
     def step(self):

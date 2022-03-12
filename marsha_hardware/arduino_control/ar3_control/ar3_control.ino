@@ -5,12 +5,12 @@
 #define BAUD_RATE     115200
 
 #define SPIN_RATE     100
-#define FEEDBACK_RATE 100000
+#define FEEDBACK_RATE 1000
 #define NUM_JOINTS    4
 
 
 
-Stepper steppers[] = {Stepper(23, 22), Stepper(21, 20), Stepper(36, 35), Stepper(34, 33)};
+Stepper steppers[] = {Stepper(23, 22), Stepper(21, 20), Stepper(36, 35), Stepper(34, 33)};// Stepper(30, 29, 38, 39)};
 
 int spinCounter = 0;
 int feedbackCounter = 0;
@@ -50,14 +50,16 @@ void setup() {
   steppers[1].tune_controller(1, 0, 75, 100);
   steppers[2].tune_controller(1, 0, 75, 100);
   steppers[3].tune_controller(1, 0, 100, 120); // 0, 1500 range
+  //steppers[4].tune_controller(0.9, 0.00001, 10, 20);
 
   Stepper::setSteppers(steppers, NUM_JOINTS);
   Stepper::stepper_power = true;
 }
 
 void loop() {
-
+  digitalWrite(13, HIGH);
   if (spinCounter > SPIN_RATE) {
+
     comm_handle.spin();
     spinCounter = 0;
   }

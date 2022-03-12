@@ -8,7 +8,7 @@
 #define RX_BUFFER_SIZE 200
 #define TX_BUFFER_SIZE 400
 
-#define DEFAULT_PACKET_SIZE   6
+#define DEFAULT_PACKET_SIZE   5
 
 
 class RxPacket {
