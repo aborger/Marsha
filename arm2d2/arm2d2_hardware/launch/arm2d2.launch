@@ -1,5 +1,6 @@
 <launch>
     <arg name="ns" default="left"/>
+    <arg name="jets" default="jet2"/>
 
     <group ns="$(arg ns)">
         <include file="$(find marsha_core)/launch/satlab_net.machine"/>
@@ -8,17 +9,17 @@
 
         
         <include file="$(find arm2d2_hardware)/launch/arm2d2_hardware_bringup.launch">
-            <arg name="machine" value="jet1"/>
+            <arg name="machine" value="$(arg jets)"/>
             <arg name="ns" value="$(arg ns)"/>
         </include>
         
 
         <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch">
-            <arg name="machine" value="jet1"/>
+            <arg name="machine" value="$(arg jets)"/>
             <arg name="ns" value="$(arg ns)"/>
             <arg name="launch_rviz" value="true"/>
         </include>
 
-        <node pkg="marsha_core" type="move_interface" name="move_interface" respawn="false" machine="jet1"/>
+        <node pkg="marsha_core" type="move_interface" name="move_interface" respawn="false" machine="$(arg jets)"/>
     </group>
 </launch>

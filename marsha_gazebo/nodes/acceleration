@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+import rospy
+
+from geometry_msgs.msg import Vector3
+from gazebo_msgs.srv import GetPhysicsProperties
+
+class AccelerationServer():
+    def __init__(self):
+        rospy.init_node('acceleration_publisher')
+
+        self.pub = rospy.Publisher('acceleration', Vector3, queue_size=10)
+        self.rate = rospy.Rate(5)
+
+        rospy.wait_for_service('gazebo_msgs/GetPhysicsProperties')
+
+        self.get_physics = rospy.ServiceProxy('gazebo_msgs/GetPhysicsProperties', GetPhysicsProperties)
+
+    def run(self):
+        while not rospy.is_shutdown():
+            gravity = self.get_physics().gravity
+
+            self.pub(gravity)
+            self.rate.sleep()
+
+if __name__ == '__main__':
+    server = AccelerationServer()
+
+    server.run()

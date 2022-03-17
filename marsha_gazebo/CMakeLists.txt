@@ -31,6 +31,7 @@ install(PROGRAMS
 catkin_install_python(PROGRAMS
     nodes/reset
     nodes/object_location
+    nodes/acceleration
     scripts/add_velocity
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

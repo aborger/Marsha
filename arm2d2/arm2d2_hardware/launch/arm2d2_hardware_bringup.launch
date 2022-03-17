@@ -11,10 +11,10 @@
 
     <node name="teensy_interface" pkg="marsha_hardware" type="teensy_interface" machine="$(arg machine)"/>
 
-
     <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
 
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/left"
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" ns="/left"
         args="--namespace=/left
               /$(arg ns)/arm2d2/controllers/state
               /$(arg ns)/arm2d2/controllers/position"
@@ -23,5 +23,6 @@
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
     <remap from="/joint_trajectory_action" to="/position_trajectory_controller/follow_joint_trajectory"/>
+
 </launch>
 

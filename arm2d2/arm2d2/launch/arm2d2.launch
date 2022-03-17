@@ -4,16 +4,18 @@
   <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
   <arg name="launch_world" default="true"/>
+  <arg name="include_arm_base" default="true"/>
   
 
   
 
   <group ns="$(arg ns)">
-    <rosparam param="IK_timeout">10</rosparam>
+    <rosparam param="IK_timeout">0.1</rosparam>
 
     <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch">
       <arg name="ns" value="$(arg ns)"/>
       <arg name="launch_world" value="$(arg launch_world)"/>
+      <arg name="include_arm_base" value="$(arg include_arm_base)"/>
     </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch">
