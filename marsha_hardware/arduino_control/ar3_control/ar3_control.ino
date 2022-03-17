@@ -5,12 +5,12 @@
 #define BAUD_RATE     115200
 
 #define SPIN_RATE     100
-#define FEEDBACK_RATE 1000
-#define NUM_JOINTS    4
+#define FEEDBACK_RATE 100000
+#define NUM_JOINTS    5
 
 
 
-Stepper steppers[] = {Stepper(23, 22), Stepper(21, 20), Stepper(36, 35), Stepper(34, 33)};// Stepper(30, 29, 38, 39)};
+Stepper steppers[] = {Stepper(33, 37), Stepper(38, 39), Stepper(40, 41), Stepper(2, 3), Stepper(4, 5)};// Stepper(30, 29, 38, 39)};
 
 int spinCounter = 0;
 int feedbackCounter = 0;
@@ -45,19 +45,17 @@ void setup() {
 
   comm_handle.set_callback(CMDCallback);
 
-  // Note: these are tuned for a Teensy 3.5 at 120 MHz clock speed
-  steppers[0].tune_controller(1, 0, 75, 100);
-  steppers[1].tune_controller(1, 0, 75, 100);
-  steppers[2].tune_controller(1, 0, 75, 100);
-  steppers[3].tune_controller(1, 0, 100, 120); // 0, 1500 range
-  //steppers[4].tune_controller(0.9, 0.00001, 10, 20);
+  steppers[0].tune_controller(1, 0, 10, 15);
+  steppers[1].tune_controller(1, 0, 30, 35);
+  steppers[2].tune_controller(1, 0, 10, 15);
+  steppers[3].tune_controller(1, 0, 10, 15);
+  steppers[4].tune_controller(1, 0, 10, 15);
 
   Stepper::setSteppers(steppers, NUM_JOINTS);
   Stepper::stepper_power = true;
 }
 
 void loop() {
-  digitalWrite(13, HIGH);
   if (spinCounter > SPIN_RATE) {
 
     comm_handle.spin();

@@ -189,13 +189,11 @@ void Stepper::step() {
 void Stepper::test_step() {
   desired_step = current_step + 20; // make it always move
   if (digitalRead(step_pin) == HIGH && timer > on_time) {
-    digitalWrite(13, LOW);
     digitalWrite(step_pin, LOW);
     timer = 0;
   }
   else {
     if (timer > off_time) {
-      digitalWrite(13, HIGH);
       if (current_step > desired_step - TOLERANCE && current_step < desired_step + TOLERANCE) {}
       else {
        

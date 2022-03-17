@@ -44,7 +44,7 @@ class Stepper {
     float K_P = 1;      // Default: 1
     float K_I = 0.0001; // Default: 0.0001  If its stuck use slower speed for more torque
     int max_delay = 60; // Default: 60      Delay that provides the most torque
-    int min_delay = 5;  // Default: 5       Fastest the joint can go // Default: 5
+    int min_delay = 5;  // Default: 5       Fastest the joint can go
     
     
 
