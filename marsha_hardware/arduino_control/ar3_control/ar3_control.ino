@@ -45,11 +45,11 @@ void setup() {
 
   comm_handle.set_callback(CMDCallback);
 
-  steppers[0].tune_controller(1, 0, 10, 15);
-  steppers[1].tune_controller(1, 0, 30, 35);
-  steppers[2].tune_controller(1, 0, 10, 15);
-  steppers[3].tune_controller(1, 0, 10, 15);
-  steppers[4].tune_controller(1, 0, 10, 15);
+  steppers[0].tune_controller(1.2, 0, 5, 100);
+  steppers[1].tune_controller(0.01, 0, 20, 200);
+  steppers[2].tune_controller(0.02, 0, 10, 200);
+  steppers[3].tune_controller(1, 0, 5, 100);
+  steppers[4].tune_controller(1, 0, 5, 30);
 
   Stepper::setSteppers(steppers, NUM_JOINTS);
   Stepper::stepper_power = true;

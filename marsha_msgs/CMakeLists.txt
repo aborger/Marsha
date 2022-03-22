@@ -13,8 +13,9 @@ find_package(catkin REQUIRED
 add_message_files(
     FILES
     Timer.msg
-    Polar.msg
+    Polar.msg 
     TeensyMsg.msg
+    ObjectEstimate.msg
 )
   
 add_service_files(
@@ -30,6 +31,7 @@ add_service_files(
     PostureCmd.srv
     GetFrame.srv  
     GetDepth.srv 
+    JointCmd.srv
 
 )
 

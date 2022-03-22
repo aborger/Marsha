@@ -7,9 +7,10 @@
 
 #define TOLERANCE    2
 #define TIMER_INTERVAL  10
+#define EULER   2.71828
 
 
-
+#define STEPS_FOR_MAX_SPEED   20000
 #define MAX_ERROR_SUM   1000
 
 #define STEPPER_POWER_PIN   23 // HIGH when steppers have power, allows encoder counting while off.
@@ -40,9 +41,17 @@ class Stepper {
 
     int DELAY = 30;     // Default: 30      default off_time delay      
 
-    // PID Controler
+    // Closed loop Controler
     float K_P = 1;      // Default: 1
     float K_I = 0.0001; // Default: 0.0001  If its stuck use slower speed for more torque
+
+
+   
+
+    // Time since achieving last setpoint (s)
+    int t = 0;          
+
+    // Delay
     int max_delay = 60; // Default: 60      Delay that provides the most torque
     int min_delay = 5;  // Default: 5       Fastest the joint can go
     
@@ -57,7 +66,6 @@ class Stepper {
     int lower_bound;
 
     int enc_step = 0;
-    int error;
     float enc_error;
     float error_sum = 0;
     int current_step = 0;
@@ -90,6 +98,7 @@ class Stepper {
     void step_w_encoder();
 
     void velPID();
+    void openController();
     
     void set_point(int step_position);
 

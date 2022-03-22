@@ -37,6 +37,7 @@
 #include <marsha_msgs/GetPos.h>
 #include <marsha_msgs/PostureCmd.h>
 #include <marsha_msgs/PlanGrasp.h>
+#include <marsha_msgs/JointCmd.h>
 
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/MultiDOFJointTrajectoryPoint.h>
@@ -65,7 +66,8 @@ class MarshaMoveInterface {
         
         ros::ServiceServer poseService;
         ros::ServiceServer asyncPoseService;
-        ros::ServiceServer jointService;
+        ros::ServiceServer jointPoseService;
+        ros::ServiceServer jointCmdService;
         ros::ServiceServer positionService;
         ros::ServiceServer getPosService;
         ros::ServiceServer postureService;
@@ -152,7 +154,7 @@ class MarshaMoveInterface {
 
         // Note: joint values in yaml file must be in radians
         // Convert this to trajectory
-        bool jointCmd(marsha_msgs::MoveCmd::Request &req,
+        bool jointPoseCmd(marsha_msgs::MoveCmd::Request &req,
                       marsha_msgs::MoveCmd::Response &res)
         {
             std::string param =  joint_param + req.pose_name + "/";
@@ -183,8 +185,34 @@ class MarshaMoveInterface {
                 return false;
             }
 
+        }
 
+        bool jointCmd(marsha_msgs::JointCmd::Request &req,
+                      marsha_msgs::JointCmd::Response &res) 
+        {
+            ROS_INFO("First angle: %f", req.joint_angle[0]);
+            std::vector<double> joint_group_positions;
 
+            for (int i = 0; i < 6; i++) {
+                joint_group_positions.push_back(req.joint_angle[i]);
+            }
+
+            move_group->setJointValueTarget(joint_group_positions);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool plan_success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_DEBUG("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
+
+            if (plan_success) {
+                move_group->execute(target_plan);
+                res.done = true;
+                return true;
+            }
+            else {
+                res.done = false;
+                return false;
+            }
 
         }
 
@@ -510,7 +538,9 @@ class MarshaMoveInterface {
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
             asyncPoseService = nh->advertiseService("async_pose_cmd", &MarshaMoveInterface::asyncPoseCmd, this);
 
-            jointService = nh->advertiseService("joint_cmd", &MarshaMoveInterface::jointCmd, this);
+            jointPoseService = nh->advertiseService("joint_pose_cmd", &MarshaMoveInterface::jointPoseCmd, this);
+
+            jointCmdService = nh->advertiseService("joint_cmd", &MarshaMoveInterface::jointCmd, this);
 
             positionService = nh->advertiseService("position_cmd", &MarshaMoveInterface::positionCmd, this);
 
@@ -519,8 +549,8 @@ class MarshaMoveInterface {
 
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
-            get_obj_pos = nh->subscribe("/object_pos", 100, &MarshaMoveInterface::visualizeObject, this);
-            get_person_pos = nh->subscribe("/person_pos", 100, &MarshaMoveInterface::visualizePerson, this);
+            //get_obj_pos = nh->subscribe("/object_pos", 100, &MarshaMoveInterface::visualizeObject, this);
+            //get_person_pos = nh->subscribe("/person_pos", 100, &MarshaMoveInterface::visualizePerson, this);
 
             postureService = nh->advertiseService("posture_cmd", &MarshaMoveInterface::postureCmd, this);
 
@@ -528,6 +558,9 @@ class MarshaMoveInterface {
 
             toggleCollisionsService = nh->advertiseService("toggle_collisions", &MarshaMoveInterface::toggleCollisions, this);
 
+            // The marsha_hardware package has a second method to get num_joints
+            // ros::param::get("stepper_config/num_joints", num_joints);
+            // TODO: Consolidate these two params
             ros::param::get(ros::this_node::getNamespace() + "/num_joints", num_joints);
 
             pose_param = ros::this_node::getNamespace() + "/pose/";

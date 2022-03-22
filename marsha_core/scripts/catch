@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+import time
+import rospy
+
+from std_msgs.msg import Empty
+
+from geometry_msgs.msg import Pose
+
+from marsha_msgs.srv import PostureCmd
+from marsha_msgs.srv import MoveCmd
+from marsha_msgs.srv import ObjectObservation
+
+class Catcher():
+    def __init__(self):
+        rospy.init_node("catcher")
+
+        self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
+
+        rospy.wait_for_service('/left/pose_cmd')
+        self.pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
+
+        rospy.wait_for_service('/left/posture_cmd')
+        self.posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
+
+        rospy.wait_for_service('/left/gripper/grasp_cmd')
+        self.grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
+
+        #rospy.wait_for_service('/observe_trajectory')
+        #self.observe_trajectory = rospy.ServiceProxy("/observe_trajectory", ObjectObservation)
+
+
+    def catch(self):
+        
+
+        self.grasp_cmd("open")
+        self.pose_cmd("handoff")
+        self.reset_pub.publish()
+       
+        pose = Pose()
+        pose.position.x = 0.015
+        pose.position.y = -0.3
+        pose.position.z = 0.45
+
+        pose.orientation.x = 0.5
+        pose.orientation.y = 0.5
+        pose.orientation.z = 0.5
+        pose.orientation.w = 0.5
+        success = self.posture_cmd(pose)
+
+        
+        time.sleep(1.1215)
+        #print("Move Success: " + str(success.done))
+        #print(self.observe_trajectory())
+        self.grasp_cmd("close")
+        success = self.pose_cmd("0g_pickup")
+        self.grasp_cmd("open")
+        #print("Move Success: " + str(success.done))
+
+
+if __name__ == "__main__":
+    catcher = Catcher()
+    time.sleep(1)
+    catcher.catch()
