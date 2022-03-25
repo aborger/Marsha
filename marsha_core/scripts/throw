@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import time
 
 from std_msgs.msg import Empty
 
@@ -12,22 +13,28 @@ pose_cmd = rospy.ServiceProxy('/left/pose_cmd', MoveCmd)
 rospy.wait_for_service('/left/async_pose_cmd')
 async_pose_cmd = rospy.ServiceProxy('/left/async_pose_cmd', MoveCmd)
 
-rospy.wait_for_service('/left/gripper/grasp_cmd')
-grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
+#rospy.wait_for_service('/left/gripper/grasp_cmd')
+#grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
 
-rospy.wait_for_service('/left/folding')
-fold_cmd = rospy.ServiceProxy('/left/folding', MoveCmd)
+#rospy.wait_for_service('/left/folding')
+#fold_cmd = rospy.ServiceProxy('/left/folding', MoveCmd)
 
-reset_pub = rospy.Publisher('/reset', Empty, queue_size=5)
+#reset_pub = rospy.Publisher('/reset', Empty, queue_size=5)
 
 def throw():
     rospy.init_node('throw_controller')
-    reset_pub.publish()
+    #reset_pub.publish()
 
-    fold_cmd('fold')
+    #fold_cmd('fold')
+    pose_cmd("pickup")
+    print('picking up...')
+    time.sleep(4)
     pose_cmd("pre_handoff")
+    print('preparing for handoff')
+    time.sleep(4)
     async_pose_cmd("handoff")
-    grasp_cmd("open")
+    print('handing off')
+    #grasp_cmd("open")
 
 if __name__ == "__main__":
     throw()

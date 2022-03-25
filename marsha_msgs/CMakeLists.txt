@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.0.2) 
 project(marsha_msgs)
 
 find_package(catkin REQUIRED
@@ -13,8 +13,9 @@ find_package(catkin REQUIRED
 add_message_files(
     FILES
     Timer.msg
-    Polar.msg
+    Polar.msg 
     TeensyMsg.msg
+    ObjectEstimate.msg
 )
   
 add_service_files(
@@ -24,12 +25,14 @@ add_service_files(
     GetPos.srv
     GetPosFrame.srv
     PositionCmd.srv
+    PlanGrasp.srv
     Reset.srv
     StateComm.srv
     GenerateGrasp.srv
     PostureCmd.srv
     GetFrame.srv  
     GetDepth.srv 
+    JointCmd.srv
 
 )
 

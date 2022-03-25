@@ -16,7 +16,7 @@ class Interface():
         rospy.init_node('teensy_interface')
 
         self.led_cmd = False
-        self.tx_rate = 1000
+        self.tx_rate = 2000
         self.tx_cnt = 0
         self.connected = False
 
@@ -42,7 +42,7 @@ class Interface():
                     bytesize = serial.EIGHTBITS,
                     parity = serial.PARITY_NONE,
                     stopbits = serial.STOPBITS_ONE,
-                    timeout = 5,
+                    timeout = 10,
                     xonxoff = False,
                     rtscts = False,
                     dsrdtr = False,
@@ -115,11 +115,14 @@ class Interface():
                     
                     self.enc_pub.publish(encoders)
                     print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
-                          #' Step: ' +  str(rx_dict["curr_step"]) +
-                          #' Speed: ' + str(rx_dict["curr_speed"]) +
-                          #' Err Sum: ' + str(rx_dict["err_sum"]))
-                except Exception as e: 
-                    print("Error:", e)
+                            #' Step: ' +  str(rx_dict["curr_step"]) +
+                            #' Speed: ' + str(rx_dict["curr_speed"]) +
+                            #' Err Sum: ' + str(rx_dict["err_sum"]))
+                except ValueError: 
+                    # This issue is caused because the teensy interface is polling for data on the recieve line.
+                    # This can be fixed by creating an interrupt to place any recieved data in a buffer.
+                    # Currently it is not a large enough issue to spend the time doing this
+                    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
         
 
 if __name__ == "__main__":

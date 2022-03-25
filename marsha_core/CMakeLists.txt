@@ -37,6 +37,7 @@ catkin_install_python(
         scripts/motor.py
         scripts/throw
         scripts/follow_ball
+        scripts/catch
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

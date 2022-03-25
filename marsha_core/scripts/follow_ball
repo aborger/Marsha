@@ -9,17 +9,11 @@ from geometry_msgs.msg import Pose
 
 from marsha_msgs.srv import PostureCmd
 from marsha_msgs.srv import GenerateGrasp
+from marsha_msgs.srv import JointCmd
 
 
-FOLLOW_DELAY = 10
-
-def object_to_world(obj_space, obj_pos):
-    world = Pose()
-    world.position.x = obj_pos.x + obj_space.position.x
-    world.position.y = obj_pos.y + obj_space.position.y
-    world.position.z = obj_pos.z + obj_space.position.z
-    world.orientation = obj_space.orientation
-    return world
+def rad_to_deg(rad):
+    return rad / math.pi * 180
 
 class Follower():
     def __init__(self):
@@ -28,28 +22,73 @@ class Follower():
         rospy.wait_for_service('/left/posture_cmd')
         self.posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
 
-        rospy.wait_for_service('generate_grasp')
-        self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
+        rospy.wait_for_service('/left/joint_cmd')
+        self.joint_cmd = rospy.ServiceProxy('/left/joint_cmd', JointCmd)
 
-        rospy.Subscriber('/object_pos', Point, self.pos_callBack)
+        self.num_joints = rospy.get_param("/left/stepper_config/num_joints")
+
+        self.pose_delay = 0
+
+        #rospy.wait_for_service('generate_grasp')
+        #self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
+
+        rospy.Subscriber('/object_pos', Point, self.pos_callBack, queue_size=1)
         print('Running')
 
         rospy.spin()
 
     # Should probably avg ball position
     def pos_callBack(self, msg):
-        print('Pos:', msg)
-        r = 2
-        theta = uniform(0, math.pi)
-        phi = uniform(0, 2*math.pi)
+        joint_angles = []
+        for _ in range(self.num_joints):
+            joint_angles.append(0.0)
 
-        print('theta:', theta, 'phi:', phi)
+        # prevent division by 0
+        if msg.y == 0:
+            msg.y = 0.0000001
 
-        obj_space_grasp = self.generate_grasp(r, theta, phi).grasp
-        grasp = object_to_world(obj_space_grasp, msg)
+        joint_angles[0] = math.atan(msg.x / msg.y)
 
-        print("grasp:", grasp)
-        self.posture_cmd(grasp)
+        if msg.y > 0:
+            joint_angles[0] = -1*math.pi + joint_angles[0]
+
+        z = msg.z - 0.13
+
+        d = math.sqrt(msg.x**2 + msg.y**2)
+
+        h = math.sqrt(z**2 + d**2)
+
+
+        l1 = 0.32
+        l2 = 0.23
+
+        a = math.atan(z/d)
+
+        if h > l1 + l2:
+            h = l1 + l2
+
+        b1 = (h**2 - l2 + l1**2)
+        b2 = (2 * h * l1)
+        b = math.acos(b1/ b2)
+        joint_angles[1] = math.pi/2 - a - b
+
+        B = l1 * math.sin(b)
+        c1 = math.acos(B / l1)
+        #print("b", b, "B/l2", B/l2)
+        #c2 = math.acos(B / l2)
+        #c = c1 + c2
+
+        joint_angles[2] = math.pi/2 - c1
+        print("c1", c1, "j2", joint_angles[2])
+
+        print("j1:", joint_angles[1], "j2:", joint_angles[2])
+
+
+        self.joint_cmd(joint_angles)
+
+
+        
+
 
 
 if __name__ == "__main__":

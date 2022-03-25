@@ -135,7 +135,7 @@ void Stepper::tune_controller(float p, float i, int _min_delay, int _max_delay) 
 }
 
 void Stepper::velPID() {
-  error = abs(desired_step - enc_step);
+  int error = abs(desired_step - enc_step);
   enc_error = K_I*abs(current_step - enc_step);
   error_sum += enc_error;
   if (error_sum > MAX_ERROR_SUM) {
@@ -149,13 +149,21 @@ void Stepper::velPID() {
   set_speed(velocity_out);
 }
 
+void Stepper::openController() {
+  int error = abs(desired_step - current_step);
+  int v_out = int(100 / (1 + pow(EULER, (5 - error/100))));
+  
+  set_speed(v_out);
+  
+}
+
 void Stepper::step() {
-  velPID();
   if (encoder_enabled) {
+    velPID();
     step_w_encoder();
   }
   else {
-    
+    openController();
     if (digitalRead(step_pin) == HIGH && timer > on_time) {
       digitalWrite(step_pin, LOW);
       timer = 0;
@@ -189,13 +197,11 @@ void Stepper::step() {
 void Stepper::test_step() {
   desired_step = current_step + 20; // make it always move
   if (digitalRead(step_pin) == HIGH && timer > on_time) {
-    digitalWrite(13, LOW);
     digitalWrite(step_pin, LOW);
     timer = 0;
   }
   else {
     if (timer > off_time) {
-      digitalWrite(13, HIGH);
       if (current_step > desired_step - TOLERANCE && current_step < desired_step + TOLERANCE) {}
       else {
        
