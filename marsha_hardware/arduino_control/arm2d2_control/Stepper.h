@@ -5,7 +5,7 @@
 #include "TimerOne.h"
 #include <Encoder.h>
 
-#define TOLERANCE    5
+#define TOLERANCE    10
 #define TIMER_INTERVAL  10
 
 

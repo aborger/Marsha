@@ -5,7 +5,10 @@ import serial
 import time
 import json
 
+from std_srvs.srv import Trigger, TriggerRequest
+
 from marsha_msgs.msg import TeensyMsg
+from marsha_msgs.srv import MoveCmd
 
 class Interface():
 
@@ -17,11 +20,19 @@ class Interface():
         self.tx_cnt = 0
         self.connected = False
 
+        rospy.Service('gripper/grasp_cmd', MoveCmd, self.graspCmdCallback)
+        rospy.Service('gripper/is_grasped', Trigger, self.is_grasped_callback)
+
         rospy.Subscriber('teensy_cmd', TeensyMsg, self.teensyCmdCallback)
         self.enc_pub = rospy.Publisher('enc_feedback', TeensyMsg, queue_size=10)
 
-        #self.step_cmd = [0, 0, 0, 0, 0, 0]
-        self.step_cmd = [] # Replacing ^^ I just want to make sure it works first
+        self.step_cmd = []
+        self.fake_joint_pos = 0
+        self.grasped = False
+
+
+        self.gripper_cmd = rospy.get_param('gripper/hw/close')
+
 
         while not self.connected:
             try:
@@ -44,10 +55,21 @@ class Interface():
                 print(e)
                 time.sleep(1)
 
+    def is_grasped_callback(self, msg):
+        return self.grasped
+
+    def graspCmdCallback(self, msg):
+        rospy.loginfo('Gripper pose:' + str(msg.pose_name))
+        self.gripper_cmd = rospy.get_param('gripper/hw/' + msg.pose_name)
+        return True
 
     def teensyCmdCallback(self, msg):
-        self.step_cmd = msg.steps
-        print ('Command: ' +  str(msg.steps))
+        cmd = list(msg.steps)
+        self.fake_joint_pos = cmd[-1]
+        cmd[-1] = self.gripper_cmd
+        self.step_cmd = cmd
+        #print ('Command: ' +  str(self.step_cmd))
+
 
 
     def transmit_step(self):
@@ -86,11 +108,16 @@ class Interface():
                     json_string = self.arduino.read(data_available).decode()
                     rx_dict = json.loads(json_string)
                     encoders = rx_dict["enc_feedback"]
+                    if encoders[-1] > self.gripper_cmd:
+                        self.grasped = True
+                    else:
+                        self.grasped = False
+                    
                     self.enc_pub.publish(encoders)
-                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]) +
-                          ' Step: ' +  str(rx_dict["curr_step"]) +
-                          ' Speed: ' + str(rx_dict["curr_speed"]) +
-                          ' Err Sum: ' + str(rx_dict["err_sum"]))
+                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
+                          #' Step: ' +  str(rx_dict["curr_step"]) +
+                          #' Speed: ' + str(rx_dict["curr_speed"]) +
+                          #' Err Sum: ' + str(rx_dict["err_sum"]))
                 except Exception as e: 
                     print("Error:", e)
         

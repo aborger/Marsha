@@ -3,6 +3,9 @@
 import rospy
 import cv2
 
+import sys
+
+rospy.loginfo(sys.version_info)
 
 from marsha_detection.realsense_camera import *
 
