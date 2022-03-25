@@ -28,30 +28,23 @@ find_package(catkin REQUIRED
 
 catkin_python_setup()
 
-
-
-include_directories(include)
- 
-generate_messages(
-  DEPENDENCIES
-    std_msgs
-    marsha_msgs
-)
-
 catkin_package(
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    ${PROJECT_NAME}
   CATKIN_DEPENDS
     tf2_geometry_msgs
     rospy
     roscpp
     marsha_msgs
     geometry_msgs
-  DEPENDS
-    EIGEN3
 )
 
 
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -83,4 +76,6 @@ target_link_libraries(trajectory_predictor ${catkin_LIBRARIES})
 add_executable(trajectory_predictor_kalman nodes/trajectory_predictor_kalman.cpp)
 target_link_libraries(trajectory_predictor_kalman ${catkin_LIBRARIES})
 
- 
+# Im pretty sure catkin provides a better method for test programs, but im using the test as a normal executable for now
+add_executable(test_object_dynamics tests/test_object_dynamics.cpp)
+target_link_libraries(test_object_dynamics ${catkin_LIBRARIES})

@@ -58,7 +58,7 @@ class MarshaGym(gym.Env):
         self.current_step = 0
         print("Finished episode ", self.episode_num)
         self.episode_num += 1
-        sleep(1) # Waits for trajectory prediction to calculate velocity, could be less
+        #sleep(1) # Waits for trajectory prediction to calculate velocity, could be less
         observation = self.ros_interface.perform_observation()
 
         return observation

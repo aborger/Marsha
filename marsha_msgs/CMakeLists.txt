@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.0.2) 
 project(marsha_msgs)
 
 find_package(catkin REQUIRED
@@ -25,6 +25,7 @@ add_service_files(
     GetPos.srv
     GetPosFrame.srv
     PositionCmd.srv
+    PlanGrasp.srv
     Reset.srv
     StateComm.srv
     GenerateGrasp.srv
