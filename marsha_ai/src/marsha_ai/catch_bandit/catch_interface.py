@@ -78,6 +78,9 @@ class CatchInterface(RosInterface):
         rospy.wait_for_service('/left/gripper/is_grasped')
         self.is_grasped = rospy.ServiceProxy('/left/gripper/is_grasped', Trigger)
 
+        rospy.wait_for_service('prediction_ready')
+        self.prediction_ready = rospy.ServiceProxy('prediction_ready', Trigger)
+
         rospy.wait_for_service('observe_trajectory')
         self.observe = rospy.ServiceProxy('observe_trajectory', ObjectObservation)
 
@@ -106,9 +109,6 @@ class CatchInterface(RosInterface):
 
         # Note: action[4] is currently on range (0, 1) so therefore it will only begin the grasp before it reaches the desired point
         grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
-
-        #time_until = grasp_time - rospy.Time.now()
-        #print("Time until predicted:", time_until)
 
         # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
         plan_results = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5]))
@@ -157,6 +157,16 @@ class CatchInterface(RosInterface):
 
 
     def perform_observation(self):
+        poll_rate = rospy.Rate(75)
+        attempts = 0
+        # after ready or after 10 seconds
+        while not self.prediction_ready().success:
+            if attempts > 750:
+                self.reset_simulation()
+            print("waiting")
+            poll_rate.sleep()
+            attempts += 1
+
         raw_observation = self.observe()
         observation = np.empty(shape=(2, 3))
         observation[0, 0] = raw_observation.position.x

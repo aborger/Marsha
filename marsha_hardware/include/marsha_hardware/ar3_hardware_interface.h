@@ -25,12 +25,10 @@ class AR3Interface : public hardware_interface::RobotHW
         void update(const ros::TimerEvent &e);
 
         void encoderCallBack(const marsha_msgs::TeensyMsg &msg);
-        void diabloCallBack(const std_msgs::Int16 &msg);
         //void graspCallBack(const std_msgs::Bool &msg);
     private:
         ros::NodeHandle nh;
         ros::Publisher step_pub;
-        ros::Publisher diablo_step_pub;
         
 
         
@@ -39,7 +37,6 @@ class AR3Interface : public hardware_interface::RobotHW
 
         hardware_interface::JointStateInterface joint_state_interface;
         hardware_interface::PositionJointInterface joint_position_interface;
-        hardware_interface::EffortJointInterface joint_effort_interface;
         std::vector<double> cmd;
 
         std::vector<double> pos;

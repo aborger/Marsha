@@ -21,7 +21,7 @@ from time import sleep
 from marsha_ai import catch_bandit
 
 MAX_REWARD = 100
-MAX_EPISODE_LENGTH = 20
+MAX_EPISODE_LENGTH = 10
 
 class MarshaGym(gym.Env):
     def __init__(self, ros_interface):
@@ -58,7 +58,7 @@ class MarshaGym(gym.Env):
         self.current_step = 0
         print("Finished episode ", self.episode_num)
         self.episode_num += 1
-        sleep(1) # Waits for trajectory prediction to calculate velocity, could be less
+        #sleep(1) # Waits for trajectory prediction to calculate velocity, could be less
         observation = self.ros_interface.perform_observation()
 
         return observation

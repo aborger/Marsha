@@ -6,11 +6,11 @@
 
 #define SPIN_RATE     100
 #define FEEDBACK_RATE 100000
-#define NUM_JOINTS    4
+#define NUM_JOINTS    6
 
 
 
-Stepper steppers[] = {Stepper(23, 22), Stepper(21, 20), Stepper(36, 35), Stepper(34, 33)};
+Stepper steppers[] = {Stepper(33, 37), Stepper(38, 39), Stepper(40, 41), Stepper(2, 3), Stepper(4, 5), Stepper(32, 31, 30, 29, true)};
 
 int spinCounter = 0;
 int feedbackCounter = 0;
@@ -26,9 +26,11 @@ void CMDCallback(RxPacket &rx) {
 void sendFeedback() {
   // Load array with feedback
   int feedback_arr[NUM_JOINTS];
-  for (int i = 0; i < NUM_JOINTS; i++) {
+  for (int i = 0; i < NUM_JOINTS - 1; i++) {
     feedback_arr[i] = steppers[i].get_curr_step();
   }
+    // gripper
+    feedback_arr[NUM_JOINTS-1] = steppers[NUM_JOINTS-1].get_enc_step();
 
   // Create packet for feedback
   TxPacket tx(feedback_arr, NUM_JOINTS);
@@ -45,19 +47,19 @@ void setup() {
 
   comm_handle.set_callback(CMDCallback);
 
-  // Note: these are tuned for a Teensy 3.5 at 120 MHz clock speed
-  steppers[0].tune_controller(1, 0, 75, 100);
-  steppers[1].tune_controller(1, 0, 75, 100);
-  steppers[2].tune_controller(1, 0, 75, 100);
-  steppers[3].tune_controller(1, 0, 100, 120); // 0, 1500 range
+  steppers[0].tune_controller(1.2, 0, 5, 100);
+  steppers[1].tune_controller(0.01, 0, 20, 200);
+  steppers[2].tune_controller(0.02, 0, 10, 200);
+  steppers[3].tune_controller(1, 0, 5, 100);
+  steppers[4].tune_controller(1, 0, 5, 30);
 
   Stepper::setSteppers(steppers, NUM_JOINTS);
   Stepper::stepper_power = true;
 }
 
 void loop() {
-
   if (spinCounter > SPIN_RATE) {
+
     comm_handle.spin();
     spinCounter = 0;
   }

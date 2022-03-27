@@ -3,6 +3,9 @@
 import rospy
 import cv2
 
+import sys
+
+rospy.loginfo(sys.version_info)
 
 from marsha_detection.realsense_camera import *
 
@@ -18,7 +21,7 @@ from marsha_msgs.srv import GetFrame
 from marsha_msgs.srv import GetDepth
 
 
-SIZE_REDUCTION = 4
+SIZE_REDUCTION = 8
 IMAGE_HEIGHT = int(720 / SIZE_REDUCTION) # original: 720
 IMAGE_WIDTH = int(1280 / SIZE_REDUCTION) # original: 1280
 CHANNELS = 3
@@ -176,21 +179,25 @@ class CamServer():
             frame, x_pix, y_pix = self.detect_color(bgr_frame, depth_frame)
             if x_pix > 0 and y_pix > 0:
                 point = self.rs.pixel_to_point(depth_frame, x_pix, y_pix)
-                print('Detected ball at', '(', point[0], point[1], point[2], ')')
-                pos = Point(point[0], point[2], -1*point[1])
-                self.pos_pub.publish(pos)
+
+                if point[0] + point[1] + point[2] == 0:
+                    print('No object')
+                else:
+                    print('Detected ball at', '(', point[0], point[1], point[2], ')')
+                    pos = Point(-1 * point[0], -1 * point[2], -1 * point[1])
+                    self.pos_pub.publish(pos)
 
 
-            cv2.imshow('Depth', bgr_frame)
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
+            #cv2.imshow('Depth', bgr_frame)
+            #key = cv2.waitKey(1)
+            #if key == 27:
+            #    break
 
             # put back in the code to show frames
             
 
         self.rs.release()
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     cam = CamServer()

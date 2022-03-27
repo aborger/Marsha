@@ -5,12 +5,11 @@
 #include "TimerOne.h"
 #include <Encoder.h>
 
-#define TOLERANCE    2
+#define TOLERANCE    10
 #define TIMER_INTERVAL  10
-#define EULER   2.71828
 
 
-#define STEPS_FOR_MAX_SPEED   20000
+
 #define MAX_ERROR_SUM   1000
 
 #define STEPPER_POWER_PIN   23 // HIGH when steppers have power, allows encoder counting while off.
@@ -39,39 +38,21 @@ class Stepper {
 
     bool pos_dir = false;
 
-    int DELAY = 30;     // Default: 30      default off_time delay      
+    int DELAY = 30;
 
-    // Closed loop Controler
-    float K_P = 1;      // Default: 1
-    float K_I = 0.0001; // Default: 0.0001  If its stuck use slower speed for more torque
-
-
-   
-
-    // Time since achieving last setpoint (s)
-    int t = 0;          
-
-    // Delay
-    int max_delay = 60; // Default: 60      Delay that provides the most torque
-    int min_delay = 5;  // Default: 5       Fastest the joint can go
+    // PID Controler
+    float K_P = 1;
+    float K_I = 0.0001; // If its stuck use slower speed for more torque
+    int max_delay = 60; // Delay that provides the most torque
+    int min_delay = 5; // Fastest the joint can go
     
-    
-
-    int off_time;
-    int on_time;
     int timer;
 
+    int on_time;
+    int off_time;
 
     int upper_bound;
     int lower_bound;
-    int enc_step = 0;
-    int current_step = 0;
-    
-    float enc_error;
-    float error_sum = 0;
-    
-    int velocity_out;
-    
   public:
    
     static Stepper* steppers;
@@ -92,26 +73,27 @@ class Stepper {
     int get_off_time();
     void set_bounds(int upper, int lower); // For testing without ros
     void tune_controller(float p, float i, int _min_delay, int _max_delay); // This could be part of the constructor
-
-    void test_step(); // Don't call Stepper::setSteppers to use this function
+    
     void watch_bounds();
     void step();
     void step_w_encoder();
 
     void velPID();
-    void openController();
     
     void set_point(int step_position);
 
     void update_step_cnt(); // Call when stepper power activates
 
     int get_enc_step();
-    int get_curr_step();
     int get_desired_step();
 
-    // debug move back to private when done:
-
-
+    // debug
+    int enc_step = 0; // debug move to private later
+    int error; //debug
+    float enc_error;
+    float error_sum = 0;
+    int current_step = 0;
+    int velocity_out;
 
 };
 

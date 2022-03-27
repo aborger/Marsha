@@ -45,12 +45,11 @@ void Stepper::step_w_encoder() {
         }
       }
       else {
-        //current_step = enc_step;
+        current_step = enc_step;
         error_sum = 0;
       }
       timer = 0;
     } else {
-      digitalWrite(13, LOW);
       timer++;
     }
   }
@@ -136,7 +135,7 @@ void Stepper::tune_controller(float p, float i, int _min_delay, int _max_delay) 
 }
 
 void Stepper::velPID() {
-  int error = abs(desired_step - enc_step);
+  error = abs(desired_step - enc_step);
   enc_error = K_I*abs(current_step - enc_step);
   error_sum += enc_error;
   if (error_sum > MAX_ERROR_SUM) {
@@ -150,21 +149,13 @@ void Stepper::velPID() {
   set_speed(velocity_out);
 }
 
-void Stepper::openController() {
-  int error = abs(desired_step - current_step);
-  int v_out = int(100 / (1 + pow(EULER, (5 - error/100))));
-  
-  set_speed(v_out);
-  
-}
-
 void Stepper::step() {
+  velPID();
   if (encoder_enabled) {
-    velPID();
     step_w_encoder();
   }
   else {
-    openController();
+    
     if (digitalRead(step_pin) == HIGH && timer > on_time) {
       digitalWrite(step_pin, LOW);
       timer = 0;
@@ -195,36 +186,6 @@ void Stepper::step() {
   }
 }
 
-void Stepper::test_step() {
-  desired_step = current_step + 20; // make it always move
-  if (digitalRead(step_pin) == HIGH && timer > on_time) {
-    digitalWrite(step_pin, LOW);
-    timer = 0;
-  }
-  else {
-    if (timer > off_time) {
-      if (current_step > desired_step - TOLERANCE && current_step < desired_step + TOLERANCE) {}
-      else {
-       
-        if (current_dir) {
-          // Go forwards
-          current_step += 1;
-          enc_step += 1;
-        }
-        else {
-          current_step -= 1;
-          enc_step -= 1;
-        }
-        digitalWrite(step_pin, HIGH);
-      }
-      timer = 0;
-    }
-    else {
-      timer++;
-    }
-  }
-}
-
 //void Stepper::acc_step() {
 //  steppers[0].set_speed
 //}
@@ -246,11 +207,6 @@ void Stepper::set_point(int step_position) {
 int Stepper::get_enc_step() {
   return enc_step;
 }
-
-int Stepper::get_curr_step() {
-  return current_step;
-}
-
 int Stepper::get_desired_step() {
   return desired_step;
 }

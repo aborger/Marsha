@@ -1,3 +1,5 @@
+# TODO: move ar3 and arm2d2 hardware interface .cpp files to the include dir and change them to a .h file
+
 cmake_minimum_required(VERSION 3.0.2)
 project(marsha_hardware)
 
