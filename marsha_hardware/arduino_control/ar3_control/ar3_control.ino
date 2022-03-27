@@ -6,11 +6,11 @@
 
 #define SPIN_RATE     100
 #define FEEDBACK_RATE 100000
-#define NUM_JOINTS    5
+#define NUM_JOINTS    6
 
 
 
-Stepper steppers[] = {Stepper(33, 37), Stepper(38, 39), Stepper(40, 41), Stepper(2, 3), Stepper(4, 5)};// Stepper(30, 29, 38, 39)};
+Stepper steppers[] = {Stepper(33, 37), Stepper(38, 39), Stepper(40, 41), Stepper(2, 3), Stepper(4, 5), Stepper(32, 31, 30, 29, true)};
 
 int spinCounter = 0;
 int feedbackCounter = 0;
@@ -26,9 +26,11 @@ void CMDCallback(RxPacket &rx) {
 void sendFeedback() {
   // Load array with feedback
   int feedback_arr[NUM_JOINTS];
-  for (int i = 0; i < NUM_JOINTS; i++) {
+  for (int i = 0; i < NUM_JOINTS - 1; i++) {
     feedback_arr[i] = steppers[i].get_curr_step();
   }
+    // gripper
+    feedback_arr[NUM_JOINTS-1] = steppers[NUM_JOINTS-1].get_enc_step();
 
   // Create packet for feedback
   TxPacket tx(feedback_arr, NUM_JOINTS);

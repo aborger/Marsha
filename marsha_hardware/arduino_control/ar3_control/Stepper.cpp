@@ -45,11 +45,12 @@ void Stepper::step_w_encoder() {
         }
       }
       else {
-        current_step = enc_step;
+        //current_step = enc_step;
         error_sum = 0;
       }
       timer = 0;
     } else {
+      digitalWrite(13, LOW);
       timer++;
     }
   }

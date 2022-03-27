@@ -64,11 +64,12 @@ class Stepper {
 
     int upper_bound;
     int lower_bound;
-
     int enc_step = 0;
+    int current_step = 0;
+    
     float enc_error;
     float error_sum = 0;
-    int current_step = 0;
+    
     int velocity_out;
     
   public:
@@ -108,7 +109,8 @@ class Stepper {
     int get_curr_step();
     int get_desired_step();
 
-    // debug
+    // debug move back to private when done:
+
 
 
 };
