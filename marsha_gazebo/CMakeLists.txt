@@ -33,6 +33,7 @@ catkin_install_python(PROGRAMS
     nodes/object_location
     nodes/acceleration
     scripts/add_velocity
+    scripts/republish_obj_estimate
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

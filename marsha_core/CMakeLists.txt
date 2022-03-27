@@ -15,5 +15,6 @@ catkin_install_python(
   PROGRAMS
     scripts/pickup_moving_object
     scripts/execute_grasp
+    scripts/obj_measure
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

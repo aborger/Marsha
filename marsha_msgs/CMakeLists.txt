@@ -15,6 +15,7 @@ add_message_files(
     Timer.msg
     Polar.msg
     TeensyMsg.msg
+    ObjectEstimate.msg
 )
   
 add_service_files(

@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+
+import rospy
+
+from geometry_msgs.msg import Point
+
+from marsha_msgs.msg import ObjectEstimate
+from marsha_msgs.srv import ObjectObservation
+
+class Repub:
+    def __init__(self):
+        rospy.init_node('republisher')
+
+        self.get_observation = rospy.ServiceProxy("/observe_trajectory", ObjectObservation)
+
+        self.est_pub = rospy.Publisher('obj_est', ObjectEstimate, queue_size=10)
+
+        self.rate = rospy.Rate(50)
+
+    def run(self):
+        while not rospy.is_shutdown():
+            est = self.get_observation()
+
+            obj_est = ObjectEstimate(est.position, est.velocity)
+
+            self.est_pub.publish(obj_est)
+
+            self.rate.sleep()
+
+
+if __name__ == "__main__":
+    repub = Repub()
+    repub.run()

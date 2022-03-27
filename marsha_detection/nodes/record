@@ -23,7 +23,7 @@ IMAGE_HEIGHT = int(720 / SIZE_REDUCTION) # original: 720
 IMAGE_WIDTH = int(1280 / SIZE_REDUCTION) # original: 1280
 CHANNELS = 3
 
-RED_CB = (np.array([0, 10, 200]), np.array([50, 75, 255]))
+RED_CB = (np.array([0, 10, 140]), np.array([60, 75, 255]))
 YELLOW_CB = (np.array([20, 80, 80]), np.array([30, 255, 255]))
 
 CONV_SIZE = 5 # Note it will be double this value
@@ -50,7 +50,7 @@ class CamServer():
         self.get_frame_service = rospy.Service('get_rgb_frame', GetFrame, self.handleFrame)
         self.get_depth_service = rospy.Service('get_depth', GetDepth, self.handleDepth)
 
-        self.pos_pub = rospy.Publisher('object_pos', Point, queue_size=10)
+        self.pos_pub = rospy.Publisher('object_pos', Point, queue_size=1)
         self.ball_pub_count = 0
 
         self.frame_buffer = None
@@ -168,7 +168,7 @@ class CamServer():
             #    bgr_frame = cv2.circle(bgr_frame, self.curr_pos, 5, color, -1)
             frame, x_pix, y_pix = self.detect_color(bgr_frame, depth_frame)
 
-            if self.ball_pub_count > 3:
+            if self.ball_pub_count > 0:
                 if x_pix > 0 and y_pix > 0:
                     point = self.rs.pixel_to_point(depth_frame, x_pix, y_pix)
 
@@ -177,7 +177,7 @@ class CamServer():
                     else:
                         position = point_to_position(point)
 
-                        print('Detected ball at', '(', position[0], position[1], position[2], ')')
+                        print('Detected ball at', '(', -1*position[0], -1*position[2], -1*position[1], ')')
                         pos = Point(-1 * position[0], -1 * position[2], -1*position[1])
                         self.pos_pub.publish(pos)
                 self.ball_pub_count = 0

@@ -1,0 +1,17 @@
+<launch>
+    <include file="$(find ar3_gazebo)/launch/simulate.launch"/>
+    <rosparam file="$(find marsha_ai)/config/td3_hyperparameters.yaml" command="load"/>
+
+    <arg name="machine" default="jet1"/>
+
+    <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+
+
+    
+
+    <group>
+        <node name="ai_node" pkg="marsha_ai" type="ai_node" machine="$(arg machine)"/>
+        <node name="grasp_generator" pkg="marsha_ai" type="grasp_generator" machine="$(arg machine)"/>
+        <node name="trajectory_predictor" pkg="marsha_ai" type="trajectory_predictor_kalman" machine="$(arg machine)" launch-prefix="bash -c 'sleep 5; $0 $a'"/>
+    </group>
+</launch>

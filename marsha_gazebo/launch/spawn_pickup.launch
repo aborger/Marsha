@@ -3,7 +3,7 @@
 
 
     <param name="pickup_object_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/sphere.urdf.xacro'
-        object_name:=pickup_object mass:=0.5 origin:='0 0 0' radius:=0.02"/>
+        object_name:=pickup_object mass:=0.011 origin:='0 0 0' radius:=0.02"/>
                                         <!-- -0.25 -0.05 0 -->
 
     <node name="spawn_pickup_object" pkg="gazebo_ros" type="spawn_model"

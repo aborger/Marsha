@@ -1,4 +1,6 @@
 <launch>
     <rosparam file="$(find marsha_ai)/config/td3_hyperparameters.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/td3_hyperparameters.yaml" command="load"/>
+
     <include file="$(find marsha_ai)/launch/ai_bringup.launch"/>
 </launch>
