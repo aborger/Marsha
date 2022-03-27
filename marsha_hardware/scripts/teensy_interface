@@ -5,7 +5,7 @@ import serial
 import time
 import json
 
-from std_srvs.srv import Trigger, TriggerRequest
+from std_srvs.srv import Trigger, TriggerResponse
 
 from marsha_msgs.msg import TeensyMsg
 from marsha_msgs.srv import MoveCmd
@@ -29,9 +29,16 @@ class Interface():
         self.step_cmd = []
         self.fake_joint_pos = 0
         self.grasped = False
+        self.grasp_time = 0
 
+<<<<<<< HEAD
 
         self.gripper_cmd = rospy.get_param('gripper/hw/close')
+=======
+        # True represents closed
+        self.gripper_state = "close"
+        self.gripper_cmd = rospy.get_param('/gripper/hw/close')
+>>>>>>> 49991734307b21850f1ad8c8c953f20aa449cd4c
 
 
         while not self.connected:
@@ -56,18 +63,23 @@ class Interface():
                 time.sleep(1)
 
     def is_grasped_callback(self, msg):
-        return self.grasped
+        res = TriggerResponse()
+        res.success = self.grasped
+        return res
 
     def graspCmdCallback(self, msg):
         rospy.loginfo('Gripper pose:' + str(msg.pose_name))
-        self.gripper_cmd = rospy.get_param('gripper/hw/' + msg.pose_name)
+        self.gripper_state = msg.pose_name
+        self.gripper_cmd = rospy.get_param('/gripper/hw/' + msg.pose_name)
         return True
 
     def teensyCmdCallback(self, msg):
         cmd = list(msg.steps)
+        #print('cmd:', cmd)
         self.fake_joint_pos = cmd[-1]
         cmd[-1] = self.gripper_cmd
         self.step_cmd = cmd
+        #print('step_cmd', self.step_cmd)
         #print ('Command: ' +  str(self.step_cmd))
 
 
@@ -78,12 +90,13 @@ class Interface():
         data_bytes = data_str.encode('utf-8')
 
         self.arduino.write(data_bytes)
+        #print("data", data_bytes)
 
     def transmit_led(self):
         data = {"led": int(self.led_cmd)}
         data_str = json.dumps(data) + '\n'
         data_bytes = data_str.encode('utf-8')
-        print('Cmd:', data_bytes)
+        #print('Cmd:', data_bytes)
         self.arduino.write(data_bytes)
         self.led_cmd = not self.led_cmd
 
@@ -108,13 +121,22 @@ class Interface():
                     json_string = self.arduino.read(data_available).decode()
                     rx_dict = json.loads(json_string)
                     encoders = rx_dict["enc_feedback"]
-                    if encoders[-1] > self.gripper_cmd:
+
+                    if encoders[-1] > rospy.get_param('/gripper/hw/' + self.gripper_state) + 100:
                         self.grasped = True
+                        if self.grasp_time == 0:
+                            self.grasp_time = rospy.get_rostime()
+                        else:
+                            if (rospy.get_rostime() - self.grasp_time).to_sec() > 3:
+                                self.gripper_cmd = encoders[-1]
                     else:
                         self.grasped = False
+                        self.grasp_time = 0
                     
                     self.enc_pub.publish(encoders)
+                    
                     print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
+                    #print("Grip feedback", rx_dict["grip_desired"])
                             #' Step: ' +  str(rx_dict["curr_step"]) +
                             #' Speed: ' + str(rx_dict["curr_speed"]) +
                             #' Err Sum: ' + str(rx_dict["err_sum"]))
