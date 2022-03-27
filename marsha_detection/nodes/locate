@@ -1,0 +1,355 @@
+#!/usr/bin/env python3
+
+
+# Replace mrcnn with https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/install.html
+# This file should be adapted to use oop
+import os
+import sys
+import numpy as np
+
+import rospy
+from mrcnn.config import Config
+from mrcnn import model as modellib, utils
+
+import cv2
+
+from marsha_detection import *
+
+from std_msgs.msg import UInt8
+from std_msgs.msg import UInt32
+from std_msgs.msg import Int16
+
+from geometry_msgs.msg import Point
+
+from marsha_msgs.srv import GetFrame
+from marsha_msgs.srv import GetDepth
+
+
+
+# Define Constants
+COCO_MODEL_PATH = DETECTION_DIR + "models/mrcnn_coco.h5"
+BALL_MODEL_PATH = DETECTION_DIR + "models/trained_ball_model.h5"
+LOGS_DIR = DETECTION_DIR + "logs"
+COCO_CLASSES_PATH = DETECTION_DIR + "coco_classes.txt"
+
+DETECTION_THRESHOLD = 0.8
+
+MODEL_PATH = None
+CONFIG = None
+
+CLASSES = []
+COLORS = np.random.randint(0, 255, (90, 3))
+
+DETECTING_BALLS = False
+
+if DETECTING_BALLS:
+    CLASSES.append("ball")
+else:
+    with open(COCO_CLASSES_PATH, "r") as file_object:
+        for class_name in file_object.readlines():
+            class_name = class_name.strip()
+            CLASSES.append(class_name)
+
+
+class cocoConfig(Config):
+    """Configuration for training on balls
+    Derived from base Config class
+    Overides Config values to ball values
+    """
+    
+    NAME = "coco"
+    
+    IMAGES_PER_GPU = 1
+    
+    GPU_COUNT = 1
+
+    # Coco has 80 classes
+    NUM_CLASSES = 1 + 80
+
+    # Number of required detections per image
+    DETECTION_MIN_CONFIDENCE = 0
+
+    USE_MINI_MASK = True
+
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
+
+class ballConfig(Config):
+    """Configuration for training on balls
+    Derived from base Config class
+    Overides Config values to ball values
+    """
+    
+    NAME = "ball"
+    
+    IMAGES_PER_GPU = 1
+    
+    GPU_COUNT = 1
+
+    NUM_CLASSES = 1 + 1
+
+    # Number of required detections per image
+    DETECTION_MIN_CONFIDENCE = 0.94
+
+    USE_MINI_MASK = True
+    IMAGE_RESIZE_MODE = "square" # Pads width and height with zeros
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 320
+
+if DETECTING_BALLS:
+    MODEL_PATH = BALL_MODEL_PATH
+    CONFIG = ballConfig
+else:
+    MODEL_PATH = COCO_MODEL_PATH
+    CONFIG = cocoConfig
+
+# Load Realsense camera
+#rs = RealsenseCamera()
+
+############################################################
+#  Postprocessing
+############################################################
+
+def draw_box(frame, bounding_boxes, class_ids):
+    for box, id in zip(bounding_boxes, class_ids):
+        x1, y1, x2, y2 = box
+        color = COLORS[id]
+        color = (int(color[0]), int(color[1]), int(color[2]))
+
+        # Draw bounding box
+        cv2.line(frame, (x1, y1), (x2, y1), color, 1) # Top horizontal
+        cv2.line(frame, (x1, y2), (x2, y2), color, 1) # Bottom horizontal
+        cv2.line(frame, (x1, y1), (x1, y2), color, 1) # Left vertical
+        cv2.line(frame, (x2, y1), (x2, y2), color, 1) # Right vertical
+
+    bigger_frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow("Detection Frame", bigger_frame)
+
+def draw_contour(frame, masks):
+    try:
+        for mask in masks:
+            bw_mask = mask*255
+            object_mask = np.zeros(shape=(bw_mask.shape[0], bw_mask.shape[1], 3))
+            object_mask[:,:,0] = bw_mask
+            object_mask[:,:,1] = bw_mask
+            object_mask[:,:,2] = bw_mask
+
+            object_mask = object_mask.astype(np.uint8)
+
+            big_mask = cv2.resize(object_mask, (1280, 720))
+            print('type:', big_mask.shape)
+            contours, hierarchy = cv2.findContours(big_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+            if len(contours) > 0:
+                cv2.drawContours(frame, contours, -1, 255, 3)
+    except IndexError:
+        print('No people')
+
+    cv2.imshow("People", frame)
+
+def draw_mask(frame, masks):
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    person_detected = True
+
+    try:
+        frame_mask = np.zeros(shape=(masks[0].shape[0], masks[0].shape[1], 3), dtype=np.uint8)
+        display_frame = None
+
+        for mask in masks:
+            bw_mask = mask*255
+            object_mask = np.zeros(shape=(bw_mask.shape[0], bw_mask.shape[1], 3))
+            object_mask[:,:,0] = bw_mask
+            object_mask[:,:,1] = bw_mask
+            object_mask[:,:,2] = bw_mask
+
+            object_mask = object_mask.astype(np.uint8)  
+            single_mask = cv2.bitwise_and(frame, object_mask)
+            frame_mask = cv2.bitwise_or(frame_mask, single_mask)
+
+            mask_inv = cv2.bitwise_not(bw_mask)
+            mask_inv = mask_inv.astype(np.uint8)
+            gray_frame = cv2.bitwise_and(gray_frame, mask_inv)
+
+
+        gray_frame = np.stack((gray_frame,)*3, axis=-1)
+    
+    except IndexError:
+        print('No people detected!')
+        person_detected = False
+
+    if person_detected:
+        display_frame = gray_frame + frame_mask
+    else:
+        display_frame = frame
+
+    bigger_frame = cv2.resize(display_frame, (1280, 720))
+
+
+    cv2.imshow('Detection', bigger_frame)
+
+def draw_center(frame, bboxes, positions):
+    for box, position in zip(bboxes, positions):
+        cx, cy, depth = position
+        x1, y1, x2, y2 = box
+
+        color = (36, 255, 12)
+        cv2.line(frame, (cx, y1), (cx, y2), color, 1)
+        cv2.line(frame, (x1, cy), (x2, cy), color, 1)
+
+    bigger_frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow('Detection', bigger_frame)
+
+
+
+
+############################################################
+#  Detecting
+############################################################
+
+def load_model():
+    config = CONFIG()
+    model = modellib.MaskRCNN(mode="inference", config=config, model_dir=LOGS_DIR)
+    print("Loading weights...")
+
+    # Currently ball model works better with these layers left in, this may change after its trained.
+    exclude_layers = []
+    if DETECTING_BALLS:
+        exclude_layers = ["mrcnn_class_logits", "mrcnn_bbox_fc","mrcnn_bbox", "mrcnn_mask"]
+    model.load_weights(MODEL_PATH, by_name=True, exclude=exclude_layers)
+    print("Weights loaded!")
+    return model
+
+class Locator():
+    def __init__(self):
+        rospy.init_node('locate')
+
+        rospy.wait_for_service('get_rgb_frame')
+        self.get_frame = rospy.ServiceProxy('get_rgb_frame', GetFrame)
+
+        rospy.wait_for_service('get_depth')
+        self.get_depth = rospy.ServiceProxy('get_depth', GetDepth)
+
+        self.pos_pub = rospy.Publisher('person_pos', Point, queue_size=10)
+
+        self.model = load_model()
+
+
+    def detect(self, frame_id, frame):
+        # Note: You could detect using multiple frames to speed up
+        results = self.model.detect([frame])[0] # Returns dict with 'rois', 'class_ids', 'scores', 'masks'
+        num_detections = results['rois'].shape[0]
+
+        if not num_detections:
+            print("Nothing detected...")
+        else:
+            # Make sure everything is the same size
+            assert results['rois'].shape[0] == results['masks'].shape[-1] == results['class_ids'].shape[0]
+
+        #print(results['masks'].shape)
+        boxes = []
+        IDs = []
+        masks = []
+        positions = []
+        for i in range(num_detections):
+            if not np.any(results['rois'][i]):
+                continue # This instance has no bbox
+        
+            class_id = results['class_ids'][i] - 1 # in results class_id of 0 is nothing, but in classes 
+            class_name = CLASSES[class_id]
+            y1, x1, y2, x2 = results['rois'][i]
+
+            frame_height, frame_width, _ = frame.shape
+            
+            if results['scores'][i] > DETECTION_THRESHOLD and class_name == "person":
+                boxes.append([x1, y1, x2, y2])
+                IDs.append(class_id)
+                masks.append(results['masks'][:,:,i])
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
+
+                position = self.get_depth(frame_id, Int16(int(cx)), Int16(int(cy))).object_pos
+                #depth = depth_frame[cy, cx]
+                positions.append((cx, cy, position.z))
+                self.pos_pub.publish(position)
+                print('Detected', class_name, 'at', '(', position.x, position.y, position.z, ')', 'with confidence', results['scores'][i])
+
+            
+        #draw_box(frame, boxes, IDs)
+        draw_mask(frame, masks)
+        #draw_center(frame, boxes, positions)
+        #draw_contour(frame, masks)
+
+    def detect_color(self, frame_id, frame):
+        #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_bound = np.array([10, 10, 120])
+        upper_bound = np.array([50, 50, 255])
+
+        mask = cv2.inRange(frame, lower_bound, upper_bound)
+
+        kernel = np.ones((7,7), np.uint8)
+
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+        # Contains the elements of pixels for everywhere the ball is
+        ball_pixels = np.where(mask)
+
+        color = (0, 255, 0)
+        """
+        try:
+            y1 = np.min(ball_pixels[0])
+            y2 = np.max(ball_pixels[0])
+
+            x1 = np.min(ball_pixels[1])
+            x2 = np.max(ball_pixels[1])
+
+            cv2.line(frame, (x1, y1), (x2, y1), color, 1) # Top horizontal
+            cv2.line(frame, (x1, y2), (x2, y2), color, 1) # Bottom horizontal
+            cv2.line(frame, (x1, y1), (x1, y2), color, 1) # Left vertical
+            cv2.line(frame, (x2, y1), (x2, y2), color, 1) # Right vertical
+
+            cx = (x1 + x2) // 2
+            cy = (y1 + y2) // 2
+
+            position = self.get_depth(frame_id, Int16(int(cx)), Int16(int(cy))).object_pos
+            self.pos_pub.publish(position)
+
+            print('Detected ball at', '(', position.x, position.y, position.z, ')')
+        except ValueError:
+            print('No object')
+        """
+
+        #contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #output = cv2.drawContours(frame, contours, -1, (0, 255, 0), 2)
+
+        bigger_frame = cv2.resize(mask, (1280, 720))
+        cv2.imshow('Detection', bigger_frame)
+
+
+    def run(self):
+        print('Running...')
+        while not rospy.is_shutdown():
+            frame_msg = self.get_frame()
+            multi_array_frame = frame_msg.frame
+            frame_height = multi_array_frame.layout.dim[0].size
+            frame_width = multi_array_frame.layout.dim[1].size
+            frame_channels = multi_array_frame.layout.dim[2].size
+
+            np_frame = np.array(list(multi_array_frame.data))
+            frame = np.reshape(np_frame, (frame_height, frame_width, frame_channels)).astype(np.uint8)
+
+            
+            self.detect(frame_msg.frame_id, frame)
+            #cv2.imshow('Detection', frame)
+
+            key = cv2.waitKey(1)
+            if key == 27:
+                break
+
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    locator = Locator()
+    locator.run()
+
