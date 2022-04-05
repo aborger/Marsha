@@ -25,9 +25,9 @@ include_directories(
 catkin_install_python(
     PROGRAMS
         nodes/locate
-        nodes/record
+        scripts/record
         scripts/train
-        scripts/view
+        scripts/view 
         scripts/smoother
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

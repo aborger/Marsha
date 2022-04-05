@@ -55,6 +55,14 @@ class CatchInterface(RosInterface):
     def __init__(self):
         super(CatchInterface, self).__init__()
 
+        self.setup_services()
+
+        self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
+
+        self.reset_pub.publish()
+
+    # Could setup a timeout and return true or false if successful
+    def setup_services(self):
         rospy.loginfo("Waiting for services...")
 
         rospy.wait_for_service('generate_grasp')
@@ -86,73 +94,76 @@ class CatchInterface(RosInterface):
 
         rospy.loginfo("Services setup!")
 
-        self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
-
-        self.reset_pub.publish()
 
     # action_space (r, theta, phi, time)
     def perform_action(self, action):
-        reward = 0
-        if DEBUG:
-            rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]) + " grasp_time: " + str(action[5]))
+        try:
+            reward = 0
+            if DEBUG:
+                rospy.loginfo("Actions: R:" + str(action[0]) + " theta: " + str(action[1]) + " phi: " + str(action[2]) + " slice: " + str(action[3]) + " t_offset: " + str(action[4]) + " grasp_time: " + str(action[5]))
 
-        # Grasp generator takes "tailored latent space" as input
-        obj_space_preGrasp = self.generate_grasp(action[0] + PRE_GRASP_DISTANCE, action[1], action[2]).grasp
-        obj_space_grasp = self.generate_grasp(action[0] - POST_GRASP_DISTANCE, action[1], action[2]).grasp
+            # Grasp generator takes "tailored latent space" as input
+            obj_space_preGrasp = self.generate_grasp(action[0] + PRE_GRASP_DISTANCE, action[1], action[2]).grasp
+            obj_space_grasp = self.generate_grasp(action[0] - POST_GRASP_DISTANCE, action[1], action[2]).grasp
 
-        # Calculate object position at output time
-        prediction = self.predict_position(norm_dist=action[3])
-        
+            # Calculate object position at output time
+            prediction = self.predict_position(norm_dist=action[3])
+            
 
-        pre_grasp = object_to_world(obj_space_preGrasp, prediction.position)
-        grasp = object_to_world(obj_space_grasp, prediction.position)
+            pre_grasp = object_to_world(obj_space_preGrasp, prediction.position)
+            grasp = object_to_world(obj_space_grasp, prediction.position)
 
-        # Note: action[4] is currently on range (0, 1) so therefore it will only begin the grasp before it reaches the desired point
-        grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
+            # Note: action[4] is currently on range (0, 1) so therefore it will only begin the grasp before it reaches the desired point
+            grasp_time = Time(prediction.predicted_time.data - rospy.Duration(action[4]))
 
-        # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
-        plan_results = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5]))
+            # TODO:  Check ball location before finishing grasp / take into account time arm takes to move
+            plan_results = self.plan_grasp(pre_grasp, grasp, grasp_time, Float32(action[5]))
 
 
-        rospy.logdebug("Pre-grasp success:", plan_results.pre_grasp_success)
-        rospy.logdebug("Grasp plan success:", plan_results.grasp_success)
-        rospy.logdebug("Gripper close success:", plan_results.gripper_success)
+            rospy.logdebug("Pre-grasp success:", plan_results.pre_grasp_success)
+            rospy.logdebug("Grasp plan success:", plan_results.grasp_success)
+            rospy.logdebug("Gripper close success:", plan_results.gripper_success)
 
-        dist_at_grasp = distance(self.observe(), grasp)
-        
-        # Punish if ball is further away
-        reward -= dist_at_grasp
-        
-        
+            dist_at_grasp = distance(self.observe(), grasp)
+            
+            # Punish if ball is further away
+            reward -= dist_at_grasp
+            
+            
 
-        if plan_results.pre_grasp_success:
-            if plan_results.grasp_success:
-                if plan_results.gripper_success:
-                    sleep(2) # wait a bit then check if its caught
+            if plan_results.pre_grasp_success:
+                if plan_results.grasp_success:
+                    if plan_results.gripper_success:
+                        sleep(2) # wait a bit then check if its caught
+                    else:
+                        # The gripper only fails if simulation or control errors occur
+                        rospy.logerr("Gripper failed to close! Check for issues.")
                 else:
-                    # The gripper only fails if simulation or control errors occur
-                    rospy.logerr("Gripper failed to close! Check for issues.")
+                    reward -= GRASP_PLAN_FAIL_PUNISHMENT
             else:
-                reward -= GRASP_PLAN_FAIL_PUNISHMENT
-        else:
-            reward -= PRE_GRASP_FAIL_PUNISHMENT
+                reward -= PRE_GRASP_FAIL_PUNISHMENT
+            
+            plan_success = plan_results.pre_grasp_success and plan_results.grasp_success
+
+
+
+            catch_success = self.is_grasped().success
+            rospy.logdebug("Catch success: ", catch_success)
+
+            if catch_success:
+                sleep(1)
+                self.grasp_cmd("open")
+                sleep(1)
+                reward += 10
+
+            info = {'catch_success': catch_success, 'plan_results': plan_results}
+
+            return reward, plan_success, info
+        except rospy.service.ServiceException:
+            rospy.logerr("Service Unavailable, retrying service setup...")
+            setup_services()
+
         
-        plan_success = plan_results.pre_grasp_success and plan_results.grasp_success
-
-
-
-        catch_success = self.is_grasped().success
-        rospy.logdebug("Catch success: ", catch_success)
-
-        if catch_success:
-            sleep(1)
-            self.grasp_cmd("open")
-            sleep(1)
-            reward += 10
-
-        info = {'catch_success': catch_success, 'plan_results': plan_results}
-
-        return reward, plan_success, info
 
 
 

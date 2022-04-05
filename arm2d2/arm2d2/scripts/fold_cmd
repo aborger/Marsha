@@ -13,8 +13,8 @@ print("ns:", ns)
 
 
 
-rospy.wait_for_service(ns + 'joint_cmd')
-joint_cmd = rospy.ServiceProxy(ns + 'joint_cmd', MoveCmd)
+rospy.wait_for_service(ns + 'joint_pose_cmd')
+joint_cmd = rospy.ServiceProxy(ns + 'joint_pose_cmd', MoveCmd)
 
 rospy.wait_for_service(ns + "gripper/grasp_cmd")
 grasp_cmd = rospy.ServiceProxy(ns + "gripper/grasp_cmd", MoveCmd)

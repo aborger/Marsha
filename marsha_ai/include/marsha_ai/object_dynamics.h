@@ -42,14 +42,14 @@ class Approximator {
         // when t = 0, the distance is either at a maximum or minimum
         double func(double t) {
             double func_return = 4*f*t*t*t + 3*e*t*t + 2*(c+d)*t + b;
-            ROS_INFO("func return: %f", func_return);
+            ROS_DEBUG("func return: %f", func_return);
             return func_return;
         }
 
         // double derivate
         double derivFunc(double t) {
             double deriv_return = 12*f*t*t + 6*e*t + 2*(c+d);
-            ROS_INFO("derive return: %f", deriv_return);
+            ROS_DEBUG("derive return: %f", deriv_return);
             return deriv_return;
         }
 
@@ -58,13 +58,13 @@ class Approximator {
         double newtonRaphson(double t) {
             double h = func(t) / derivFunc(t);
 
-            ROS_INFO("Beginning loop with initial h: %f", h);
+            ROS_DEBUG("Beginning loop with initial h: %f", h);
             while (abs(h) >= EPSILON) {
                 h = func(t)/derivFunc(t);
-                ROS_INFO("h: %f", h);
+                ROS_DEBUG("h: %f", h);
 
                 t = t - h;
-                ROS_INFO("t: %f", t);
+                ROS_DEBUG("t: %f", t);
             }
             return t;
         }
@@ -86,11 +86,11 @@ class Approximator {
             e = _v_0.sum() * _a.sum();
             f = 0.25 * mult(_a, _a).sum();
 
-            ROS_INFO("b: %f", b);
-            ROS_INFO("c: %f", c);
-            ROS_INFO("d: %f", d);
-            ROS_INFO("e: %f", e);
-            ROS_INFO("f: %f", f);
+            ROS_DEBUG("b: %f", b);
+            ROS_DEBUG("c: %f", c);
+            ROS_DEBUG("d: %f", d);
+            ROS_DEBUG("e: %f", e);
+            ROS_DEBUG("f: %f", f);
 
             // Use different solving method if there is no acceleration
             if (_a.sum() == 0) {
@@ -129,7 +129,7 @@ class Searcher {
 
         float distance(float t) {
             Vector3f obj_pos = x_0 + v_0*t + 0.5*a*t*t;
-            ROS_INFO("position: [x: %f, y: %f, z: %f]", obj_pos[0], obj_pos[1], obj_pos[2]);
+            ROS_DEBUG("position: [x: %f, y: %f, z: %f]", obj_pos[0], obj_pos[1], obj_pos[2]);
             Vector3f robot_base(0, 0, 0);
             return eigen_dist(robot_base, obj_pos);
         }
@@ -137,12 +137,12 @@ class Searcher {
         float binarySearch(float before, float after) {
 
             float mid = before + (after - before) / 2;
-            ROS_INFO("search [before: %f, mid: %f, after %f]", before, mid, after);
+            ROS_DEBUG("search [before: %f, mid: %f, after %f]", before, mid, after);
             float mid_dist = distance(mid);
             float after_dist = distance(after);
             float before_dist = distance(before);
 
-            ROS_INFO("dist: [before: %f, mid: %f, after: %f]", before_dist, mid_dist, after_dist);
+            ROS_DEBUG("dist: [before: %f, mid: %f, after: %f]", before_dist, mid_dist, after_dist);
             // if not much change occurs local minimum has been reached
             if (abs(after_dist - before_dist) < EPSILON) {
                 return mid;
@@ -182,9 +182,9 @@ class Searcher {
             a = _a;
             t_0 = _t_0;
 
-            ROS_INFO("x_0: [x: %f, y: %f, z: %f]", x_0[0], x_0[1], x_0[2]);
-            ROS_INFO("v_0: [x: %f, y: %f, z: %f]", v_0[0], v_0[1], v_0[2]);
-            ROS_INFO("a:   [x: %f, y: %f, z: %f]", a[0], a[1], a[2]);
+            ROS_DEBUG("x_0: [x: %f, y: %f, z: %f]", x_0[0], x_0[1], x_0[2]);
+            ROS_DEBUG("v_0: [x: %f, y: %f, z: %f]", v_0[0], v_0[1], v_0[2]);
+            ROS_DEBUG("a:   [x: %f, y: %f, z: %f]", a[0], a[1], a[2]);
 
             // Use different solving method if there is no acceleration
             if (_a.sum() == 0) {
@@ -193,7 +193,7 @@ class Searcher {
         }
 
         float solve() {
-            ROS_INFO("Solving...");
+            ROS_DEBUG("Solving...");
             if (is_linear) {
                 return linear();
             } else {

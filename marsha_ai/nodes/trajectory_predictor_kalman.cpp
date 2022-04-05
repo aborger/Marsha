@@ -102,6 +102,13 @@ class TrajectoryPredictor {
             ready = false;
             accuracy.clear();
             position_buffer.clear();
+            std::vector<float> accel;
+            accel.resize(3);
+            ros::param::get("trajectory_config/acceleration/x", accel);
+            for (int i=0; i < 3; i++) {
+                a[i] = accel[i];
+            }
+            ROS_INFO("accel: x: %f, y: %f, z: %f", a[0], a[1], a[2]);
             initial_time = ros::Time::now();
             ROS_INFO("--- Reset ---");
         }
