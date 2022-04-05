@@ -39,7 +39,7 @@
     </include>
 
     <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
-    <node pkg="marsha_gazebo" type="reset" name="reset" args="launch" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
+    <node pkg="marsha_gazebo" type="reset" name="reset" args="no_grav" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
 
     <node ns="left" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet2" if="$(eval arg('num_arms') >= 1)"/>
     <node ns="right" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet2" if="$(eval arg('num_arms') == 2)"/>

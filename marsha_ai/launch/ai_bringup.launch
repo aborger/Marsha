@@ -20,6 +20,7 @@
     <arg name="machine" default="jet2"/>
 
     <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/trajectory_predictor.yaml" command="load"/>
 
 
     

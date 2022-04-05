@@ -65,9 +65,9 @@ ar3_pickup.position.y = -0.1
 ar3_pickup.position.z = 0.1
 
 arm2d2_fold = Pose()
-arm2d2_fold.position.x = -0.035
-arm2d2_fold.position.y = -0.20
-arm2d2_fold.position.z = 0.125
+arm2d2_fold.position.x = 0
+arm2d2_fold.position.y = -0.16
+arm2d2_fold.position.z = 0.12
 
 other_fold = Pose()
 other_fold.position.x = -0.025
@@ -137,7 +137,7 @@ arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_
 
 
 def launcher(data):
-    launches = ar3_grav_launches
+    launches = ar3_launches
     l = random.choice(launches)
     pose = l.get_pose()
     twist = Twist()
@@ -152,12 +152,12 @@ def launcher(data):
     # Add velocity
     ref_point = Point(0, 0, 0)
     wrench = Wrench()
-    #wrench.force = Vector3(5, 0, 0)
-    #wrench.force = l.get_randomized_force()
+    wrench.force = Vector3(5, 0, 0)
+    wrench.force = l.get_randomized_force()
     
     # Testing in grav, move later
-    force = Vector3(-2, 0, 9)
-    wrench.force = force
+    #force = Vector3(-2, 0, 9)
+    #wrench.force = force
 
 
     duration = rospy.Duration(0.01)
