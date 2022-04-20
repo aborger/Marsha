@@ -17,8 +17,8 @@ import tensorflow as tf # so it doesnt have to initialize gpu later
 
 
 def train():
-    MODEL_DIR = rospy.get_param("/training_dirs/jet1/model_dir")
-    LOG_DIR = rospy.get_param("/training_dirs/jet1/log_dir")
+    MODEL_DIR = rospy.get_param("/training_dirs/jet2/model_dir")
+    LOG_DIR = rospy.get_param("/training_dirs/jet2/log_dir")
 
     interface = CatchInterface()
     env = MarshaGym(interface)
@@ -45,13 +45,13 @@ def train():
     model.save(MODEL_DIR + "TD3_Catch")
 
 def run():
-    MODEL_DIR = rospy.get_param("/training_dirs/jet1/model_dir")
+    MODEL_DIR = rospy.get_param("/training_dirs/jet2/model_dir")
 
     interface = CatchInterface()
     env = MarshaGym(interface)
 
 
-    model = TD3.load(MODEL_DIR + 'best_model', env=env)
+    model = TD3.load(MODEL_DIR + 'TD3_Catch', env=env)
     
     obs = env.reset()
     while True:
@@ -59,5 +59,5 @@ def run():
         obs, rewards, dones, info = env.step(action)
 
 if __name__ == "__main__":
-    train()
+    run()
     print("Done.")

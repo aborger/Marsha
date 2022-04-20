@@ -62,10 +62,11 @@ void setup() {
   comm_handle.set_callback(CMDCallback);
 
 
-  steppers[0].tune_controller(0.6, 0.00001, 20, 175);
-  steppers[1].tune_controller(0.3, 0.00001, 30, 35);
+  steppers[0].tune_controller(0.2, 0, 90, 100);
+  steppers[1].tune_controller(0.3, 0, 40, 50);
   steppers[2].tune_controller(1, 0.0001, 30, 40);
   steppers[3].tune_controller(0.6, 0.00001, 10, 150);
+  steppers[5].tune_controller(0.9, 0.00001, 10, 20);
 
   Stepper::setSteppers(steppers, 6);
 

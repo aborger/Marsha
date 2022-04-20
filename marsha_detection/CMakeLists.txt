@@ -7,7 +7,7 @@ find_package(catkin REQUIRED
         std_msgs
 )
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3 REQUIRED)
 
 catkin_python_setup()
 
@@ -24,9 +24,9 @@ include_directories(
 
 catkin_install_python(
     PROGRAMS
-        scripts/locate
+        nodes/locate
+        nodes/record
         scripts/train
-        scripts/record
         scripts/view
         scripts/smoother
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

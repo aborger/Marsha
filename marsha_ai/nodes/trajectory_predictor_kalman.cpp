@@ -126,6 +126,7 @@ class TrajectoryPredictor {
 
         // Convert normtime on [0, 1] to ros::time where the object position at 0.5 norm time is closest to the arm.
         // Predict position with T(t) = x_0 + v*t +  0.5*a*t^2
+        // TODO: this just returns the closest position, we need to map the normalized trajectory slice onto the trajectory
         bool predictPosition(marsha_msgs::PredictPosition::Request &req,
                              marsha_msgs::PredictPosition::Response &res) 
         {
