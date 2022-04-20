@@ -130,7 +130,7 @@ class Searcher {
         float distance(float t) {
             Vector3f obj_pos = x_0 + v_0*t + 0.5*a*t*t;
             ROS_INFO("position: [x: %f, y: %f, z: %f]", obj_pos[0], obj_pos[1], obj_pos[2]);
-            Vector3f robot_base(0, 0, 0);
+            Vector3f robot_base(0.24, 0, 0);
             return eigen_dist(robot_base, obj_pos);
         }
 

@@ -62,10 +62,6 @@ tf::Vector3 eigen2tf(Vector3f vect) {
 }
 
 
-// Should probably move the kalmanfilter to a seperate file
-
-
-
 class TrajectoryPredictor {
     private:
         ros::Subscriber object_position_subscriber;
@@ -85,7 +81,7 @@ class TrajectoryPredictor {
         ros::Time previous_time;
         ros::Time initial_time;
 
-        Vector3f a = Vector3f(0, 0, -9.81);
+        Vector3f a = Vector3f(0, 0, 0);
 
         std::vector<Vector3f> position_buffer;
 
@@ -197,6 +193,7 @@ class TrajectoryPredictor {
                 sum += accuracy[i];
             }
             float avg = sum / accuracy.size();
+            ROS_INFO("avg: %f, sufficient converge: %f", avg, sufficient_convergence);
         
             return avg < sufficient_convergence;;
 
@@ -217,7 +214,13 @@ class TrajectoryPredictor {
             prediction_ready_service = nh->advertiseService("prediction_ready", &TrajectoryPredictor::readyToPredict, this);
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
             observation_service = nh->advertiseService("observe_trajectory", &TrajectoryPredictor::observe, this);
-
+            if(ros::param::has("detection_parameters/acceleration")) {
+                ros::param::get("detection_parameters/acceleration/x", a[0]);
+                ros::param::get("detection_parameters/acceleration/y", a[1]);
+                ros::param::get("detection_parameters/acceleration/z", a[2]);
+            } else {
+                ROS_ERROR("Parameters not set!");
+            }
         }
 
         bool ready_to_init() {
@@ -244,10 +247,15 @@ class TrajectoryPredictor {
             float sigma_me;
             float sigma_a;
 
-            ros::param::get("detection_parameters/u_0", u_0);
-            ros::param::get("detection_parameters/sigma_me", sigma_me);
-            ros::param::get("detection_parameters/sigma_a", sigma_a);
-            ros::param::get("detection_parameters/sufficient_convergence", sufficient_convergence);
+            if(ros::param::has("detection_parameters/u_0")) {
+                ros::param::get("detection_parameters/u_0", u_0);
+                ros::param::get("detection_parameters/sigma_me", sigma_me);
+                ros::param::get("detection_parameters/sigma_a", sigma_a);
+                ros::param::get("detection_parameters/sufficient_convergence", sufficient_convergence);
+            }
+            else {
+                ROS_ERROR("Parameters not set!");
+            }
             delete kf;
             kf = new KalmanFilter(z_0, v_0, u_0, sigma_me, sigma_a);
             kalman_initialized++;
