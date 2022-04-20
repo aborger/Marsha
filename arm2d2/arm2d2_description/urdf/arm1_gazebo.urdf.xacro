@@ -250,19 +250,22 @@
   <xacro:unless value="$(arg include_gripper)">
     <link name="gripper_connector">
       <xacro:unless value="$(arg include_gripper)">
+        <!-- Removed to test sim handoff
         <collision>
           <origin xyz="0.025 0 0.075" rpy="0 0 0" />
           <geometry>
             <box size="0.05 0.05 0.05"/>
           </geometry>
         </collision>
+        -->
       </xacro:unless>
+      <!--
       <visual>
         <origin xyz="0.025 0 0.075" rpy="0 0 0" />
         <geometry>
           <box size="0.05 0.05 0.05"/>
         </geometry>
-      </visual>
+      </visual>-->
     </link>
   </xacro:unless>
   

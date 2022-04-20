@@ -29,5 +29,6 @@ catkin_install_python(
         scripts/train
         scripts/view
         scripts/smoother
+        scripts/print_velocity
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

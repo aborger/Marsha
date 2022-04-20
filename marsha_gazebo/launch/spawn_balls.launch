@@ -6,15 +6,9 @@
         object_name:=pickup_object mass:=0.011 origin:='0 0 0' radius:=0.02"/>
                                         <!-- -0.25 -0.05 0 -->
 
-    <node name="spawn_pickup_1" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -param pickup_object_description -x -0.25 -y -0.05 -z 0.07 -model pickup_object" respawn="false" output="screen"/>
-    <!--<node name="spawn_pickup_2" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -param pickup_object_description -x -0.25 -y -0.05 -z 0.07 -model ball_2" respawn="false" output="screen"/>
-    <node name="spawn_pickup_3" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -param pickup_object_description -x -0.25 -y -0.05 -z 0.07 -model ball_3" respawn="false" output="screen"/>
-    <node name="spawn_pickup_4" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -param pickup_object_description -x -0.25 -y -0.05 -z 0.07 -model ball_4" respawn="false" output="screen"/>
-    -->
+    <node name="spawn_pickup_object" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param pickup_object_description -x -0.01 -y -0.17 -z 0.115 -model pickup_object_2" respawn="false" output="screen"/>
+
 </launch>
 
     <!-- Old commands that may be needed for reference later -->

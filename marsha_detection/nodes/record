@@ -39,9 +39,10 @@ def conv_get_depth(frame, x, y):
     return avg
 
 def point_to_position(point):
-    point[0] -= 0.3
-    point[1] -= 0.1
-    point[2] -= 0.4
+    # change to rosparam
+    point[0] -= 0
+    point[1] -= 0.0134
+    point[2] -= 0.489
     return point
 
 class CamServer():
@@ -173,7 +174,7 @@ class CamServer():
                     point = self.rs.pixel_to_point(depth_frame, x_pix, y_pix)
 
                     if point[0] + point[1] + point[2] == 0:
-                        print('No object')
+                        print('Cannot get depth')
                     else:
                         position = point_to_position(point)
 

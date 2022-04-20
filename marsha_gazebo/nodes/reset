@@ -64,10 +64,31 @@ ar3_pickup.position.x = -0.3
 ar3_pickup.position.y = -0.1
 ar3_pickup.position.z = 0.1
 
-arm2d2_fold = Pose()
-arm2d2_fold.position.x = 0
-arm2d2_fold.position.y = -0.16
-arm2d2_fold.position.z = 0.12
+# left pickup 1
+
+l_pickup_1 = Pose()
+l_pickup_1.position.x = -0.04
+l_pickup_1.position.y = -0.17
+l_pickup_1.position.z = 0.115
+
+
+# left pickup 2
+l_pickup_2 = Pose()
+l_pickup_2.position.x = 0.01
+l_pickup_2.position.y = -0.17
+l_pickup_2.position.z = 0.115
+
+
+l_pickup_3 = Pose()
+l_pickup_3.position.x = 0.13
+l_pickup_3.position.y = -0.17
+l_pickup_3.position.z = 0.115
+
+l_pickup_4 = Pose()
+l_pickup_4.position.x = 0.18
+l_pickup_4.position.y = -0.17
+l_pickup_4.position.z = 0.115
+
 
 other_fold = Pose()
 other_fold.position.x = -0.025
@@ -86,10 +107,26 @@ def reset(req):
     twist = Twist()
 
     success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=gravity)
+    #success = set_link_properties(link_name="ball_2::pickup_object", gravity_mode=gravity)
+    #success = set_link_properties(link_name="ball_3::pickup_object", gravity_mode=gravity)
+    #success = set_link_properties(link_name="ball_4::pickup_object", gravity_mode=gravity)
     #print("gravity success: ", success)
-    desired_state = ModelState('pickup_object', arm2d2_fold, twist, 'world')
+    desired_state = ModelState('pickup_object', l_pickup_1, twist, 'world')
 
+    # should redo with a better response (i did this at 3 am) and a for loop
     resp = set_model(desired_state)
+
+    #desired_state = ModelState('ball_2', l_pickup_2, twist, 'world')
+
+    #resp = set_model(desired_state)
+
+    #desired_state = ModelState('ball_3', l_pickup_3, twist, 'world')
+
+    #resp = set_model(desired_state)
+
+    #desired_state = ModelState('ball_4', l_pickup_4, twist, 'world')
+
+    #resp = set_model(desired_state)
     #print('dar:', dar, type(dar))
     return(resp.success)
 

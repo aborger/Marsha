@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+# should be renamed to test IRL kalman filter
+
+import rospy
+import time
+
+from std_msgs.msg import Empty
+
+from std_srvs.srv import Trigger
+
+from marsha_msgs.srv import ObjectObservation
+from marsha_msgs.srv import PredictPosition
+
+def main():
+    rospy.init_node('velocity_printer')
+    rospy.wait_for_service('/observe_trajectory')
+    observe_trajectory = rospy.ServiceProxy('/observe_trajectory', ObjectObservation)
+
+    rospy.wait_for_service('prediction_ready')
+    prediction_ready = rospy.ServiceProxy('prediction_ready', Trigger)
+
+    rospy.wait_for_service('predict_position')
+    predict_position = rospy.ServiceProxy('predict_position', PredictPosition)
+
+    reset_pub = rospy.Publisher("/reset", Empty, queue_size=1)
+
+    poll_rate = rospy.Rate(75)
+
+    reset_pub.publish()
+
+    time.sleep(1)
+
+
+    while not prediction_ready().success:
+        print("Waiting for accurate detection...")
+        #print("obs: " + str(observe_trajectory()))
+        poll_rate.sleep()
+
+    print(" ---- Observation Complete ---")
+    observation = observe_trajectory()
+    print(str(observation))
+
+    prediction = predict_position(0.5)
+
+    print("predicted position:\n" + str(prediction.position))
+
+    time_until = prediction.predicted_time.data - rospy.get_rostime()
+
+    print("Time until pass:" + str(time_until.to_sec()))
+
+    rospy.sleep(time_until)
+
+    print('Done')
+
+if __name__ == "__main__":
+    main()
