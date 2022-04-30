@@ -1,7 +1,7 @@
 # MARSHA
 ### (Meta AI Robotic Spacecraft Handy Arm)
 
-**[View the preliminary design review](https://drive.google.com/file/d/1mGvvYYQB-2aEeXhoVVAvE1KwWg_64PVN/view?usp=sharing)**
+**[View Aaron Borger's Computer Science Thesis](https://drive.google.com/file/d/1fKjqaqFPO_juqMIO1a90XSz-93eHH_nX/view?usp=sharing)**
 
 MARSHA is part of a research project at Northwest Nazarene University studying the use of Meta-Reinforcement Learning for robotics to account for inaccuracies between simulation and real-world, zero-gravity physics.
 
