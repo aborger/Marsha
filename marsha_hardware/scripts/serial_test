@@ -1,13 +1,17 @@
+#!/usr/bin/env python
+import os
 import serial
 import time
 import json
 from sys import exit
 
+os.system("sudo chmod -R 777 /dev/ttyTHS1")
+
 connected = False
 while not connected:
     try:
         arduino = serial.Serial(
-            port = '/dev/ttyACM0',
+            port = '/dev/ttyTHS1',
             baudrate = 115200,
             bytesize = serial.EIGHTBITS,
             parity = serial.PARITY_NONE,
@@ -25,9 +29,8 @@ while not connected:
         print(e)
         time.sleep(1)
 
-data = {"led": 1}
 
-
+data = ""
 while True:
     try:
         char = arduino.read().decode()
@@ -38,6 +41,4 @@ while True:
             data = ""
 
     except KeyboardInterrupt:
-        cmd = 0x000A
-        print(bytes(cmd))
-        arduino.write(bytes(cmd))
+        exit()

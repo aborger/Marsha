@@ -7,7 +7,7 @@ find_package(catkin REQUIRED
         std_msgs
 )
 
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
 
@@ -26,6 +26,7 @@ catkin_install_python(
     PROGRAMS
         nodes/locate
         nodes/record
+        nodes/record_longeron
         scripts/train
         scripts/view
         scripts/smoother
