@@ -24,6 +24,7 @@ add_service_files(
     MoveCmd.srv
     GetPos.srv
     GetPosFrame.srv
+    PayloadCmd.srv
     PositionCmd.srv
     PlanGrasp.srv
     Reset.srv

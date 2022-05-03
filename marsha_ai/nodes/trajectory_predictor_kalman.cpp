@@ -62,10 +62,6 @@ tf::Vector3 eigen2tf(Vector3f vect) {
 }
 
 
-// Should probably move the kalmanfilter to a seperate file
-
-
-
 class TrajectoryPredictor {
     private:
         ros::Subscriber object_position_subscriber;
@@ -85,7 +81,7 @@ class TrajectoryPredictor {
         ros::Time previous_time;
         ros::Time initial_time;
 
-        Vector3f a = Vector3f(0, 0, -9.81);
+        Vector3f a = Vector3f(0, 0, 0);
 
         std::vector<Vector3f> position_buffer;
 
@@ -138,6 +134,7 @@ class TrajectoryPredictor {
 
         // Convert normtime on [0, 1] to ros::time where the object position at 0.5 norm time is closest to the arm.
         // Predict position with T(t) = x_0 + v*t +  0.5*a*t^2
+        // TODO: this just returns the closest position, we need to map the normalized trajectory slice onto the trajectory
         bool predictPosition(marsha_msgs::PredictPosition::Request &req,
                              marsha_msgs::PredictPosition::Response &res) 
         {
@@ -205,6 +202,7 @@ class TrajectoryPredictor {
                 sum += accuracy[i];
             }
             float avg = sum / accuracy.size();
+            ROS_INFO("avg: %f, sufficient converge: %f", avg, sufficient_convergence);
         
             return avg < sufficient_convergence;;
 
@@ -225,7 +223,13 @@ class TrajectoryPredictor {
             prediction_ready_service = nh->advertiseService("prediction_ready", &TrajectoryPredictor::readyToPredict, this);
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
             observation_service = nh->advertiseService("observe_trajectory", &TrajectoryPredictor::observe, this);
-
+            if(ros::param::has("detection_parameters/acceleration")) {
+                ros::param::get("detection_parameters/acceleration/x", a[0]);
+                ros::param::get("detection_parameters/acceleration/y", a[1]);
+                ros::param::get("detection_parameters/acceleration/z", a[2]);
+            } else {
+                ROS_ERROR("Parameters not set!");
+            }
         }
 
         bool ready_to_init() {

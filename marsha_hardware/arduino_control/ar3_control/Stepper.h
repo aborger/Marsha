@@ -5,7 +5,7 @@
 #include "TimerOne.h"
 #include <Encoder.h>
 
-#define TOLERANCE    2
+#define TOLERANCE    1
 #define TIMER_INTERVAL  10
 #define EULER   2.71828
 
@@ -21,11 +21,13 @@ class Stepper {
   
   private:
     static void timerCallBack();
+    static bool calibrated;
 
     
     
     int step_pin;
     int dir_pin;
+    int limit_pin = -1;
 
     Encoder *encoder;
     bool encoder_enabled = false;
@@ -44,6 +46,10 @@ class Stepper {
     // Closed loop Controler
     float K_P = 1;      // Default: 1
     float K_I = 0.0001; // Default: 0.0001  If its stuck use slower speed for more torque
+
+    float K_Pset = 1;
+    float K_P0 = 1;
+    int max_steps;
 
 
    
@@ -64,8 +70,9 @@ class Stepper {
 
     int upper_bound;
     int lower_bound;
-    int enc_step = 0;
-    int current_step = 0;
+    volatile int enc_step = 0;
+    volatile int current_step = 0;
+    int init_step = 0;
     
     float enc_error;
     float error_sum = 0;
@@ -78,12 +85,28 @@ class Stepper {
     static int num_steppers;
     static void setSteppers(Stepper* _steppers, int _num_steppers);
     static bool stepper_power;
+ 
 
+    // Encoder & Limit switch
+    Stepper(int _step_pin, int _dir_pin, int enc_pinA, int _enc_pinB, int _limit_pin);
+    Stepper(int _step_pin, int _dir_pin, int enc_pinA, int _enc_pinB, int _limit_pin, bool flip_direction);
+    // Encoder & no limit switch
     Stepper(int _step_pin, int _dir_pin, int enc_pinA, int _enc_pinB);
     Stepper(int _step_pin, int _dir_pin, int enc_pinA, int _enc_pinB, bool flip_direction);
+    // No encoder & limit switch
+    Stepper(int _step_pin, int _dir_pin, int _limit_pin);
+    Stepper(int _step_pin, int _dir_pin, int _limit_pin, bool flip_direction);
+    // No encoder & no limit switch
     Stepper(int _step_pin, int _dir_pin);
-    Stepper(int _step_pin, int _dir_pin, bool flip_direction); 
-    virtual void init(int _step_pin, int _dir_pin);
+    Stepper(int _step_pin, int _dir_pin, bool flip_direction);  
+    
+
+    void init(int _step_pin, int _dir_pin);
+    void init_limit(int _limit_pin);
+
+    static void calibrate(int* limit_positions);
+    static bool is_calibrated();
+    void calibrate_stepper(int limit_position);
     
     
     void set_speed(int _on_time, int _off_time); // Note: not setting speed but rather delay time
@@ -91,7 +114,7 @@ class Stepper {
     int get_speed();
     int get_off_time();
     void set_bounds(int upper, int lower); // For testing without ros
-    void tune_controller(float p, float i, int _min_delay, int _max_delay); // This could be part of the constructor
+    void tune_controller(int _max_steps, float p_set, float p_0, int _min_delay, int _max_delay); // This could be part of the constructor
 
     void test_step(); // Don't call Stepper::setSteppers to use this function
     void watch_bounds();

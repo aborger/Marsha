@@ -26,6 +26,7 @@ catkin_install_python(
     PROGRAMS
         nodes/locate
         nodes/record
+        nodes/record_longeron
         scripts/train
         scripts/view 
         scripts/smoother

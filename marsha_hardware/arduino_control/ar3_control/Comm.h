@@ -15,6 +15,8 @@ class RxPacket {
   public:
     int* step_cmd;
     int packet_size;
+    int* calibration_limits;
+    bool calibrate = false;
 
     bool led_state; // debug
 

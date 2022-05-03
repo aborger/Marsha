@@ -1,0 +1,195 @@
+#!/usr/bin/env python
+
+# Payload Control System
+
+import rospy
+import smach
+import smach_ros
+
+#from marsha_core.marsha_services.move_cmds import *
+#from marsha_core.marsha_services.gripper_cmds import *
+
+from marsha_core.pcs_node import PCSstate
+
+import os
+import serial
+from subprocess import Popen, PIPE, STDOUT
+
+from marsha_msgs.srv import StateComm
+from marsha_msgs.srv import PayloadCmd
+
+NUM_CONNECTION_ATTEMPTS = 3
+
+os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
+
+def jets_connected():
+    p = Popen('ping nnu-engineering', stdout=PIPE, stderr = STDOUT, shell=True)
+
+    num_attempts = 0
+    num_connections = 0
+    first_line = p.stdout.readline()
+    while num_attempts < NUM_CONNECTION_ATTEMPTS:
+        line = p.stdout.readline()
+        beginning = line.split("(")[0]
+
+        if beginning == "64 bytes from NNU-Engineering ":
+            num_connections += 1
+        elif beginning == "From jet ":
+            pass
+        else:
+            rospy.logwarn(line)
+
+
+        num_attempts += 1
+    if num_connections == NUM_CONNECTION_ATTEMPTS:
+        return True
+    else:
+        return False
+
+def teensy_connected():
+    """
+    Find way to test teensy connection!
+    os.system("sudo chmod -R 777 /dev/ttyTHS1")
+    try:
+        arduino = serial.Serial(
+            port = '/dev/ttyTHS1',
+            baudrate = 115200,
+            bytesize = serial.EIGHTBITS,
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE,
+            timeout = 5,
+            xonxoff = False,
+            rtscts = False,
+            dsrdtr = False,
+            writeTimeout = 2
+        )
+        print(arduino.write(" "))
+    except Exception as e:
+        print(e)
+    """
+    return True
+
+def power_consumption():
+
+    f = open("/sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input", "r")
+    voltage = f.read()
+    f.close()
+    print(voltage)
+
+
+
+class PCS_Node(object):
+    def __init__(self, id):
+        self.id = id
+        self.state = -1
+
+# ---------------------------------------------------------------- #
+#                          States                                  #
+# ---------------------------------------------------------------- #
+class Comm_Check(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Comm_Connected', 'Comm_Error'])
+
+    def execute(self, userdata):
+        if jets_connected():
+            rospy.loginfo("Jets Connected!")
+            return 'Comm_Connected'
+        else:
+            return 'Comm_Error'
+
+class Wait_for_TE(smach.State):
+    def __init__(self, state_comm, pcs_node_state):
+        smach.State.__init__(self, outcomes=['TE_Detected', 'Wait', 'TE_Error'])
+
+        self.pcs_node_state = pcs_node_state
+        pcs_nodes = rospy.get_param("/pcs_nodes")
+        self.te_node_id = pcs_nodes.index("te_detector")
+
+    def execute(self, userdata):
+        rospy.loginfo("Waiting for TE...")
+
+        if self.pcs_node_state(self.te_node_id) == PCSstate.NA:
+            rospy.sleep(0.5)
+            return 'Wait'
+        elif self.pcs_node_state(self.te_node_id) == PCSstate.GOOD:
+            return 'TE_Detected'
+        else:
+            return 'TE_Error'
+
+
+        
+
+
+
+    
+# ---------------------------------------------------------------- #
+#                       State Machine                              #
+# ---------------------------------------------------------------- #
+
+class PCS_SM(object):
+    def __init__(self):
+
+        self.stateComm = rospy.Service('pcs_comm', StateComm, self.state_comm_callback)
+        self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
+
+        rospy.Service('/payload_cmd', PayloadCmd, self.payload_cmd_cb)
+
+        pcs_nodes = rospy.get_param("/pcs_nodes")
+
+        # this list contains the state for each node
+        # access a node's state with self.pcs_nodes[node_id]
+        self.pcs_node_states = [-1] * len(pcs_nodes)
+        self.pcs_node_cmds = [-1] * len(pcs_nodes)
+
+
+        other_arm = None
+        if rospy.get_namespace() == "/left/":
+            other_arm = "/right/"
+        else:
+            other_arm = "/left/"
+
+        # Note: This needs to be done after comm check
+        #rospy.loginfo('Waiting for service...')
+        #rospy.wait_for_service(other_arm + 'stateComm')
+        self.read_state_comm = None #rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
+
+        self.mission_sm()
+
+    def state_comm_callback(self, req):
+        states = self.sm.get_active_states()
+        return states[0]
+
+    def payload_cmd_cb(self, msg):
+        rospy.logdebug("From: " + str(msg.pcs_id) + " Msg: " + str(msg.state))
+
+        self.pcs_node_states[msg.pcs_id] = msg.state
+
+        return self.pcs_node_cmds[msg.pcs_id]
+
+    def pcs_node_state(self, node_id):
+        return self.pcs_node_states[node_id]
+
+    def pcs_node_cmd(self, node_id, cmd):
+        self.pcs_node_cmds[node_id] = cmd
+
+
+    def mission_sm(self):
+        with self.sm:
+            smach.StateMachine.add('Comm_Check', Comm_Check(),
+                                transitions={'Comm_Connected': 'Wait_for_TE',
+                                             'Comm_Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(self.read_state_comm, self.pcs_node_state),
+                                transitions={'TE_Detected': 'Mission_Success',
+                                             'Wait': 'Wait_for_TE',
+                                             'TE_Error': 'Mission_Fail'})
+
+    
+
+    def run(self):
+        outcome = self.sm.execute()
+
+if __name__ == "__main__":
+    rospy.init_node("PCS")
+    sm = PCS_SM()
+    sm.run()

@@ -11,5 +11,6 @@ catkin_install_python(PROGRAMS
     scripts/fold_cmd
     scripts/avoidance
     nodes/folding
+    scripts/handoff
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

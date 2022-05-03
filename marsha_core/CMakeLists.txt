@@ -34,6 +34,8 @@ include_directories(
 catkin_install_python(
     PROGRAMS
         nodes/mission_sm
+        nodes/payload_command_system
+        nodes/te_detect
         scripts/motor.py
         scripts/throw
         scripts/follow_ball

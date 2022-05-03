@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+import RPi.GPIO as GPIO
+import rospy
+
+TE_PIN = 4
+ERROR_CHECK_TIME = 1000 # Wait x milliseconds to confirm TE activation
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TE_PIN, GPIO.IN)
+
+from marsha_msgs.srv import PayloadCmd
+from marsha_core.pcs_node import *
+
+def error_detected():
+    rospy.logerr("TE Error detected!")
+
+class Detector(PCSNode):
+    def __init__(self):
+        super(Detector, self).__init__("te_detector")
+
+    
+
+
+    def wait_for_detect(self):
+        rospy.loginfo("Waiting for TE...")
+        GPIO.add_event_detect(TE_PIN, GPIO.RISING, bouncetime=ERROR_CHECK_TIME)
+        self.pcs_cmd(PCSstate.NA) # Indicate waiting for detection
+        # Wait until it is good to go
+
+
+
+        while not GPIO.event_detected(TE_PIN):
+            rospy.sleep(0.1)
+
+        rospy.loginfo("TE detected!")
+        self.pcs_cmd(PCSstate.GOOD)
+
+
+    def cleanup(self):
+        GPIO.cleanup()
+
+
+if __name__ == "__main__":
+    detector = Detector()
+    detector.wait_for_detect()
+    detector.cleanup()

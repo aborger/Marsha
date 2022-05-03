@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import rospy
+
+from marsha_msgs.srv import MoveCmd
+
+
+
+def main():
+    rospy.wait_for_service('/right/joint_pose_cmd')
+    r_joint_pose_cmd = rospy.ServiceProxy('/right/joint_pose_cmd', MoveCmd)
+
+    rospy.wait_for_service("/right/gripper/grasp_cmd")
+    r_grasp_cmd = rospy.ServiceProxy("/right/gripper/grasp_cmd", MoveCmd)
+
+    rospy.wait_for_service('/left/joint_pose_cmd')
+    l_joint_pose_cmd = rospy.ServiceProxy('/left/joint_pose_cmd', MoveCmd)
+
+    rospy.wait_for_service("/left/gripper/grasp_cmd")
+    l_grasp_cmd = rospy.ServiceProxy("/left/gripper/grasp_cmd", MoveCmd)
+
+
+    # assuming in the folded position
+    r_grasp_cmd("half")
+    r_joint_pose_cmd("folding/step_0")
+    r_joint_pose_cmd("pre_ball_1")
+    r_joint_pose_cmd("pick_ball_1")
+    r_grasp_cmd("close")
+    r_joint_pose_cmd("pre_ball_1")
+
+
+    r_joint_pose_cmd("folding/step_0")
+    r_joint_pose_cmd("folding/step_1")
+    r_joint_pose_cmd("folding/step_2")
+    r_joint_pose_cmd("folding/step_3")
+    r_joint_pose_cmd("folding/step_4")
+
+
+if __name__ == "__main__":
+    main()

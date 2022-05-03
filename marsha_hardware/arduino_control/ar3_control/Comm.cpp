@@ -57,6 +57,7 @@ void Comm::set_callback(void (*_spin_callback)(RxPacket &rx)) {
 
 void Comm::transmit(TxPacket tx) {
   serializeJson(tx.doc, Serial); // Transmit json bytes
+ 
 }
 
 
@@ -71,10 +72,18 @@ void Comm::spin() {
 
       // convert doc to packet
       RxPacket rx_packet;
+
       
+      if (rx_doc.containsKey("calibration")) {
+        rx_packet.calibrate = true;
+        for (int i =0; i < DEFAULT_PACKET_SIZE; i++) {
+          rx_packet.calibration_limits[i] = rx_doc["calibration"][i];
+        }
+      } else {
       
-      for (int i = 0; i < DEFAULT_PACKET_SIZE; i++) {
-        rx_packet.step_cmd[i] = rx_doc["steps"][i];
+        for (int i = 0; i < DEFAULT_PACKET_SIZE; i++) {
+          rx_packet.step_cmd[i] = rx_doc["steps"][i];
+        }
       }
       
       spin_callback(rx_packet);
