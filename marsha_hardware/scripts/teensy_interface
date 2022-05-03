@@ -31,14 +31,9 @@ class Interface():
         self.grasped = False
         self.grasp_time = 0
 
-<<<<<<< HEAD
-
-        self.gripper_cmd = rospy.get_param('gripper/hw/close')
-=======
         # True represents closed
         self.gripper_state = "close"
         self.gripper_cmd = rospy.get_param('/gripper/hw/close')
->>>>>>> 49991734307b21850f1ad8c8c953f20aa449cd4c
 
 
         while not self.connected:

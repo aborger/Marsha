@@ -3,7 +3,11 @@
 import rospy
 import cv2
 
+import time
 
+import sys
+
+print("Python version:" + str(sys.version))
 from marsha_detection.realsense_camera import *
 
 from std_msgs.msg import UInt8MultiArray
@@ -23,7 +27,7 @@ IMAGE_HEIGHT = int(720 / SIZE_REDUCTION) # original: 720
 IMAGE_WIDTH = int(1280 / SIZE_REDUCTION) # original: 1280
 CHANNELS = 3
 
-RED_CB = (np.array([0, 10, 140]), np.array([60, 75, 255]))
+RED_CB = (np.array([0, 5, 120]), np.array([60, 75, 255]))
 YELLOW_CB = (np.array([20, 80, 80]), np.array([30, 255, 255]))
 
 CONV_SIZE = 5 # Note it will be double this value
@@ -147,25 +151,17 @@ class CamServer():
         print('Running...')
         while not rospy.is_shutdown():
             # Get frame
+
+
             ret, bgr_frame, depth_frame = self.rs.get_frame_stream()
+            if ret == False:
+                print("error")
+ 
+            
 
-            self.frame_buffer = bgr_frame
-            self.depth_buffer.append(depth_frame)
-
-            if len(self.depth_buffer) > 11:
-                self.depth_buffer.pop(0)
-
-            #print('Record frame:', self.frame_num)
-
-            self.frame_num += 1
 
             color = (0, 255, 0)
 
-            #print('Curr pos:', self.curr_pos)
-
-            # Draw a circle on the object if it was recently detected
-            #if self.frame_num < self.curr_pos_frameID + 10:
-            #    bgr_frame = cv2.circle(bgr_frame, self.curr_pos, 5, color, -1)
             frame, x_pix, y_pix = self.detect_color(bgr_frame, depth_frame)
 
             if self.ball_pub_count > 0:
@@ -185,7 +181,7 @@ class CamServer():
                 self.ball_pub_count += 1
 
 
-            cv2.imshow('Depth', bgr_frame)
+            #cv2.imshow('Depth', bgr_frame)
             key = cv2.waitKey(1)
             if key == 27:
                 break

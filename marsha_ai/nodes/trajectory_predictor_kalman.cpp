@@ -109,7 +109,7 @@ class TrajectoryPredictor {
                 a[i] = accel[i];
             }
             ROS_INFO("accel: x: %f, y: %f, z: %f", a[0], a[1], a[2]);
-            initial_time = ros::Time::now();
+            
             ROS_INFO("--- Reset ---");
         }
 
@@ -122,6 +122,7 @@ class TrajectoryPredictor {
             // Using two initial positions give time for the ball to be reset
             if (kalman_initialized < 2) {
                 initial_position = msg_to_v3f(msg);
+                initial_time = ros::Time::now();
                 previous_time = ros::Time::now();
                 kalman_initialized++;
             }
@@ -251,10 +252,15 @@ class TrajectoryPredictor {
             float sigma_me;
             float sigma_a;
 
-            ros::param::get("detection_parameters/u_0", u_0);
-            ros::param::get("detection_parameters/sigma_me", sigma_me);
-            ros::param::get("detection_parameters/sigma_a", sigma_a);
-            ros::param::get("detection_parameters/sufficient_convergence", sufficient_convergence);
+            if (ros::param::has("detection_parameters/u_0")) {
+                ros::param::get("detection_parameters/u_0", u_0);
+                ros::param::get("detection_parameters/sigma_me", sigma_me);
+                ros::param::get("detection_parameters/sigma_a", sigma_a);
+                ros::param::get("detection_parameters/sufficient_convergence", sufficient_convergence);
+            } else {
+                ROS_FATAL("Parameter file not loaded: marsha_detection/config/measurement_parameters.yaml");
+            }
+            
             delete kf;
             kf = new KalmanFilter(z_0, v_0, u_0, sigma_me, sigma_a);
             kalman_initialized++;
@@ -278,7 +284,9 @@ class TrajectoryPredictor {
             ROS_DEBUG("Kx: %f, Ky: %f, Kz: %f, kdx: %f, kdy: %f, kdz: %f", kpos[0], kpos[1], kpos[2], kvel[0], kvel[1], kvel[2]);  
 
             float dist = eigen_dist(z, kpos);
-            ROS_DEBUG("Dist: %f", dist);          
+            if(!hasConverged()) {
+                ROS_INFO("Dist: %f", dist);    
+            }      
             accuracy.push_back(dist);
             if (accuracy.size() > NUM_ACCURACY_MEASUREMENTS) {
                 accuracy.erase(accuracy.begin());
