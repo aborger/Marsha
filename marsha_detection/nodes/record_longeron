@@ -76,11 +76,14 @@ class Cam:
 class Recorder(PCSNode):
     def __init__(self):
         super(Recorder, self).__init__("longeron_cams")
-        self.r_cam = Cam(0)
-        self.l_cam = Cam(1)
+        #self.r_cam = Cam(0)
+        #self.l_cam = Cam(1)
 
         self.state = PCSstate.NA
 
+
+
+        """
         if self.r_cam.capturing():# and self.l_cam.capturing():
             try:
                 r_frame = self.r_cam.get_frame()
@@ -96,11 +99,20 @@ class Recorder(PCSNode):
                 print(e)
         else:
             print("fail3")
+        """
 
     def run(self):
         poll_rate = rospy.Rate(10)
         while True:
-            print(self.pcs_cmd(self.state))
+            if self.state == PCSstate.NA:
+                cmd = self.pcs_cmd(self.state).cmd
+                if cmd == PCScmd.ACTIVATE:
+                    self.state = PCSstate.GOOD
+            if self.state == PCSstate.GOOD:
+                cmd = self.pcs_cmd(self.state).cmd
+                if cmd == PCScmd.DEACTIVATE:
+                    self.pcs_cmd(PCSstate.DISABLED)
+                    break
             poll_rate.sleep()
 
 
@@ -150,5 +162,5 @@ class Recorder(PCSNode):
 
 if __name__ == "__main__":
     recorder = Recorder()
-    #recorder.run()
+    recorder.run()
     print("done")

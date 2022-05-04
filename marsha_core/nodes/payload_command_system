@@ -10,6 +10,7 @@ import smach_ros
 #from marsha_core.marsha_services.gripper_cmds import *
 
 from marsha_core.pcs_node import PCSstate
+from marsha_core.pcs_node import PCScmd
 
 import os
 import serial
@@ -20,7 +21,8 @@ from marsha_msgs.srv import PayloadCmd
 
 NUM_CONNECTION_ATTEMPTS = 3
 
-os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
+# Used to check jetson power
+#os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
 
 def jets_connected():
     p = Popen('ping nnu-engineering', stdout=PIPE, stderr = STDOUT, shell=True)
@@ -77,6 +79,10 @@ def power_consumption():
     print(voltage)
 
 
+def get_node_id(name):
+    pcs_nodes = rospy.get_param("/pcs_nodes")
+    return pcs_nodes.index(name)
+
 
 class PCS_Node(object):
     def __init__(self, id):
@@ -86,35 +92,59 @@ class PCS_Node(object):
 # ---------------------------------------------------------------- #
 #                          States                                  #
 # ---------------------------------------------------------------- #
+
+class PCS_State(smach.State):
+    def __init__(self, pcs_node_name, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
+        smach.State.__init__(self, outcomes=['Success', 'Error'])
+
+        self.read_state_comm = state_comm
+        self.pcs_node_state = pcs_node_state
+        self.pcs_node_cmd = pcs_node_cmd
+
+        pcs_nodes = rospy.get_param("/pcs_nodes")
+        self.node_id = pcs_nodes.index(pcs_node_name)
+
+class PCS_Activate_State(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.ACTIVATE)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Success'
+        else:
+            return 'Error'
+
+
+
 class Comm_Check(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['Comm_Connected', 'Comm_Error'])
+        smach.State.__init__(self, outcomes=['Success', 'Error'])
 
     def execute(self, userdata):
         if jets_connected():
             rospy.loginfo("Jets Connected!")
-            return 'Comm_Connected'
+            return 'Success'
         else:
-            return 'Comm_Error'
+            return 'Error'
 
-class Wait_for_TE(smach.State):
-    def __init__(self, state_comm, pcs_node_state):
-        smach.State.__init__(self, outcomes=['TE_Detected', 'Wait', 'TE_Error'])
 
-        self.pcs_node_state = pcs_node_state
-        pcs_nodes = rospy.get_param("/pcs_nodes")
-        self.te_node_id = pcs_nodes.index("te_detector")
+class Wait_for_TE(PCS_Activate_State):
+    def __init__(self, pcs_node_state, pcs_node_cmd):
+        PCS_Activate_State.__init__(self, "te_detector", pcs_node_state, pcs_node_cmd)
 
-    def execute(self, userdata):
-        rospy.loginfo("Waiting for TE...")
+class Activate_Longeron_Cams(PCS_Activate_State):
+    def __init__(self, pcs_node_state, pcs_node_cmd):
+        PCS_Activate_State.__init__(self, "longeron_cams", pcs_node_state, pcs_node_cmd)
 
-        if self.pcs_node_state(self.te_node_id) == PCSstate.NA:
-            rospy.sleep(0.5)
-            return 'Wait'
-        elif self.pcs_node_state(self.te_node_id) == PCSstate.GOOD:
-            return 'TE_Detected'
-        else:
-            return 'TE_Error'
+
+
+#class Deactivate_Longeron_Cams():
+    
+
+
+
 
 
         
@@ -176,13 +206,16 @@ class PCS_SM(object):
     def mission_sm(self):
         with self.sm:
             smach.StateMachine.add('Comm_Check', Comm_Check(),
-                                transitions={'Comm_Connected': 'Wait_for_TE',
-                                             'Comm_Error': 'Mission_Fail'})
+                                transitions={'Success': 'Wait_for_TE',
+                                             'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(self.read_state_comm, self.pcs_node_state),
-                                transitions={'TE_Detected': 'Mission_Success',
-                                             'Wait': 'Wait_for_TE',
-                                             'TE_Error': 'Mission_Fail'})
+            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Activate_Longeron_Cams',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams(self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Mission_Success',
+                                             'Error': 'Mission_Fail'})
 
     
 

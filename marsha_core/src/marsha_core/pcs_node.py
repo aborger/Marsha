@@ -10,6 +10,11 @@ class PCSstate():
     ERROR = 1
     DISABLED = 2
 
+class PCScmd():
+    ACTIVATE = 1
+    DEACTIVATE = 2
+    SHUTDOWN = 3
+
 
 class PCSNode(object):
     def __init__(self, subsystem_name):

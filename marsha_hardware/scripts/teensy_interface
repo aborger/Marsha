@@ -15,7 +15,9 @@ from marsha_msgs.srv import JointCmd
 
 from control_msgs.srv import QueryTrajectoryState
 
-
+# Contains command chmod -R 777 /dev/ttyTHS1
+# https://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
+os.system("sudo /home/aaron/unlock_serial.sh")
 
 def deg_to_rad(degree):
     return degree / 180 * math.pi
@@ -56,6 +58,8 @@ class Interface():
         # True represents closed
         self.gripper_state = "close"
         self.gripper_cmd = rospy.get_param('/gripper/hw/close')
+
+        self.calibrating = False
 
 
         while not self.connected:
