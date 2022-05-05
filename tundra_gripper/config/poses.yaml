@@ -6,3 +6,11 @@ gripper:
       0.7
     half:
       0.2
+
+  hw:
+    open:
+      -2300
+    close:
+      0
+    half:
+      1000
