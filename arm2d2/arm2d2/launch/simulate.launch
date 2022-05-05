@@ -2,7 +2,7 @@
     
     <arg name="num_arms" default="1"/>
     <arg name="launch_rviz" default="false"/>
-    <arg name="load_time" default="20"/>
+    <arg name="load_time" default="2"/> <!-- normally 20-->
     <arg name="launch_base" default="true"/>
     <arg name="top_plate" default="false"/>
 
@@ -38,11 +38,11 @@
         <arg name="include_arm_base" value="$(arg launch_base)"/>
     </include>
 
-    <node pkg="marsha_gazebo" type="object_location" name="object_location"/>
+    <!--<node pkg="marsha_gazebo" type="object_location" name="object_location"/>-->
     <node pkg="marsha_gazebo" type="reset" name="reset" args="no_grav" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
 
-    <node ns="left" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet2" if="$(eval arg('num_arms') >= 1)"/>
-    <node ns="right" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet2" if="$(eval arg('num_arms') == 2)"/>
+    <node ns="left" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet1" if="$(eval arg('num_arms') >= 1)"/>
+    <node ns="right" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet1" if="$(eval arg('num_arms') == 2)"/>
 
 
 

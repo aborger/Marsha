@@ -107,26 +107,26 @@ def reset(req):
     twist = Twist()
 
     success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=gravity)
-    #success = set_link_properties(link_name="ball_2::pickup_object", gravity_mode=gravity)
-    #success = set_link_properties(link_name="ball_3::pickup_object", gravity_mode=gravity)
-    #success = set_link_properties(link_name="ball_4::pickup_object", gravity_mode=gravity)
+    success = set_link_properties(link_name="ball_2::pickup_object", gravity_mode=gravity)
+    success = set_link_properties(link_name="ball_3::pickup_object", gravity_mode=gravity)
+    success = set_link_properties(link_name="ball_4::pickup_object", gravity_mode=gravity)
     #print("gravity success: ", success)
-    desired_state = ModelState('pickup_object', l_pickup_1, twist, 'world')
+    desired_state = ModelState('ball_1', l_pickup_1, twist, 'world')
 
     # should redo with a better response (i did this at 3 am) and a for loop
     resp = set_model(desired_state)
 
-    #desired_state = ModelState('ball_2', l_pickup_2, twist, 'world')
+    desired_state = ModelState('ball_2', l_pickup_2, twist, 'world')
 
-    #resp = set_model(desired_state)
+    resp = set_model(desired_state)
 
-    #desired_state = ModelState('ball_3', l_pickup_3, twist, 'world')
+    desired_state = ModelState('ball_3', l_pickup_3, twist, 'world')
 
-    #resp = set_model(desired_state)
+    resp = set_model(desired_state)
 
-    #desired_state = ModelState('ball_4', l_pickup_4, twist, 'world')
+    desired_state = ModelState('ball_4', l_pickup_4, twist, 'world')
 
-    #resp = set_model(desired_state)
+    resp = set_model(desired_state)
     #print('dar:', dar, type(dar))
     return(resp.success)
 

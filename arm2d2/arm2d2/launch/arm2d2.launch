@@ -1,6 +1,6 @@
 <launch>
   
-  <arg name="machine" default="jet2"/>
+  <arg name="machine" default="jet1"/>
   <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
   <arg name="launch_world" default="true"/>
