@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import rospy
+from std_msgs.msg import Bool
+
+def btn_cb(msg):
+    print('recv')
+
+def main():
+    rospy.init_node("btn_node")
+    s = rospy.Subscriber("btn_press", Bool, btn_cb)
+    rospy.spin()
+
+if __name__ == "__main__":
+    main()

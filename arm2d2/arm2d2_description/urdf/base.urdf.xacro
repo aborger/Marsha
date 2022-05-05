@@ -2,9 +2,12 @@
 <robot name="arm2d" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <xacro:arg name="top_plate" default="false"/>
+<xacro:property name="long_l" value="0.025"/>
+<xacro:property name="long_w" value="0.051"/>
+<xacro:property name="long_h" value="0.2"/>
 
 <link name="world"/>
-
+<!--
 <link name="base_link">
   <inertial>
     <origin rpy="0 0 0" xyz="0.06861790086338357 -0.0835697992386399 0.07107579694115096"/>
@@ -14,23 +17,177 @@
   <visual>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry>
-      <mesh filename="package://arm2d2_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry>
-      <mesh filename="package://arm2d2_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+-->
+<link name="base_link">
+  <inertial>
+    <origin xyz="-2.154281413321998e-06 0.0035387814754625734 -0.0056639470834143136" rpy="0 0 0"/>
+    <mass value="1.5479093566761954"/>
+    <inertia ixx="0.010238" iyy="0.01139" izz="0.021617" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0.0025" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0.0025" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
 
+
 <joint name="world_joint" type="fixed">
-  <origin xyz="0 0 0.0075" rpy="0 0 0"/>
+  <origin xyz="0 0.0025 0" rpy="0 0 0"/>
   <parent link="world"/>
   <child link="base_link"/>
 </joint>
+
+
+<link name="gripper_mount_l">
+  <inertial>
+    <origin xyz="0.060099999999972134 -0.08246115124410087 0.038698562774923354" rpy="0 0 0"/>
+    <mass value="0.06861748378285525"/>
+    <inertia ixx="1.9e-05" iyy="1.9e-05" izz="1.7e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+
+<joint name="gripper_mount_l_joint" type="fixed">
+  <origin xyz="-0.12 -3e-06 -0.008829" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="gripper_mount_l"/>
+</joint>
+
+<link name="gripper_mount_r">
+  <inertial>
+    <origin xyz="0.060099999999972134 -0.08246115124410087 0.038698562774923354" rpy="0 0 0"/>
+    <mass value="0.06861748378285525"/>
+    <inertia ixx="1.9e-05" iyy="1.9e-05" izz="1.7e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="gripper_mount_r_joint" type="fixed">
+  <origin xyz="0 -3e-06 -0.008829" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="gripper_mount_r"/>
+</joint>
+
+<link name="soft_robotics">
+  <visual>
+    <origin xyz="0 0 0.063" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.05 0.15 0.125"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="srob_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="soft_robotics"/>
+</joint>
+
+<link name="longeron_1">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="${long_l} ${long_w} ${long_h}"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="longeron_1_j" type="fixed">
+  <origin xyz="0.1775 0 0.1" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="longeron_1"/>
+</joint>
+
+<link name="longeron_2">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="${long_l} ${long_w} ${long_h}"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="longeron_2_j" type="fixed">
+  <origin xyz="-0.1775 0 0.1" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="longeron_2"/>
+</joint>
+
+<link name="longeron_3">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="${long_w} ${long_l} ${long_h}"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="longeron_3_j" type="fixed">
+  <origin xyz="0 0.175 0.1" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="longeron_3"/>
+</joint>
+
+<link name="longeron_4">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="${long_w} ${long_l} ${long_h}"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="longeron_4_j" type="fixed">
+  <origin xyz="0 -0.18 0.1" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="longeron_4"/>
+</joint>
+
 
 <xacro:if value="$(arg top_plate)">
   <link name="top_plate">

@@ -6,16 +6,21 @@
         - arm2d2_hw
         - ar3_hw
     -->
-    <arg name="robot" default="arm2d2"/>
-    <include file="$(find arm2d2)/launch/simulate.launch">
+    <arg name="robot" default="ar3_gazebo"/>
+    <!--<include file="$(find arm2d2)/launch/simulate.launch">
         <arg name="top_plate" value="false"/>
         <arg name="launch_base" value="false"/>
+        <arg name="launch_rviz" value="false"/>
+    </include>-->
+
+    <include file="$(find ar3_gazebo)/launch/simulate.launch">
         <arg name="launch_rviz" value="false"/>
     </include>
 
     <arg name="machine" default="jet2"/>
 
     <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/trajectory_predictor.yaml" command="load"/>
 
 
     
@@ -23,7 +28,7 @@
     <group>
         <node name="ai_node" pkg="marsha_ai" type="ai_node" machine="$(arg machine)"/>
         <node name="grasp_generator" pkg="marsha_ai" type="grasp_generator" machine="$(arg machine)"/>
-        <node name="trajectory_predictor" pkg="marsha_ai" type="trajectory_predictor" machine="$(arg machine)" launch-prefix="bash -c 'sleep 5; $0 $a'"/>
+        <node name="trajectory_predictor" pkg="marsha_ai" type="trajectory_predictor_kalman" machine="$(arg machine)" launch-prefix="bash -c 'sleep 5; $0 $a'"/>
         <node name="tensorboard" pkg="marsha_ai" type="spawn_tensorboard" machine="$(arg machine)"/>
     </group>
 

@@ -1,0 +1,17 @@
+<launch>
+    <include file="$(find marsha_core)/launch/satlab_net.machine"/>
+
+    <rosparam file="$(find marsha_core)/config/PCS.yaml"/>
+
+    <node pkg="marsha_core" name="pcs" type="payload_command_system" output="screen" machine="jet1"/>
+
+    <include file="$(find arm2d2_hardware)/launch/arm2d2.launch">
+        <arg name="ns" value="left"/>
+        <arg name="jets" value="jet1"/>
+        <arg name="launch_rviz" value="false"/>
+    </include>
+
+    <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen" machine="jet1"/>
+    <node pkg="marsha_detection" name="record_longeron" type="record_longeron" machine="jet1"/>
+
+</launch>

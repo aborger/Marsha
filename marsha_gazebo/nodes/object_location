@@ -15,7 +15,9 @@ import rospy
 import sys
 
 # Msg and Srv
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Vector3
+
 from marsha_msgs.srv import GetPosFrame
 from gazebo_msgs.srv import GetModelState
 from marsha_msgs.srv import PositionCmd
@@ -25,10 +27,12 @@ class LocationServer():
     def __init__(self):
         rospy.init_node('object_publisher')
 
-        self.pub = rospy.Publisher('object_pos', Pose, queue_size=10)
+        self.pub = rospy.Publisher('object_pos', Point, queue_size=1)
+        self.vel_pub = rospy.Publisher('object_vel', Vector3, queue_size=1)
+
         self.prev_state = None
         self.service = rospy.Service('get_object_pos', GetPosFrame, self.handleObjectPos)
-        self.rate = rospy.Rate(5)
+        self.rate = rospy.Rate(100)
 
         rospy.wait_for_service('/gazebo/get_model_state')
 
@@ -46,7 +50,6 @@ class LocationServer():
             rospy.logwarn("Service couldnt get state: " + str(e))
 
         if state != None:
-            rospy.logdebug(state.pose.position)
             self.prev_state = state
             return state.pose.position
         else:
@@ -57,14 +60,16 @@ class LocationServer():
 
     def run(self):
         while not rospy.is_shutdown():
-            try:
-                object_state = self.get_state("pickup_object", "world")
+            #try:
+            obj_state = self.get_state("pickup_object", "world")
 
-                pose = object_state.pose
-
-                self.pub.publish(pose)
-            except Exception as e:
-                rospy.logwarn("Publisher couldnt get state: " + str(e))
+            pos = obj_state.pose.position
+            vel = obj_state.twist.linear
+            #rospy.loginfo("x: " + str(pos.x) + ", y: " + str(pos.y) + ", z: " + str(pos.z) + ", dx: " + str(vel.x) + ", dy: " + str(vel.y) + ", dz: " + str(vel.z))
+            self.pub.publish(pos)
+            self.vel_pub.publish(vel)
+            #except Exception as e:
+            #    rospy.logwarn("Publisher couldnt get state: " + str(e))
 
 
             self.rate.sleep()

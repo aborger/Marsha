@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find marsha_core)/launch/satlab_net.machine"/>
+
+    <node pkg="marsha_detection" type="record" name="record" output="screen" machine="jet2"/>
+</launch>

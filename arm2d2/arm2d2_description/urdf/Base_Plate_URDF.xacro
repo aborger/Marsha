@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<robot name="Base_Plate_URDF" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find Base_Plate_URDF_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find Base_Plate_URDF_description)/urdf/Base_Plate_URDF.trans" />
+<xacro:include filename="$(find Base_Plate_URDF_description)/urdf/Base_Plate_URDF.gazebo" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="-2.154281413321998e-06 0.0035387814754625734 -0.0056639470834143136" rpy="0 0 0"/>
+    <mass value="1.5479093566761954"/>
+    <inertia ixx="0.010238" iyy="0.01139" izz="0.021617" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Gripper_Mount_v1_1">
+  <inertial>
+    <origin xyz="-0.06010000000002788 -0.08246115124410092 0.038698562774923416" rpy="0 0 0"/>
+    <mass value="0.06861748378285525"/>
+    <inertia ixx="1.9e-05" iyy="1.9e-05" izz="1.7e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/Gripper_Mount_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/Gripper_Mount_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Gripper_Mount_v1__1__1">
+  <inertial>
+    <origin xyz="0.060099999999972134 -0.08246115124410087 0.038698562774923354" rpy="0 0 0"/>
+    <mass value="0.06861748378285525"/>
+    <inertia ixx="1.9e-05" iyy="1.9e-05" izz="1.7e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/Gripper_Mount_v1__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://Base_Plate_URDF_description/meshes/Gripper_Mount_v1__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Rigid1" type="fixed">
+  <origin xyz="0.0 -3e-06 -0.011329" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Gripper_Mount_v1_1"/>
+</joint>
+
+<joint name="Rigid2" type="fixed">
+  <origin xyz="0.0 -3e-06 -0.011329" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Gripper_Mount_v1__1__1"/>
+</joint>
+
+</robot>

@@ -24,10 +24,11 @@ include_directories(
 
 catkin_install_python(
     PROGRAMS
-        scripts/locate
+        nodes/locate
+        nodes/record
         scripts/train
-        scripts/record
         scripts/view
         scripts/smoother
+        scripts/print_velocity
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

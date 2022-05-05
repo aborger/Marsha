@@ -16,7 +16,7 @@
       <origin rpy="0 3.1415 0" xyz="-0.025 0 -0.003"/>
       <geometry>
         <!--<box size="0.1 0.04 0.005"/>-->
-        <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.01 0.01 0.01"/>
+        <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.01 0.01 0.01"/> <!-- or ar3 mount -->
       </geometry>
       <material name="">
         <color rgba="1 1 0 1"/>
@@ -25,13 +25,14 @@
     <collision>
       <origin rpy="0 3.1415 0" xyz="-0.025 0 -0.003"/>
       <geometry>
-        <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.01 0.01 0.01"/>
+        <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.01 0.01 0.01"/> <!-- or ar3 mount-->
       </geometry>
     </collision>
   </link>
 
   <joint name="palm_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
+    <!-- for ar3_mount: <origin xyz="0 -0.045 0" rpy="0 0 3.14"/>-->
     <parent link="gripper_link"/>
     <child link="palm"/>
   </joint>

@@ -1,0 +1,5 @@
+trajector_config:
+  acceleration:
+    - 0
+    - 0
+    - 0
