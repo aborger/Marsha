@@ -20,6 +20,10 @@ mv ~/marsha ~/catkin_ws/src
 cd ~/catkin_ws/src
 git clone https://github.com/aborger/ar3_core
 git clone https://github.com/ros/executive_smach.git -b indigo-devel
+cd ~/catkin_ws
+
+catkin_make
+
 
 echo -e "
 source ~/catkin_ws/devel/setup.bash
