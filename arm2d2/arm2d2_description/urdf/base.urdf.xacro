@@ -2,9 +2,9 @@
 <robot name="arm2d" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <xacro:arg name="top_plate" default="false"/>
-<xacro:property name="long_l" value="0.025"/>
-<xacro:property name="long_w" value="0.051"/>
-<xacro:property name="long_h" value="0.2"/>
+<xacro:property name="long_l" value="0.02"/>
+<xacro:property name="long_w" value="0.05"/>
+<xacro:property name="long_h" value="0.279654"/>
 
 <link name="world"/>
 <!--
@@ -52,7 +52,7 @@
 
 
 <joint name="world_joint" type="fixed">
-  <origin xyz="0 0.0025 0" rpy="0 0 0"/>
+  <origin xyz="0 0.0025 0.078232" rpy="0 0 0"/>
   <parent link="world"/>
   <child link="base_link"/>
 </joint>
@@ -71,12 +71,12 @@
     </geometry>
     <material name="silver"/>
   </visual>
-  <collision>
+  <!--<collision>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
     </geometry>
-  </collision>
+  </collision>-->
 </link>
 
 
@@ -99,12 +99,12 @@
     </geometry>
     <material name="silver"/>
   </visual>
-  <collision>
+  <!--<collision>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
     </geometry>
-  </collision>
+  </collision>-->
 </link>
 
 <joint name="gripper_mount_r_joint" type="fixed">
@@ -115,7 +115,7 @@
 
 <link name="soft_robotics">
   <visual>
-    <origin xyz="0 0 0.063" rpy="0 0 0"/>
+    <origin xyz="0 -0.04184 0.063" rpy="0 0 0"/>
     <geometry>
       <box size="0.05 0.15 0.125"/>
     </geometry>
@@ -138,7 +138,7 @@
 </link>
 
 <joint name="longeron_1_j" type="fixed">
-  <origin xyz="0.1775 0 0.1" rpy="0 0 0"/>
+  <origin xyz="0.175 0 0.0616" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="longeron_1"/>
 </joint>
@@ -153,7 +153,7 @@
 </link>
 
 <joint name="longeron_2_j" type="fixed">
-  <origin xyz="-0.1775 0 0.1" rpy="0 0 0"/>
+  <origin xyz="-0.175 0 0.0616" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="longeron_2"/>
 </joint>
@@ -168,7 +168,7 @@
 </link>
 
 <joint name="longeron_3_j" type="fixed">
-  <origin xyz="0 0.175 0.1" rpy="0 0 0"/>
+  <origin xyz="0 0.1725 0.0616" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="longeron_3"/>
 </joint>
@@ -183,7 +183,7 @@
 </link>
 
 <joint name="longeron_4_j" type="fixed">
-  <origin xyz="0 -0.18 0.1" rpy="0 0 0"/>
+  <origin xyz="0 -0.1725 0.0616" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="longeron_4"/>
 </joint>
@@ -213,7 +213,7 @@
 
 
   <joint name="top_plate_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.29"/>
+    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.204724"/>
     <parent link="base_link"/>
     <child link="top_plate"/>
   </joint>

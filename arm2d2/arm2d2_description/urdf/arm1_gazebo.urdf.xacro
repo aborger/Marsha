@@ -22,217 +22,184 @@
   <xacro:unless value="$(arg include_arm_base)">
     <link name="world"/>
 
-    <link name="base_link">
-      <inertial>
-        <origin rpy="0 0 0" xyz="0.06861790086338357 -0.0835697992386399 0.07107579694115096"/>
-        <mass value="4.519107238213137"/>
-        <inertia ixx="0.059779" ixy="-0.0" ixz="0.0" iyy="0.062251" iyz="0.000956" izz="0.076317"/>
-      </inertial>
-      <visual>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <geometry>
-          <box size="0.001 0.001 0.001"/>
-        </geometry>
-        <material name="silver"/>
-      </visual>
-      <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <geometry>
-          <box size="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
-    </link>
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.06861790086338357 -0.0835697992386399 0.07107579694115096"/>
+      <mass value="4.519107238213137"/>
+      <inertia ixx="0.059779" ixy="-0.0" ixz="0.0" iyy="0.062251" iyz="0.000956" izz="0.076317"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
 
     <joint name="world_joint" type="fixed">
       <parent link="world"/>
       <child link="base_link"/>
-      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <origin xyz="0 0 0.0725" rpy="1.57 0 0"/>
     </joint>
   </xacro:unless>
 
   <xacro:if value="${ns == 'left'}">
     <link name="link_1">
       <inertial>
-        <origin rpy="0 0 0" xyz="-0.00789643305978462 0.002474313899377526 0.01425764348212194" />
-        <mass value="0.17435766910618158" />
-        <inertia ixx="9.7e-05" ixy="7e-06" ixz="2.8e-05" iyy="0.000111" iyz="-1.2e-05" izz="0.000119" />
+        <origin xyz="-0.023234210000508494 0.032933361084236216 0.002920663644532681" rpy="0 0 0"/>
+        <mass value="0.22666453646044638"/>
+        <inertia ixx="0.000128" iyy="0.000201" izz="0.000231" ixy="3.1e-05" iyz="-5e-06" ixz="1.5e-05"/>
       </inertial>
       <visual>
-        <origin rpy="0 0 0" xyz="0.003226 0.019004 -0.084836" />
+        <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link_1.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <material name="silver" />
+        <material name="silver"/>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.003226 0.019004 -0.084836" />
+        <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link_1.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
 
     
     <joint name="joint_1" type="revolute">
-      <origin rpy="0 0 0" xyz="-0.003226 -0.019004 0.084836" />
-      <parent link="base_link" />
-      <child link="link_1" />
-      <axis xyz="-0.0 -0.0 1.0" />
-      <limit effort="100" lower="-3.1415" upper="3.1415" velocity="100"/>
-    </joint>
-  </xacro:if>
-
-  <xacro:if value="${ns == 'right'}">
-    <link name="link_1">
-      <inertial>
-        <origin rpy="0 0 0" xyz="0.007896441922670472 0.002474313899377481 0.014257643482122176"/>
-        <mass value="0.17435766910618158"/>
-        <inertia ixx="9.7e-05" ixy="-7e-06" ixz="-2.8e-05" iyy="0.000111" iyz="-1.2e-05" izz="0.000119"/>
-      </inertial>
-      <visual>
-        <origin rpy="0 0 0" xyz="-0.140459 0.019004 -0.084836"/>
-        <geometry>
-          <mesh filename="package://arm2d2_description/meshes/right_link_1.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-        <material name="silver"/>
-      </visual>
-      <collision>
-        <origin rpy="0 0 0" xyz="-0.140459 0.019004 -0.084836"/>
-        <geometry>
-          <mesh filename="package://arm2d2_description/meshes/right_link_1.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
-    </link>
-
-    <joint name="joint_1" type="revolute">
-      <origin rpy="0 0 0" xyz="0.140459 -0.019004 0.084836"/>
+      <origin xyz="0.0851 0.006604 -0.0851" rpy="0 0 0"/>
       <parent link="base_link"/>
       <child link="link_1"/>
-      <axis xyz="-0.0 -0.0 1.0"/>
+      <axis xyz="0.0 -1.0 0.0"/>
       <limit effort="100" lower="-3.1415" upper="3.1415" velocity="100"/>
     </joint>
   </xacro:if>
+
 
   <link name="link_2">
     <inertial>
-      <origin rpy="0 0 0" xyz="0.01898708853636933 -8.655304474807987e-06 0.04227958883013139" />
-      <mass value="0.3305514421880632" />
-      <inertia ixx="0.000692" ixy="0.0" ixz="0.000175" iyy="0.000805" iyz="-0.0" izz="0.000196" />
+      <origin xyz="-0.004298579881610032 0.07240002211825339 0.016744309655985348" rpy="0 0 0"/>
+      <mass value="0.2595123095947453"/>
+      <inertia ixx="0.000561" iyy="0.000112" izz="0.000572" ixy="-6.1e-05" iyz="-9.9e-05" ixz="-9e-06"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0.023226 0.006935 -0.127996" />
+      <origin xyz="-0.090305 -0.046604 0.085785" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_2.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_2_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="silver" />
+      <material name="silver"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0.023226 0.006935 -0.127996" />
+      <origin xyz="-0.090305 -0.046604 0.085785" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_2.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_2_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="joint_2" type="revolute">
     <xacro:if value="${ns == 'left'}">
-      <origin rpy="0 0 0" xyz="-0.02 0.012069 0.04316" />
-    </xacro:if>
-    <xacro:if value="${ns == 'right'}">
-      <origin rpy="0 0 3.14159" xyz="0.02 0.012069 0.04316" />
+      <origin xyz="0.005205 0.04 -0.000685" rpy="0 0 0"/>
     </xacro:if>
     <parent link="link_1" />
     <child link="link_2" />
-    <axis xyz="1.0 -0.0 0.0" />
-    <limit effort="100" lower="-1.658063" upper="1.658063" velocity="100" />
+    <axis xyz="-0.991445 -0.0 0.130526"/>
+    <limit upper="1.919862" lower="-1.396263" effort="100" velocity="100"/>
   </joint>
 
   <link name="link_3">
     <inertial>
-      <origin rpy="0 0 0" xyz="0.01486624761711016 5.106898781712457e-05 0.01728082961823646" />
-      <mass value="0.12173296266489733" />
-      <inertia ixx="4.7e-05" ixy="-0.0" ixz="-6e-06" iyy="5e-05" iyz="0.0" izz="2.9e-05" />
+      <origin xyz="-0.01624182942995088 -0.0066433309450394384 0.019077247172201647" rpy="0 0 0"/>
+      <mass value="0.1304515658530355"/>
+      <inertia ixx="5.4e-05" iyy="6.3e-05" izz="4.4e-05" ixy="-2e-06" iyz="8e-06" ixz="7e-06"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0.013226 0.006935 -0.247996" />
+      <origin xyz="-0.084346 -0.183285 0.054438" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_3.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_3_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="silver" />
+      <material name="silver"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0.013226 0.006935 -0.247996" />
+      <origin xyz="-0.084346 -0.183285 0.054438" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_3.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_3_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="joint_3" type="revolute">
-    <origin rpy="0 0 0" xyz="0.01 0.0 0.12" />
+    <origin xyz="-0.005959 0.136681 0.031347" rpy="0 0 0"/>
     <parent link="link_2" />
     <child link="link_3" />
-    <axis xyz="1.0 -0.0 0.0" />
-    <limit effort="100" lower="-2.268928" upper="2.268928" velocity="100" />
+    <axis xyz="-0.991445 -0.0 0.130526"/>
+    <limit upper="4.101524" lower="-0.698132" effort="100" velocity="100"/>
   </joint>
 
   <link name="link_4">
     <inertial>
-      <origin rpy="0 0 0" xyz="-0.011101446329824061 3.2242915119862735e-05 0.04184113083783203" />
-      <mass value="0.1955624220705575" />
-      <inertia ixx="0.00022" ixy="-0.0" ixz="3.5e-05" iyy="0.000227" iyz="0.0" izz="5.5e-05" />
+      <origin xyz="0.02326557503032635 -0.017807087000725114 0.04222851748201549" rpy="0 0 0"/>
+      <mass value="0.21070496092935861"/>
+      <inertia ixx="0.00028" iyy="0.000293" izz="0.000129" ixy="3.4e-05" iyz="8.1e-05" ixz="-8e-05"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="-0.006774 0.006935 -0.287996" />
+      <origin xyz="-0.059366 -0.168718 0.013574" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_4.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_4_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="silver" />
+      <material name="silver"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="-0.006774 0.006935 -0.287996" />
+      <origin xyz="-0.059366 -0.168718 0.013574" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_4.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_4_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="joint_4" type="revolute">
-    <origin rpy="0 0 0" xyz="0.02 0.0 0.04" />
+    <origin xyz="-0.02498 -0.014567 0.040864" rpy="0 0 0"/>
     <parent link="link_3" />
     <child link="link_4" />
-    <axis xyz="0.0 7e-06 1.0" />
+    <axis xyz="0.121444 -0.366501 0.922458"/>
     <limit effort="100" lower="-3.1415" upper="3.1415" velocity="100"/>
   </joint>
 
   
   <link name="link_5">
     <inertial>
-      <origin rpy="0 0 0" xyz="0.02043962300807103 -1.5866844334157942e-07 0.010610125536728798" />
-      <mass value="0.06937470143360883" />
-      <inertia ixx="2.7e-05" ixy="-0.0" ixz="-2e-06" iyy="3.1e-05" iyz="-0.0" izz="1.7e-05" />
+      <origin xyz="-0.02075508203374557 -0.023703571758186867 0.0028416884784955576" rpy="0 0 0"/>
+      <mass value="0.15989560658307483"/>
+      <inertia ixx="8.3e-05" iyy="5.8e-05" izz="9.9e-05" ixy="-1.8e-05" iyz="3e-06" ixz="2e-06"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996" />
+      <origin xyz="-0.091433 -0.131975 -0.076012" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_5.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_5_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="silver" />
+      <material name="silver"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0.003226 0.006934 -0.377996" />
+      <origin xyz="-0.091433 -0.131975 -0.076012" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://arm2d2_description/meshes/link_5.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://arm2d2_description/meshes/link_5_1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="joint_5" type="revolute">
-    <origin rpy="0 0 0" xyz="-0.01 1e-06 0.09" />
+    <origin xyz="0.032067 -0.036743 0.089586" rpy="0 0 0"/>
     <parent link="link_4" />
     <child link="link_5" />
-    <axis xyz="1.0 -0.0 0.0" />
-    <limit effort="100" lower="-2.268928" upper="2.268928" velocity="100" />
+    <axis xyz="-0.991445 -0.0 0.130526"/>
+    <limit upper="3.228859" lower="-0.785398" effort="100" velocity="100"/>
   </joint>
 
   <!-- Fake link that allows gripper to "spin" even though the hardware does not have a revolute gripper joint -->

@@ -39,7 +39,8 @@
         <parent link="link_5"/>
         <child link="gripper_link"/>
         <xacro:if value="${is_left}">
-          <origin xyz="0.025 0 0.009" rpy="0 0 0"/>
+          <!-- Very wierd axis because link_5 is upside down (x, z, y)-->
+          <origin xyz="-0.03 -0.041 0.0045" rpy="0 0 0"/>
         </xacro:if>
         <xacro:unless value="${is_left}">
           <origin xyz="0.025 0 0.009" rpy="0 0 3.14159"/>

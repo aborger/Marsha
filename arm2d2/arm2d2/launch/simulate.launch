@@ -14,8 +14,8 @@
         <arg name="top_plate" value="$(arg top_plate)"/>
         <arg name="delay" value="$(arg load_time)"/>
     </include>
-    <node pkg="rosservice" type="rosservice" name="delete_gnd" 
-          args="call /gazebo/delete_model ground_plane" launch-prefix="bash -c 'sleep $(arg load_time); $0 $@'"/>
+    <!--<node pkg="rosservice" type="rosservice" name="delete_gnd" 
+          args="call /gazebo/delete_model ground_plane" launch-prefix="bash -c 'sleep $(arg load_time); $0 $@'"/>-->
 
 
 
@@ -41,9 +41,9 @@
     <!--<node pkg="marsha_gazebo" type="object_location" name="object_location"/>-->
     <node pkg="marsha_gazebo" type="reset" name="reset" args="no_grav" launch-prefix="bash -c 'sleep 2; $0 launch'"/>
 
-    <node ns="left" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet1" if="$(eval arg('num_arms') >= 1)"/>
+    <!--<node ns="left" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet1" if="$(eval arg('num_arms') >= 1)"/>
     <node ns="right" name="homing" pkg="arm2d2" type="fold_cmd" args="fold" machine="jet1" if="$(eval arg('num_arms') == 2)"/>
-
+    -->
 
 
 </launch>
