@@ -22,8 +22,8 @@ git clone https://github.com/aborger/ar3_core
 git clone https://github.com/ros/executive_smach.git -b indigo-devel
 
 echo -e "
-source ~/catkin_ws/devel/setup.bash \n
+source ~/catkin_ws/devel/setup.bash
 export ROS_HOSTNAME=$HOSTNAME \n
-# Change which device is connected to \n
-export ROS_MASTER_URI=http://$HOSTNAME:11311 \n
-"
+# Change which device is connected to
+export ROS_MASTER_URI=http://$HOSTNAME:11311
+" >> ~/.bashrc
