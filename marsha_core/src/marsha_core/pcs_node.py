@@ -26,8 +26,8 @@ class PCSNode(object):
         
         self.pcs_id = pcs_nodes.index(subsystem_name)
 
-        rospy.wait_for_service('/payload_cmd')
-        self.payload_cmd = rospy.ServiceProxy('/payload_cmd', PayloadCmd)
+        rospy.wait_for_service('payload_cmd')
+        self.payload_cmd = rospy.ServiceProxy('payload_cmd', PayloadCmd)
 
     def pcs_cmd(self, error):
         return self.payload_cmd(self.pcs_id, error)

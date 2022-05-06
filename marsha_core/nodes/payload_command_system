@@ -179,7 +179,7 @@ class PCS_SM(object):
         self.stateComm = rospy.Service('pcs_comm', StateComm, self.state_comm_callback)
         self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
 
-        rospy.Service('/payload_cmd', PayloadCmd, self.payload_cmd_cb)
+        rospy.Service('payload_cmd', PayloadCmd, self.payload_cmd_cb)
 
         pcs_nodes = rospy.get_param("/pcs_nodes")
 
@@ -201,7 +201,7 @@ class PCS_SM(object):
         rospy.loginfo('Waiting for service...')
         if self.jet_connection:
             rospy.wait_for_service(other_arm + 'pcs_comm')
-            self.read_state_comm = rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
+            self.read_state_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
 
         self.mission_sm()
 
