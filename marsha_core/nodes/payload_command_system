@@ -156,7 +156,6 @@ class Jetson_Sync(smach.State):
 
 
     def execute(self, userdata):
-        self.increment_sync_id()
         rospy.loginfo("Syncing Jets...")
         other_state = self.read_state_comm().current_state
 
