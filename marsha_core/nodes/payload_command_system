@@ -146,13 +146,15 @@ class Jetson_Comm_Check(smach.State):
             return 'Error'
 
 class Jetson_Sync(smach.State):
-    def __init__(self, sync_id, jet_comm, timeout=10, poll_period=0.1): # timeout in seconds
+    def __init__(self, sync_id, jet_comm, handshake, timeout=10, poll_period=0.1): # timeout in seconds
         smach.State.__init__(self, outcomes=['Ready', 'Timeout'])
 
         self.sync_id = sync_id
         self.read_jet_comm = jet_comm
         self.timeout = timeout
         self.poll_period = poll_period
+        self.handshake_complete = handshake[0]
+        self.reset_handshake_status = handshake[1]
 
 
     def execute(self, userdata):
@@ -161,11 +163,21 @@ class Jetson_Sync(smach.State):
 
         time_elapsed = 0
 
+        # waits until other jetson is on the same state
         while other_state != 'Jetson_Sync_' + str(self.sync_id):
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
                 return 'Timeout'
+
+        # waits until other jetson asks the state
+        while not self.handshake_complete():
+            rospy.sleep(self.poll_period)
+            time_elapsed += self.poll_period
+            if time_elapsed > self.timeout:
+                return 'Timeout'
+        
+        self.reset_handshake_status()
 
         return 'Ready'
 
@@ -199,6 +211,8 @@ class PCS_SM(object):
 
         # ensures both jetsons are on the same sync state
         self.curr_sync_id = 0
+        self.handshake_status = False
+
 
         self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
 
@@ -233,8 +247,15 @@ class PCS_SM(object):
 
     def state_comm_callback(self, req):
         states = self.sm.get_active_states()
-
+        if states[0] = 'Jetson_Sync_' + str(self.sync_id):
+            self.handshake_status = True
         return states[0]
+
+    def handshake_status(self):
+        return self.handshake_status
+
+    def reset_handshake(self):
+        self.handshake_status = False
 
     def payload_cmd_cb(self, msg):
         rospy.logdebug("From: " + str(msg.pcs_id) + " Msg: " + str(msg.state))
@@ -251,12 +272,13 @@ class PCS_SM(object):
 
 
     def mission_sm(self):
+        handshake = (self.handshake_status, self.reset_handshake)
         with self.sm:
             smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
                                 transitions={'Success': 'Jetson_Sync_1', # usually Teensy comm check
                                              'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm),
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake),
                                 transitions={'Ready': 'Wait_for_TE',
                                              'Timeout': 'Mission_Fail'})
 
