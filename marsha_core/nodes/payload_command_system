@@ -145,6 +145,32 @@ class Jetson_Comm_Check(smach.State):
         else:
             return 'Error'
 
+class Jetson_Sync(smach.State):
+    def __init__(self, sync_id, jet_comm, timeout=10, poll_period=0.1): # timeout in seconds
+        smach.State.__init__(self, outcomes=['Ready', 'Timeout'])
+
+        self.sync_id = sync_id
+        self.read_jet_comm = jet_comm
+        self.timeout = timeout
+        self.poll_period = poll_period
+
+
+    def execute(self, userdata):
+        self.increment_sync_id()
+        rospy.loginfo("Syncing Jets...")
+        other_state = self.read_state_comm().current_state
+
+        time_elapsed = 0
+
+        while other_state != 'Jetson_Sync_' + str(self.get_sync_id):
+            rospy.sleep(self.poll_period)
+            time_elapsed += self.poll_period
+            if time_elapsed > self.timeout:
+                return 'Timeout'
+
+        return 'Ready'
+
+
 class Teensy_Comm_Check(PCS_Activate_State):
     pass
 
@@ -162,12 +188,6 @@ class Deactivate_Longeron_Cams(PCS_Deactivate_State):
 
 
 
-
-
-        
-
-
-
     
 # ---------------------------------------------------------------- #
 #                       State Machine                              #
@@ -177,6 +197,10 @@ class PCS_SM(object):
     def __init__(self):
 
         self.stateComm = rospy.Service('pcs_comm', StateComm, self.state_comm_callback)
+
+        # ensures both jetsons are on the same sync state
+        self.curr_sync_id = 0
+
         self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
 
         rospy.Service('payload_cmd', PayloadCmd, self.payload_cmd_cb)
@@ -201,7 +225,7 @@ class PCS_SM(object):
         rospy.loginfo('Waiting for service...')
         if self.jet_connection:
             rospy.wait_for_service(other_arm + 'pcs_comm')
-            self.read_state_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
+            self.jet_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
 
         self.mission_sm()
 
@@ -210,6 +234,7 @@ class PCS_SM(object):
 
     def state_comm_callback(self, req):
         states = self.sm.get_active_states()
+
         return states[0]
 
     def payload_cmd_cb(self, msg):
@@ -229,8 +254,12 @@ class PCS_SM(object):
     def mission_sm(self):
         with self.sm:
             smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
-                                transitions={'Success': 'Wait_for_TE', # usually Teensy comm check
+                                transitions={'Success': 'Jetson_Sync_1', # usually Teensy comm check
                                              'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm),
+                                transitions={'Ready': 'Wait_for_TE',
+                                             'Timeout': 'Mission_Fail'})
 
             smach.StateMachine.add('Teensy_Comm_Check', Teensy_Comm_Check("teensy_interface", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Wait_for_TE',
