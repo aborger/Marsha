@@ -46,7 +46,7 @@ TxPacket::~TxPacket() {
 /*                      Comm                      */
 /* ============================================== */
 Comm::Comm() {
-  Serial1.begin(BAUD_RATE);
+  hw_serial.begin(BAUD_RATE);
 }
 
 
@@ -56,13 +56,13 @@ void Comm::set_callback(void (*_spin_callback)(RxPacket &rx)) {
 }
 
 void Comm::transmit(TxPacket tx) {
-  serializeJson(tx.doc, Serial1); // Transmit json bytes
+  serializeJson(tx.doc, hw_serial); // Transmit json bytes
 }
 
 
 void Comm::spin() {
-  if (Serial1.available()) {
-    char ch = Serial1.read(); // Read a single character
+  if (hw_serial.available()) {
+    char ch = hw_serial.read(); // Read a single character
     // Full msg recieved
     if (ch == '\n') {
       

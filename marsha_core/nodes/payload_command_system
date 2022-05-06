@@ -25,7 +25,7 @@ NUM_CONNECTION_ATTEMPTS = 3
 #os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
 
 def jets_connected():
-    p = Popen('ping nnu-engineering', stdout=PIPE, stderr = STDOUT, shell=True)
+    p = Popen('ping marsha', stdout=PIPE, stderr = STDOUT, shell=True)
 
     num_attempts = 0
     num_connections = 0
@@ -34,7 +34,7 @@ def jets_connected():
         line = p.stdout.readline()
         beginning = line.split("(")[0]
 
-        if beginning == "64 bytes from NNU-Engineering ":
+        if beginning == "64 bytes from marsha ":
             num_connections += 1
         elif beginning == "From jet ":
             pass
@@ -94,7 +94,7 @@ class PCS_Node(object):
 # ---------------------------------------------------------------- #
 
 class PCS_State(smach.State):
-    def __init__(self, pcs_node_name, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
+    def __init__(self, pcs_node_name=None, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
         smach.State.__init__(self, outcomes=['Success', 'Error'])
 
         self.read_state_comm = state_comm
@@ -116,31 +116,46 @@ class PCS_Activate_State(PCS_State):
         else:
             return 'Error'
 
-
-
-class Comm_Check(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['Success', 'Error'])
-
+class PCS_Deactivate_State(PCS_State):
     def execute(self, userdata):
-        if jets_connected():
-            rospy.loginfo("Jets Connected!")
+        self.pcs_node_cmd(self.node_id, PCScmd.DEACTIVATE)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
             return 'Success'
         else:
             return 'Error'
 
 
+
+class Jetson_Comm_Check(smach.State):
+    def __init__(self, check_connection):
+        smach.State.__init__(self, outcomes=['Success', 'Error'])
+
+        self.check_connection = check_connection
+
+    def execute(self, userdata):
+        if self.check_connection():
+            rospy.loginfo("Jets Connected!")
+            return 'Success'
+        else:
+            return 'Error'
+
+class Teensy_Comm_Check(PCS_Activate_State):
+    pass
+
 class Wait_for_TE(PCS_Activate_State):
-    def __init__(self, pcs_node_state, pcs_node_cmd):
-        PCS_Activate_State.__init__(self, "te_detector", pcs_node_state, pcs_node_cmd)
+    pass
 
 class Activate_Longeron_Cams(PCS_Activate_State):
-    def __init__(self, pcs_node_state, pcs_node_cmd):
-        PCS_Activate_State.__init__(self, "longeron_cams", pcs_node_state, pcs_node_cmd)
+    pass
+
+class Deactivate_Longeron_Cams(PCS_Deactivate_State):
+    pass
 
 
-
-#class Deactivate_Longeron_Cams():
     
 
 
@@ -178,12 +193,18 @@ class PCS_SM(object):
         else:
             other_arm = "/left/"
 
+        self.jet_connection = jets_connected()
+
         # Note: This needs to be done after comm check
-        #rospy.loginfo('Waiting for service...')
-        #rospy.wait_for_service(other_arm + 'stateComm')
-        self.read_state_comm = None #rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
+        rospy.loginfo('Waiting for service...')
+        if self.jet_connection:
+            rospy.wait_for_service(other_arm + 'pcs_comm')
+            self.read_state_comm = rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
 
         self.mission_sm()
+
+    def connection_status(self):
+        return self.jet_connection
 
     def state_comm_callback(self, req):
         states = self.sm.get_active_states()
@@ -205,15 +226,23 @@ class PCS_SM(object):
 
     def mission_sm(self):
         with self.sm:
-            smach.StateMachine.add('Comm_Check', Comm_Check(),
+            smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
+                                transitions={'Success': 'Wait_for_TE', # usually Teensy comm check
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Teensy_Comm_Check', Teensy_Comm_Check("teensy_interface", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Wait_for_TE',
                                              'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Wait_for_TE', Wait_for_TE(self.pcs_node_state, self.pcs_node_cmd),
+            smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Activate_Longeron_Cams',
                                              'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams(self.pcs_node_state, self.pcs_node_cmd),
+            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Deactivate_Longeron_Cams',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
 
@@ -225,4 +254,7 @@ class PCS_SM(object):
 if __name__ == "__main__":
     rospy.init_node("PCS")
     sm = PCS_SM()
-    sm.run()
+    try:
+        sm.run()
+    except KeyboardInterrupt:
+        pass

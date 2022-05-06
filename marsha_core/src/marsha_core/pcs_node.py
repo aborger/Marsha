@@ -7,8 +7,9 @@ from marsha_msgs.srv import PayloadCmd
 class PCSstate():
     NA = -1
     GOOD = 0
-    ERROR = 1
-    DISABLED = 2
+    DISABLED = 1
+    ERROR1 = 2
+    ERROR2 = 3
 
 class PCScmd():
     ACTIVATE = 1
