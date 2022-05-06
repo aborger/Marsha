@@ -161,7 +161,7 @@ class Jetson_Sync(smach.State):
 
         time_elapsed = 0
 
-        while other_state != 'Jetson_Sync_' + str(self.get_sync_id):
+        while other_state != 'Jetson_Sync_' + str(self.sync_id):
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
