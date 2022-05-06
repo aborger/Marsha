@@ -68,14 +68,18 @@ catkin_install_python(
 
 add_executable(grasp_generator nodes/grasp_generator.cpp)
 target_link_libraries(grasp_generator ${catkin_LIBRARIES})
+add_dependencies(grasp_generator marsha_msgs_generate_messages_cpp)
 
 
 add_executable(trajectory_predictor nodes/trajectory_predictor.cpp)
 target_link_libraries(trajectory_predictor ${catkin_LIBRARIES})
+add_dependencies(trajectory_predictor marsha_msgs_generate_messages_cpp)
 
 add_executable(trajectory_predictor_kalman nodes/trajectory_predictor_kalman.cpp)
 target_link_libraries(trajectory_predictor_kalman ${catkin_LIBRARIES})
+add_dependencies(trajectory_predictor_kalman marsha_msgs_generate_messages_cpp)
 
 # Im pretty sure catkin provides a better method for test programs, but im using the test as a normal executable for now
 add_executable(test_object_dynamics tests/test_object_dynamics.cpp)
 target_link_libraries(test_object_dynamics ${catkin_LIBRARIES})
+add_dependencies(test_object_dynamics marsha_msgs_generate_messages_cpp)
