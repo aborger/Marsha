@@ -247,7 +247,7 @@ class PCS_SM(object):
 
     def state_comm_callback(self, req):
         states = self.sm.get_active_states()
-        if states[0] == 'Jetson_Sync_' + str(self.sync_id):
+        if states[0] == 'Jetson_Sync_' + str(self.curr_sync_id):
             self.handshake_status = True
         return states[0]
 
