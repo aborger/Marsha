@@ -171,7 +171,6 @@ class Jetson_Sync(smach.State):
 
         # waits until other jetson asks the state
         while not self.handshake_complete():
-            rospy.loginfo("wait for handshake")
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
@@ -250,7 +249,6 @@ class PCS_SM(object):
         if states[0] == 'Jetson_Sync_' + str(self.curr_sync_id):
             self.handshake_status = True
 
-        print("states: " + states[0] + " curr_sync: " + str(self.curr_sync_id))
         return states[0]
 
     def get_handshake_status(self):
@@ -289,7 +287,7 @@ class PCS_SM(object):
                                              'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Activate_Longeron_Cams',
+                                transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
