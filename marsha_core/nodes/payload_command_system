@@ -251,7 +251,7 @@ class PCS_SM(object):
             self.handshake_status = True
         return states[0]
 
-    def handshake_status(self):
+    def get_handshake_status(self):
         return self.handshake_status
 
     def reset_handshake(self):
@@ -272,7 +272,7 @@ class PCS_SM(object):
 
 
     def mission_sm(self):
-        handshake = (self.handshake_status, self.reset_handshake)
+        handshake = (self.get_handshake_status, self.reset_handshake)
         with self.sm:
             smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
                                 transitions={'Success': 'Jetson_Sync_1', # usually Teensy comm check
