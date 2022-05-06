@@ -67,15 +67,18 @@ class Jetson_Sync(smach.State):
         self.poll_period = poll_period
         self.handshake_complete = handshake[0]
         self.reset_handshake_status = handshake[1]
+        self.set_sync_id = handshake[2]
 
 
     def execute(self, userdata):
         rospy.loginfo("Syncing Jets...")
 
         time_elapsed = 0
+        self.set_sync_id(self.sync_id)
 
         # waits until other jetson is on the same state
         while self.read_jet_comm().current_state != 'Jetson_Sync_' + str(self.sync_id):
+            rospy.loginfo("other: " + str(self.read_jet_comm().current_state) + "this sync: " + str(self.sync_id))
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:

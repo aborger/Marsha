@@ -36,7 +36,7 @@ Arm2D2Interface::Arm2D2Interface(ros::NodeHandle &nh_) {
     }
     
     int grip_id = num_joints - 1;
-    ROS_INFO("gripper name: %s", joint_names[grip_id].c_str());
+    ROS_DEBUG("gripper name: %s", joint_names[grip_id].c_str());
     hardware_interface::JointStateHandle gripper_state_handle(joint_names[grip_id], &pos[grip_id], &vel[grip_id], &eff[grip_id]);
     joint_state_interface.registerHandle(gripper_state_handle);
     hardware_interface::JointHandle gripper_effort_handle(gripper_state_handle, &cmd[grip_id]);
@@ -72,7 +72,7 @@ void Arm2D2Interface::write() {
     for(int i = 0; i < num_joints; i++) {
         short num_steps;
         num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]);
-        ROS_INFO("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
+        ROS_DEBUG("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
         msg.steps.push_back(num_steps);
     }
 
