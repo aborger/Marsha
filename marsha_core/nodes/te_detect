@@ -29,9 +29,8 @@ class Detector(PCSNode):
 
 
 
-        #while not GPIO.event_detected(TE_PIN):
-        #    rospy.sleep(0.1)
-        rospy.sleep(5)
+        while not GPIO.event_detected(TE_PIN):
+            rospy.sleep(0.1)
 
         rospy.loginfo("TE detected!")
         self.pcs_cmd(PCSstate.GOOD)

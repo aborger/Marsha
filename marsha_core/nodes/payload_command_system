@@ -24,8 +24,11 @@ NUM_CONNECTION_ATTEMPTS = 3
 # Used to check jetson power
 #os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
 
+
 def jets_connected():
-    p = Popen('ping nnu-engineering', stdout=PIPE, stderr = STDOUT, shell=True)
+    other_jet = "jet"
+    this_jet = "marsha"
+    p = Popen('ping ' + other_jet, stdout=PIPE, stderr = STDOUT, shell=True)
 
     num_attempts = 0
     num_connections = 0
@@ -34,9 +37,9 @@ def jets_connected():
         line = p.stdout.readline()
         beginning = line.split("(")[0]
 
-        if beginning == "64 bytes from NNU-Engineering ":
+        if beginning == "64 bytes from " + other_jet + " ":
             num_connections += 1
-        elif beginning == "From jet ":
+        elif beginning == "From " + this_jet + " ":
             pass
         else:
             rospy.logwarn(line)
@@ -179,8 +182,8 @@ class PCS_SM(object):
             other_arm = "/left/"
 
         # Note: This needs to be done after comm check
-        #rospy.loginfo('Waiting for service...')
-        #rospy.wait_for_service(other_arm + 'stateComm')
+        rospy.loginfo('Waiting for service...')
+        rospy.wait_for_service(other_arm + 'pcs_comm')
         self.read_state_comm = None #rospy.ServiceProxy(other_arm + 'stateComm', StateComm)
 
         self.mission_sm()
