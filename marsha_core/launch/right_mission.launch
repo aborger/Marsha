@@ -1,0 +1,9 @@
+<launch>
+
+    <group ns="left">
+        <node pkg="marsha_core" name="pcs" type="right_pcs" output="screen" machine="marsha"/>
+        <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen" machine="marsha"/>
+    
+    </group>
+
+</launch>
