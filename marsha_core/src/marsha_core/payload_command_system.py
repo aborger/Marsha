@@ -124,7 +124,7 @@ class PCS_SM(object):
             self.jet_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
 
         self.mission_sm()
-        self.handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
+        
 
     def connection_status(self):
         return self.jet_connection
