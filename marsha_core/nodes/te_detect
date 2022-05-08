@@ -18,15 +18,15 @@ class Detector(PCSNode):
     def __init__(self):
         super(Detector, self).__init__("te_detector")
 
-    
 
 
     def wait_for_detect(self):
         rospy.loginfo("Waiting for TE...")
         GPIO.add_event_detect(TE_PIN, GPIO.RISING, bouncetime=ERROR_CHECK_TIME)
-        self.pcs_cmd(PCSstate.NA) # Indicate waiting for detection
-        # Wait until it is good to go
 
+        # Wait until it is good to go
+        while self.pcs_cmd(PCSstate.NA) != PCScmd.ACTIVATE:
+            rospy.sleep(0.5)
 
         """
         while not GPIO.event_detected(TE_PIN):
