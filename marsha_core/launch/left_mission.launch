@@ -9,8 +9,8 @@
     </include>
     
     <group ns="left">
-        <node pkg="marsha_core" name="pcs" type="left_pcs" output="screen" machine="jet1"/>
-        <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen" machine="jet1"/>
+        <node pkg="marsha_core" name="pcs" type="left_pcs" output="screen">
+        <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
     
     </group>
 
