@@ -23,7 +23,7 @@ class Left_PCS(PCS_SM):
         with self.sm:
             # if this fails perform experiment with one arm
             smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
-                                transitions={'Success': 'Teensy_Comm_Check', # usually Teensy comm check
+                                transitions={'Success': 'Jetson_Sync_0', # usually Teensy comm check
                                              'Error': 'Mission_Fail'})
 
             # if this fails perform experiment with one arm
