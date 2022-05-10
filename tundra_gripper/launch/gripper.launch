@@ -3,15 +3,16 @@
     <arg name="machine" default=""/>
     <arg name="ns" default=""/>
     <arg name="launch_world" default="false"/>
+    <arg name="launch_rviz" default="false"/>
 
     <include if="$(arg launch_world)" file="$(find gazebo_ros)/launch/empty_world.launch" />
     <include file="$(find marsha_core)/launch/satlab_net.machine"/>
     
+    <rosparam command="load" file="$(find tundra_gripper)/config/poses.yaml"/>
+    
     <group ns="gripper">
-
         <param name="robot_description" command="$(find xacro)/xacro '$(find tundra_gripper)/urdf/gripper.urdf.xacro' ns:=$(arg ns)" />
-        <!-- One finger doenst work -->
-        <!--<param name="robot_description" command="$(find xacro)/xacro '$(find ar_mini_description)/urdf/ar_gripper_gazebo.urdf.xacro' ns:=$(arg ns)" />-->
+
         <param name="robot_description_semantic" textfile="$(find tundra_gripper)/config/gripper_gazebo.srdf"/>
 
 
@@ -36,17 +37,21 @@
         </node>
 
 
-        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /$(arg ns)/link_6 /$(arg ns)/gripper/gripper_link 100"/>
+        <node pkg="tf" type="static_transform_publisher" name="attach_gripper" args="0 0 0 0 0 0 /$(arg ns)/link_5 /$(arg ns)/gripper/gripper_link 100"/>
 
         <include file="$(find tundra_gripper)/launch/move_group.launch">
             <arg name="ns" value="$(arg ns)"/>
+        </include>
+
+        <include file="$(find tundra_gripper)/launch/moveit_rviz.launch" if="$(arg launch_rviz)">
+            <arg name="config" value="true"/>
         </include>
 
         <node name="grasp_event_republisher" pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher"/>
         <node name="grasped_state_server" pkg="marsha_gazebo" type="grasped_state_server"/>
 
         <!-- TODO: move this file to tundra package on jetson -->
-        <node name="grip_interface" pkg="marsha_core" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+        <node name="grip_interface" pkg="tundra_gripper" type="grip_interface" respawn="false" output="screen" machine="$(arg machine)"/>
 
         <node if="$(arg launch_world)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
         args="-param robot_description -urdf -model gripper" respawn="false" output="screen"/>
