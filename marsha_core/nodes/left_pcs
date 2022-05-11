@@ -53,13 +53,30 @@ class Left_PCS(PCS_SM):
                                 transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
 
+class Test_PCS(PCS_SM):
+    def __init__(self):
+        PCS_SM.__init__(self)
 
+    def mission_sm(self):
+        handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
+        with self.sm:
+            # if this fails perform experiment with one arm
+            smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
+                                transitions={'Success': 'Activate_Longeron_Cams', # usually Teensy comm check
+                                             'Error': 'Mission_Fail'})
 
+            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Deactivate_Longeron_Cams',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Mission_Success',
+                                             'Error': 'Mission_Fail'})
 
 
 if __name__ == "__main__":
     rospy.init_node("PCS")
-    sm = Left_PCS()
+    sm = Test_PCS()
     try:
         sm.run()
     except KeyboardInterrupt:
