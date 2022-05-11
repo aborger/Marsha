@@ -105,7 +105,7 @@ class PCS_SM(object):
 
         # this list contains the state for each node
         # access a node's state with self.pcs_nodes[node_id]
-        self.pcs_node_states = [-1] * len(pcs_nodes)
+        self.pcs_node_stateMission_Successs = [-1] * len(pcs_nodes)
         self.pcs_node_cmds = [-1] * len(pcs_nodes)
 
 
@@ -119,10 +119,11 @@ class PCS_SM(object):
 
         # Note: This needs to be done after comm check
         rospy.loginfo('Waiting for service...')
+        
         if self.jet_connection:
             rospy.wait_for_service(other_arm + 'pcs_comm')
             self.jet_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
-
+        
         self.mission_sm()
         
 
