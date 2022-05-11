@@ -14,7 +14,7 @@ Panels:
         - /PointCloud21
         - /Image1
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 419
+    Tree Height: 789
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -80,12 +80,30 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
+          base_connector:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          gripper_collider:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           gripper_connector:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          gripper_mount_l:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_mount_r:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -111,6 +129,31 @@ Visualization Manager:
             Show Trail: false
             Value: true
           link_5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          soft_robotics:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -139,7 +182,7 @@ Visualization Manager:
         Colliding Link Color: 255; 0; 0
         Goal State Alpha: 1
         Goal State Color: 250; 128; 0
-        Interactive Marker Size: 0
+        Interactive Marker Size: 0.07500000298023224
         Joint Violation Color: 255; 0; 255
         Planning Group: manipulator
         Query Goal State: true
@@ -164,12 +207,30 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
+          base_connector:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          gripper_collider:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           gripper_connector:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          gripper_mount_l:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_mount_r:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -195,6 +256,31 @@ Visualization Manager:
             Show Trail: false
             Value: true
           link_5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          longeron_4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          soft_robotics:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -265,25 +351,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.4987285137176514
+      Distance: 0.9839433431625366
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.13652139902114868
-        Y: -0.08198052644729614
-        Z: 8.426061413047137e-7
+        X: 0.05771045386791229
+        Y: 0.1502588987350464
+        Z: 1.0810247204062762e-6
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4947970509529114
+      Pitch: 0.29979726672172546
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 4.949996471405029
+      Yaw: 4.78499698638916
     Saved: ~
 Window Geometry:
   Displays:

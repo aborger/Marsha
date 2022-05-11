@@ -1,9 +1,9 @@
 gripper:
   pose:
     open:
-      -0.5
-    close:
       0.7
+    close:
+      -0.5
     half:
       0.2
 

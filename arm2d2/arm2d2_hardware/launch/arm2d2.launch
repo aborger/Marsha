@@ -1,6 +1,6 @@
 <launch>
     <arg name="ns" default="left"/>
-    <arg name="jets" default="jet2"/>
+    <arg name="jets" default="jet1"/>
     <arg name="launch_rviz" default="true"/>
 
     <rosparam file="$(find tundra_gripper)/config/poses.yaml" command="load"/>

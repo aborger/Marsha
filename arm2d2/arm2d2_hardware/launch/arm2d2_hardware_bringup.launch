@@ -14,8 +14,8 @@
     <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
 
 
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" ns="/left"
-        args="--namespace=/left
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" ns="$(arg ns)"
+        args="--namespace=/$(arg ns)
               /$(arg ns)/arm2d2/controllers/state
               /$(arg ns)/arm2d2/controllers/position"
         />

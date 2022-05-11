@@ -2,3 +2,4 @@ pcs_nodes:
   - longeron_cams
   - te_detector
   - teensy_interface
+  - telemetry
