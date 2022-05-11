@@ -85,7 +85,8 @@
   <joint name="joint_1" type="revolute">
     <!-- p value corresponds to starting point for stepper -->
     <xacro:if value="${ns == 'left'}">
-      <origin xyz="-0.0851 0.006604 -0.0851" rpy="0 2.82584 0"/>
+      <!-- p=2.82584 -->
+      <origin xyz="-0.0851 0.006604 -0.0851" rpy="0 2.775 0"/>
     </xacro:if>
     <xacro:unless value="${ns == 'left'}">
       <origin xyz="0.0851 0.006604 -0.0851" rpy="0 0.15708 0"/>

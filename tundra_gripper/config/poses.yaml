@@ -5,7 +5,9 @@ gripper:
     close:
       -0.5
     half:
-      0.2
+      0.5
+    half_closed:
+      0.3
 
   hw:
     open:
