@@ -7,6 +7,125 @@ import smach_ros
 from marsha_core.pcs_node import PCSstate
 from marsha_core.pcs_node import PCScmd
 
+from marsha_core.marsha_services.move_cmds import *
+from marsha_core.marsha_services.gripper_cmds import *
+
+# ---------------------------------------------------------------- #
+#                              Reload                              #
+# ---------------------------------------------------------------- #
+
+class Move_State(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success', 'Error'])  
+
+# Move state has 'Success' and 'Error' transisitons
+class Home(Move_State):
+
+    def execute(self, userdata):
+        joint_pose_cmd("home")
+        grasp_cmd("close")
+
+        return 'Success'
+
+class Latch(Move_State):
+
+    def execute(self, userdata):
+        grasp_cmd("half_closed")
+        joint_pose_cmd("home")
+        grasp_cmd("close")
+
+        return 'Success'
+
+class Step_0(Move_State):
+    def execute(self, userdata):
+        grasp_cmd("half_closed")
+        joint_pose_cmd("folding/step_0")
+
+        return "Success"
+
+class Ball_Status(smach.State):
+    def __init__(self, balls_remaining, decrease_balls):
+        smach.State.__init__(self, outcomes=['2_Balls', '1_Balls', '0_Balls', 'Error'])
+
+        self.balls_remaining = balls_remaining
+        self.decrease_balls = decrease_balls
+
+    def execute(self, userdata):
+        # left arm goes first
+        if self.balls_remaining() == 0:
+            outcome = '0_Balls'
+        elif self.balls_remaining() == 1:
+            outcome = '1_Balls'
+        elif self.balls_remaining() == 2:
+            outcome = '2_Balls'
+        else:
+            outcome = 'Error'
+
+        self.decrease_balls()
+
+        return outcome
+
+class Unfold(Move_State):
+
+    def execute(self, userdata):
+        grasp_cmd("close")
+        for i in range(0, 9):
+            joint_pose_cmd("folding/step_" + str(i))
+        
+        return 'Success'
+
+class Fold(Move_State):
+    def execute(self, userdata):
+        grasp_cmd("close")
+        for i in range(8, -1, -1):
+            joint_pose_cmd("folding/step_" + str(i))
+        
+        return 'Success'
+
+class Open_Gripper(Move_State):
+    def execute(self, userdata):
+        grasp_cmd("open")
+        rospy.sleep(1)
+        return 'Success'
+
+class Pickup_1(Move_State):
+    def execute(self, userdata):
+        grasp_cmd("half_closed")
+        joint_pose_cmd("pre_ball_1")
+        joint_pose_cmd("pick_ball_1")
+        grasp_cmd("close")
+        joint_pose_cmd("pre_ball_1")
+        joint_pose_cmd("folding/step_0")
+
+        rospy.sleep(1)
+
+        if is_grasped().success:
+            return 'Success'
+        else:
+            rospy.logwarn("Ball was not picked up!")
+            return 'Error'
+
+class Pickup_2(Move_State):
+    def execute(self, userdata):
+        grasp_cmd("half_closed")
+        joint_pose_cmd("pre_ball_2")
+        joint_pose_cmd("pick_ball_2")
+        grasp_cmd("close")
+        joint_pose_cmd("pre_ball_2")
+        joint_pose_cmd("folding/step_0")
+
+        rospy.sleep(1)
+
+        if is_grasped().success:
+            return 'Success'
+        else:
+            rospy.logwarn("Ball was not picked up!")
+            return 'Error'
+
+# ---------------------------------------------------------------- #
+#                         Peripherals                              #
+# ---------------------------------------------------------------- #
+
 class PCS_State(smach.State):
     def __init__(self, pcs_node_name=None, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
         smach.State.__init__(self, outcomes=['Success', 'Error'])
@@ -62,7 +181,7 @@ class Jetson_Sync(smach.State):
         smach.State.__init__(self, outcomes=['Ready', 'Timeout'])
 
         self.sync_id = sync_id
-        self.read_jet_comm = jet_comm
+        self.jet_comm = jet_comm
         self.timeout = timeout
         self.poll_period = poll_period
         self.handshake_complete = handshake[0]
@@ -77,18 +196,22 @@ class Jetson_Sync(smach.State):
         self.set_sync_id(self.sync_id)
 
         # waits until other jetson is on the same state
-        while self.read_jet_comm().current_state != 'Jetson_Sync_' + str(self.sync_id):
+        rospy.loginfo("waiting for state")
+        while self.jet_comm().current_state != 'Jetson_Sync_' + str(self.sync_id):
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
                 return 'Timeout'
+        self.jet_comm().current_state
 
         # waits until other jetson asks the state
+        rospy.loginfo("waiting for handshake")
         while not self.handshake_complete():
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
                 return 'Timeout'
+        self.jet_comm().current_state
         
         self.reset_handshake_status()
 

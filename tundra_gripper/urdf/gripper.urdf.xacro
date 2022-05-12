@@ -1,155 +1,196 @@
-<?xml version="1.0" ?>
-<robot name="tundra_gripper" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<?xml version="1.0" encoding="utf-8"?>
 
-<link name="world"/>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tundra_gripper">
+
+  <xacro:arg name="ns" default=""/>
+
+  <link name="gripper_link"/>
 
 <link name="palm">
   <inertial>
-    <origin rpy="0 0 0" xyz="-0.001212486429148927 2.8895706877599125e-09 0.008048309365708495"/>
-    <mass value="0.015238456311074547"/>
-    <inertia ixx="3e-06" ixy="-0.0" ixz="-0.0" iyy="3e-06" iyz="0.0" izz="5e-06"/>
+    <origin xyz="0.061664701708749915 0.08137303558404387 0.08022062245839305" rpy="0 0 0"/>
+    <mass value="0.013667083672765958"/>
+    <inertia ixx="2e-06" iyy="3e-06" izz="2e-06" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
   </inertial>
   <visual>
-    <origin rpy="0 0 0" xyz="-0.021774 0.006934 -0.402996"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="package://tundra_gripper/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin rpy="0 0 0" xyz="-0.021774 0.006934 -0.402996"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="package://tundra_gripper/meshes/palm.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="package://tundra_gripper/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
 
-<joint name="world_joint" type="fixed">
-  <origin rpy="0 0 0" xyz="0 0 0"/>
-  <parent link="world"/>
-  <child link="palm"/>
-</joint>
+  <joint name="palm_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <!-- for ar3_mount: <origin xyz="0 -0.045 0" rpy="0 0 3.14"/>-->
+    <parent link="gripper_link"/>
+    <child link="palm"/>
+  </joint>
 
 
-<link name="actuator_1">
-  <inertial>
-    <origin rpy="0 0 0" xyz="-0.003835486476855776 -0.004713873695782212 0.02727947292495564"/>
-    <mass value="0.005277222771828628"/>
-    <inertia ixx="2e-06" ixy="0.0" ixz="0.0" iyy="2e-06" iyz="-0.0" izz="0.0"/>
-  </inertial>
-  <visual>
-    <origin rpy="0 0 0" xyz="-0.044603 0.01307 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin rpy="0 0 0" xyz="-0.044603 0.01307 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
+  <link name="actuator_1">
+    <inertial>
+      <origin xyz="0.005491083174233274 -0.03206197503178041 -0.0023745477788477826" rpy="0 0 0"/>
+      <mass value="0.018363032655382763"/>
+      <inertia ixx="8e-06" iyy="1e-06" izz="8e-06" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.008797 0.014908 -0.021091" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tundra_gripper/meshes/actuator_1_2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.008797 0.014908 -0.021091" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tundra_gripper/meshes/actuator_1_2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="actuator_joint_1" type="revolute">
+    <origin xyz="0.008797 -0.014908 0.021091" rpy="0 0 0"/>
+    <parent link="palm"/>
+    <child link="actuator_1"/>
+    <axis xyz="-0.792929 0.002094 0.609311"/>
+    <limit upper="1.22173" lower="0.0" effort="100" velocity="100"/>
+  </joint>
+
+    <link name="actuator_2">
+      <inertial>
+        <origin xyz="-0.0048912825904506435 -0.03207131009530898 -0.003353552242169211" rpy="0 0 0"/>
+        <mass value="0.018363032655382763"/>
+        <inertia ixx="8e-06" iyy="1e-06" izz="8e-06" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+        <origin xyz="-0.013822 0.015067 0.017999" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tundra_gripper/meshes/actuator_2_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="-0.013822 0.015067 0.017999" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tundra_gripper/meshes/actuator_2_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
 
 
-<joint name="actuator_joint_1" type="revolute">
-  <origin rpy="0 0 0" xyz="0.022829 -0.006136 0.022"/>
-  <parent link="palm"/>
-  <child link="actuator_1"/>
-  <axis xyz="0.5 0.866025 -6e-06"/>
-  <limit effort="100" lower="-0.1" upper="1.570796" velocity="100"/>
-</joint>
+    <joint name="actuator_joint_2" type="revolute">
+      <origin xyz="0.013822 -0.015067 -0.017999" rpy="0 0 0"/>
+      <parent link="palm"/>
+      <child link="actuator_2"/>
+      <axis xyz="0.924146 0.002094 0.382034"/>
+      <limit upper="1.22173" lower="0.0" effort="100" velocity="100"/>
+    </joint>
 
-<link name="actuator_2">
-  <inertial>
-    <origin rpy="0 0 0" xyz="-0.0021646025973648094 0.00567892122346535 0.027279474187493602"/>
-    <mass value="0.005277222771828628"/>
-    <inertia ixx="2e-06" ixy="-0.0" ixz="-0.0" iyy="2e-06" iyz="-0.0" izz="0.0"/>
-  </inertial>
-  <visual>
-    <origin rpy="0 0 0" xyz="-0.005046 0.023636 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_2.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin rpy="0 0 0" xyz="-0.005046 0.023636 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_2.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
-
-
-<joint name="actuator_joint_2" type="revolute">
-  <origin rpy="0 0 0" xyz="-0.016728 -0.016702 0.022"/>
-  <parent link="palm"/>
-  <child link="actuator_2"/>
-  <axis xyz="0.5 -0.866025 6e-06"/>
-  <limit effort="100" lower="-0.1" upper="1.658063" velocity="100"/>
-</joint>
-
-<link name="actuator_3">
-  <inertial>
-    <origin rpy="0 0 0" xyz="0.006000455462889673 -0.000964137225942182 0.02727923439293578"/>
-    <mass value="0.005277222771828628"/>
-    <inertia ixx="2e-06" ixy="0.0" ixz="0.0" iyy="2e-06" iyz="0.0" izz="0.0"/>
-  </inertial>
-  <visual>
-    <origin rpy="0 0 0" xyz="-0.015674 -0.015904 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_3.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin rpy="0 0 0" xyz="-0.015674 -0.015904 -0.424996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/actuator_3.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
+    <link name="actuator_3">
+      <inertial>
+        <origin xyz="-0.0005475032335578722 -0.03202939701353134 0.006126837510314051" rpy="0 0 0"/>
+        <mass value="0.018363032655382763"/>
+        <inertia ixx="8e-06" iyy="1e-06" izz="8e-06" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+        <origin xyz="0.022563 0.015024 0.00279" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tundra_gripper/meshes/actuator_3_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="0.022563 0.015024 0.00279" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tundra_gripper/meshes/actuator_3_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
 
 
-<joint name="actuator_joint_3" type="revolute">
-  <origin rpy="0 0 0" xyz="-0.0061 0.022838 0.022"/>
-  <parent link="palm"/>
-  <child link="actuator_3"/>
-  <axis xyz="-1.0 -0.0 -0.0"/>
-  <limit effort="100" lower="-0.1" upper="1.658063" velocity="100"/>
-</joint>
+    <joint name="actuator_joint_3" type="revolute">
+      <origin xyz="-0.022563 -0.015024 -0.00279" rpy="0 0 0"/>
+      <parent link="palm"/>
+      <child link="actuator_3"/>
+      <axis xyz="-0.131217 -0.004189 -0.991345"/>
+      <limit upper="1.22173" lower="0.0" effort="100" velocity="100"/>
+    </joint>
 
-<link name="gripper_driver">
-  <inertial>
-    <origin rpy="0 0 0" xyz="4.5546288952522107e-07 2.537799107145411e-09 0.0030000469930032136"/>
-    <mass value="0.017198611293271295"/>
-    <inertia ixx="1e-06" ixy="0.0" ixz="0.0" iyy="1e-06" iyz="0.0" izz="2e-06"/>
-  </inertial>
-  <visual>
-    <origin rpy="0 0 0" xyz="-0.021774 0.006934 -0.407996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/gripper_driver.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin rpy="0 0 0" xyz="-0.021774 0.006934 -0.407996"/>
-    <geometry>
-      <mesh filename="package://tundra_gripper/meshes/gripper_driver.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
+    <transmission name="transmission_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="actuator_joint_1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>  
+
+    <transmission name="transmission_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="actuator_joint_2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="transmission_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="actuator_joint_3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 
 
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <robotNamespace>$(arg ns)/gripper</robotNamespace>
+      </plugin>
+    </gazebo>
 
-<joint name="gripper_driver_joint" type="prismatic">
-  <origin rpy="0 0 0" xyz="0.0 0.0 0.005"/>
-  <parent link="palm"/>
-  <child link="gripper_driver"/>
-  <axis xyz="0.0 -7e-06 -1.0"/>
-  <limit effort="100" lower="-0.025" upper="-0.0140" velocity="100"/>
-</joint>
 
+    <gazebo>
+    <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so">
+          <arm>
+            <arm_name>tundra_gripper</arm_name>
+            <palm_link>link_5</palm_link> <!-- Gazebo combines everything with a fixed joint -->
+            <gripper_link> actuator_1 </gripper_link>
+            <gripper_link> actuator_2 </gripper_link>
+            <gripper_link> actuator_3 </gripper_link>
+          </arm>
+        <forces_angle_tolerance>100</forces_angle_tolerance>
+        <update_rate>10</update_rate>
+        <grip_count_threshold>1</grip_count_threshold>
+        <max_grip_count>4</max_grip_count>
+        <release_tolerance>0.009</release_tolerance>
+        <disable_collisions_on_attach>false</disable_collisions_on_attach>
+        <contact_topic>__default_topic__</contact_topic>
+      </plugin>
+    </gazebo> 
+
+    <gazebo reference="actuator_1">
+        <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="actuator_2">
+        <selfCollide>true</selfCollide>
+    </gazebo>
+      <gazebo reference="actuator_3">
+        <selfCollide>true</selfCollide>
+    </gazebo>
 </robot>

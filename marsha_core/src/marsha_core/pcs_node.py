@@ -10,11 +10,21 @@ class PCSstate():
     DISABLED = 1
     ERROR1 = 2
     ERROR2 = 3
+    ERROR3 = 4
 
 class PCScmd():
     ACTIVATE = 1
     DEACTIVATE = 2
     SHUTDOWN = 3
+
+class RecState():
+    NA = -1
+    GOOD = 0
+    DISABLE = 1
+    ERR_NO_CAMS = 2
+    ERR_ONE_CAM = 3
+    ERR_RESET_CAMS = 4
+
 
 
 class PCSNode(object):

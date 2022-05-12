@@ -12,6 +12,7 @@
     <group ns="left">
         <node pkg="marsha_core" name="pcs" type="left_pcs" output="screen"/>
         <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
+        <node pkg="marsha_detection" name="record_longeron" type="record_longeron" output="screen"/>
     
     </group>
 

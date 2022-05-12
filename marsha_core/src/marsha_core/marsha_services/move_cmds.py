@@ -13,5 +13,8 @@ pose_cmd = rospy.ServiceProxy(ns + 'pose_cmd', MoveCmd)
 rospy.wait_for_service(ns + 'async_pose_cmd')
 async_pose_cmd = rospy.ServiceProxy(ns + 'async_pose_cmd', MoveCmd)
 
+rospy.wait_for_service(ns + 'joint_pose_cmd')
+joint_pose_cmd = rospy.ServiceProxy(ns + 'joint_pose_cmd', MoveCmd)
+
 rospy.wait_for_service(ns + 'folding')
 fold_cmd = rospy.ServiceProxy(ns + 'folding', MoveCmd)

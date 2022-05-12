@@ -6,6 +6,9 @@
   <xacro:arg name="ns" default=""/>
   <xacro:arg name="include_arm" default="false"/>
   <xacro:arg name="include_gripper" default="false"/>
+  <xacro:arg name="top_plate" default="false"/>
+  <!-- When true each arm comes with the base attached (always false in this file)-->
+  <xacro:arg name="include_arm_base" default="false"/> 
 
   <!-- Convert args to properties-->
   <xacro:property name="ns" value="$(arg ns)"/>
@@ -22,24 +25,25 @@
 
   <!-- Include arm and gripper urdfs-->
   <xacro:if value="$(arg include_arm)">
-    <xacro:include filename="$(find arm2d2_description)/urdf/arm1.urdf.xacro"/>
+    <xacro:include filename="$(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro"/>
   </xacro:if>
 
   <xacro:if value="$(arg include_gripper)">
-    <xacro:include filename="$(find arm2d2_description)/urdf/gripper.urdf.xacro"/>
+    <xacro:include filename="$(find tundra_gripper)/urdf/gripper.urdf.xacro"/>
   </xacro:if>
 
   <!-- Connect arm and gripper -->
   <xacro:if value="$(arg include_arm)">
     <xacro:if value="$(arg include_gripper)">
-      <joint name="gripper_joint" type="fixed">
+      <joint name="gripper_connect_joint" type="fixed">
         <parent link="link_5"/>
-        <child link="palm"/>
+        <child link="gripper_link"/>
         <xacro:if value="${is_left}">
-          <origin xyz="0.025 0 0.025" rpy="0 0 0"/>
+          <!-- Very wierd axis because link_5 is upside down (x, z, y)-->
+          <origin xyz="-0.03 -0.041 0.0045" rpy="0 0 0"/>
         </xacro:if>
         <xacro:unless value="${is_left}">
-          <origin xyz="0.025 0 0.025" rpy="0 0 3.14159"/>
+          <origin xyz="0.025 0 0.009" rpy="0 0 3.14159"/>
         </xacro:unless>
       </joint>
     </xacro:if>

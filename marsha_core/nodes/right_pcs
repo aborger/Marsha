@@ -13,8 +13,7 @@ from marsha_core.pcs_states import *
 
 
 
-
-class Left_PCS(PCS_SM):
+class Right_PCS(PCS_SM):
     def __init__(self):
         PCS_SM.__init__(self)
 
@@ -50,12 +49,94 @@ class Left_PCS(PCS_SM):
                                              'Error': 'Mission_Fail'})
 
 
+class Test_PCS(PCS_SM):
+    def __init__(self):
+        self.balls_remaining = 2
 
+        PCS_SM.__init__(self)
+
+
+    def get_balls_remaining(self):
+        return self.balls_remaining
+
+    def decrease_balls(self):
+        self.balls_remaining -= 1 
+
+
+    def mission_sm(self):
+        handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
+        with self.sm:
+            # if this fails perform experiment with one arm
+            smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
+                                transitions={'Success': 'Home', # usually Teensy comm check
+                                             'Error': 'Mission_Fail'})
+
+            # ensures same starting position
+            smach.StateMachine.add('Home', Home(),
+                                transitions={'Success': 'Jetson_Sync_0',
+                                            'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
+                                            transitions={'Ready': 'Jetson_Sync_1',
+                                                        'Timeout': 'Mission_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=60),
+                                            transitions={'Ready': 'Reload',
+                                                        'Timeout': 'Mission_Fail'})
+
+            Reload_SM = smach.StateMachine(outcomes=["Success", "Out_Of_Balls", "Reload_Fail"])
+
+            with Reload_SM:
+
+                smach.StateMachine.add('Step_0', Step_0(),
+                                    transitions={'Success': 'Ball_Status',
+                                                'Error': 'Reload_Fail'})
+
+                smach.StateMachine.add('Ball_Status', Ball_Status(self.get_balls_remaining, self.decrease_balls),
+                                    transitions={'2_Balls': 'Pickup_1',
+                                                    '1_Balls': 'Pickup_2',
+                                                    '0_Balls': 'Out_Of_Balls',
+                                                    'Error': 'Reload_Fail'})
+
+                smach.StateMachine.add('Pickup_1', Pickup_1(),
+                                    transitions={'Success': 'Success',
+                                                'Error': 'Ball_Status'})
+
+                smach.StateMachine.add('Pickup_2', Pickup_2(),
+                                    transitions={'Success': 'Success',
+                                                'Error': 'Ball_Status'})
+
+            smach.StateMachine.add('Reload', Reload_SM,
+                                transitions={'Success': 'Unfold',
+                                             'Out_Of_Balls': 'Jetson_Sync_2',
+                                             'Reload_Fail': 'Mission_Fail'})
+
+
+
+            smach.StateMachine.add('Unfold', Unfold(),
+                                transitions={'Success': 'Open_Gripper',
+                                            'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Open_Gripper', Open_Gripper(),
+                                transitions={'Success': 'Fold',
+                                            'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Fold', Fold(),
+                                transitions={'Success': 'Reload',
+                                            'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_2', Jetson_Sync(2, self.jet_comm, handshake),
+                                            transitions={'Ready': 'Latch',
+                                                        'Timeout': 'Mission_Fail'})
+
+            smach.StateMachine.add('Latch', Latch(),
+                                transitions={'Success': 'Mission_Success',
+                                            'Error': 'Mission_Fail'})
 
 
 if __name__ == "__main__":
     rospy.init_node("PCS")
-    sm = Left_PCS()
+    sm = Test_PCS()
     try:
         sm.run()
     except KeyboardInterrupt:

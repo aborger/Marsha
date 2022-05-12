@@ -6,7 +6,7 @@ from std_srvs.srv import Trigger
 
 ns = rospy.get_namespace()
 
-print("Importing left gripper cmd services...")
+print("Importing gripper cmd services...")
 
 rospy.wait_for_service(ns + 'gripper/grasp_cmd')
 grasp_cmd = rospy.ServiceProxy(ns + 'gripper/grasp_cmd', MoveCmd)
