@@ -25,4 +25,4 @@ include_directories(
 
 add_executable(grip_interface nodes/grip_interface.cpp)
 target_link_libraries(grip_interface ${catkin_LIBRARIES})
-#add_dependencies(grip_interface move)
+add_dependencies(grip_interface marsha_msgs_generate_messages_cpp)

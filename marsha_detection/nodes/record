@@ -154,6 +154,7 @@ class CamServer():
 
 
             ret, bgr_frame, depth_frame = self.rs.get_frame_stream()
+            print(bgr_frame.shape)
             if ret == False:
                 print("error")
  
@@ -187,7 +188,7 @@ class CamServer():
                 break
 
             # put back in the code to show frames
-            
+            self.frame_buffer = frame
 
         self.rs.release()
         cv2.destroyAllWindows()

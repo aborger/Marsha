@@ -10,13 +10,15 @@ class RealsenseCamera:
         self.pipeline = rs.pipeline()
 
         config = rs.config()
-        #config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 
         # Start streaming
         self.pipeline.start(config)
         align_to = rs.stream.color
         self.align = rs.align(align_to)
+
+        
 
 
     def get_frame_stream(self):
@@ -30,7 +32,9 @@ class RealsenseCamera:
         if not depth_frame or not color_frame:
             # If there is no frame, probably camera not connected, return False
             print("Error, impossible to get the frame, make sure that the Intel Realsense camera is correctly connected")
+            print("Depth frame: " + str(bool(depth_frame)) + " Color: " + str(bool(color_frame)))
             return False, None, None
+        
         
         # Apply filter to fill the Holes in the depth image
         spatial = rs.spatial_filter()
@@ -51,6 +55,7 @@ class RealsenseCamera:
         # print("distance", distance)
         depth_image = np.asanyarray(filled_depth.get_data())
         color_image = np.asanyarray(color_frame.get_data())
+
         # cv2.imshow("Colormap", depth_colormap)
         # cv2.imshow("depth img", depth_image)
 
