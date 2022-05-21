@@ -47,7 +47,7 @@ class Left_PCS(PCS_SM):
             smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
                                 transitions={'Ready': 'Mission_Success',
                                              'Timeout': 'Mission_Fail'})
-            """
+            
             smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Deactivate_Longeron_Cams',
                                              'Error': 'Mission_Fail'})
@@ -55,7 +55,7 @@ class Left_PCS(PCS_SM):
             smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
-            """
+            
 class Test_PCS(PCS_SM):
     def __init__(self):
         self.balls_remaining = 4
