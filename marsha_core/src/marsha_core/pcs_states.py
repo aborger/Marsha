@@ -231,7 +231,10 @@ class Jetson_Sync(smach.State):
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
                 return 'Timeout'
-        self.jet_comm().current_state
+        try:
+            self.jet_comm().current_state
+        except Exception as e:
+            raise(e)
         
         self.reset_handshake_status()
 
