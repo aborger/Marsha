@@ -8,9 +8,10 @@ class PCSstate():
     NA = -1
     GOOD = 0
     DISABLED = 1
-    ERROR1 = 2
-    ERROR2 = 3
-    ERROR3 = 4
+    SHUTDOWN = 2
+    ERROR1 = 3
+    ERROR2 = 4
+    ERROR3 = 5
 
 class PCScmd():
     ACTIVATE = 1

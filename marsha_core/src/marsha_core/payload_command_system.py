@@ -105,7 +105,7 @@ class PCS_SM(object):
 
         # this list contains the state for each node
         # access a node's state with self.pcs_nodes[node_id]
-        self.pcs_node_stateMission_Successs = [-1] * len(pcs_nodes)
+        self.pcs_node_states = [-1] * len(pcs_nodes)
         self.pcs_node_cmds = [-1] * len(pcs_nodes)
 
 
