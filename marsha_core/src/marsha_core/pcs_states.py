@@ -225,7 +225,7 @@ class Jetson_Sync(smach.State):
         self.set_sync_id(self.sync_id)
 
         # waits until other jetson is on the same state
-        rospy.loginfo("waiting for state")
+        rospy.loginfo("(JET COMM): Waiting for State...")
         while self.jet_comm() != 'Jetson_Sync_' + str(self.sync_id):
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
@@ -234,7 +234,7 @@ class Jetson_Sync(smach.State):
         self.jet_comm()
 
         # waits until other jetson asks the state
-        rospy.loginfo("waiting for handshake")
+        rospy.loginfo("(JET COMM): Waiting for Handshake...")
         while not self.handshake_complete():
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
