@@ -67,6 +67,7 @@ class MarshaMoveInterface {
         ros::ServiceServer poseService;
         ros::ServiceServer asyncPoseService;
         ros::ServiceServer jointPoseService;
+        ros::ServiceServer asyncJointPoseService;
         ros::ServiceServer jointCmdService;
         ros::ServiceServer positionService;
         ros::ServiceServer getPosService;
@@ -185,6 +186,39 @@ class MarshaMoveInterface {
                 return false;
             }
 
+        }
+
+        // Exact same as jointPoseCmd, but doesn't block
+        bool asyncJointPoseCmd(marsha_msgs::MoveCmd::Request &req,
+                          marsha_msgs::MoveCmd::Response &res)
+        { 
+            std::string param =  joint_param + req.pose_name + "/";
+            ROS_INFO("Going to joint state: %s", param.c_str());
+
+            std::vector<double> joint_group_positions;
+
+            ros::param::get(param, joint_group_positions);
+
+            while (joint_group_positions.size() < num_joints) {
+                joint_group_positions.push_back(0.0);
+            }
+
+            move_group->setJointValueTarget(joint_group_positions);
+
+            moveit::planning_interface::MoveGroupInterface::Plan target_plan;
+
+            bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+
+            if (success) {
+                move_group->asyncExecute(target_plan);
+                res.done = success;
+                return true;
+            }
+            else {
+                res.done = false;
+                return false;
+            }            
         }
 
         bool jointCmd(marsha_msgs::JointCmd::Request &req,
@@ -538,6 +572,7 @@ class MarshaMoveInterface {
             asyncPoseService = nh->advertiseService("async_pose_cmd", &MarshaMoveInterface::asyncPoseCmd, this);
 
             jointPoseService = nh->advertiseService("joint_pose_cmd", &MarshaMoveInterface::jointPoseCmd, this);
+            asyncJointPoseService = nh->advertiseService("async_joint_pose_cmd", &MarshaMoveInterface::asyncJointPoseCmd, this);
 
             jointCmdService = nh->advertiseService("joint_cmd", &MarshaMoveInterface::jointCmd, this);
 

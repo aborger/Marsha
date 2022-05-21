@@ -1,4 +1,4 @@
-
+//
 
 #include "Stepper.h"
 #include "Comm.h"
@@ -14,8 +14,15 @@
 
 
 // Note: It should attempt to stay at zero when turned on, if it continuously spins in one direction, flip the direction
-Stepper steppers[] = {Stepper(33, 34, 6, 7), Stepper(32, 31, 20, 19), Stepper(30, 29, 37, 38), Stepper(35, 36, 39, 40), Stepper(28, 27, 41, 14), Stepper(26, 25, 15, 16)};
+// Bread Board
+//Stepper steppers[] = {Stepper(33, 34, 6, 7), Stepper(2, 3, 37, 38), Stepper(32, 31, 11, 12), Stepper(35, 36, 39, 40), Stepper(28, 27, 41, 14), Stepper(26, 25, 15, 16)};
 
+// PCB
+//Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 16, 15), Stepper(31, 30, 41, 40)};
+Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32), Stepper(35, 34), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
+
+// J6 tests
+//Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(37, 36, 6, 5, true), Stepper(35, 34, 16, 15, true), Stepper(31, 30, 41, 40)};
 
 int led = 13;
 int spinCounter = 0;
@@ -40,9 +47,9 @@ void sendFeedback() {
   }
   TxPacket tx(feedback_arr, NUM_JOINTS);
 
-  tx.doc["curr_step"] = steppers[DEBUG_STEPPER].current_step;
-  tx.doc["curr_speed"] = steppers[DEBUG_STEPPER].get_speed();
-  tx.doc["err_sum"] = steppers[DEBUG_STEPPER].error_sum;
+  //tx.doc["curr_step"] = steppers[DEBUG_STEPPER].current_step;
+  //tx.doc["curr_speed"] = steppers[DEBUG_STEPPER].get_speed();
+  //tx.doc["err_sum"] = steppers[DEBUG_STEPPER].error_sum;
   
   comm_handle.transmit(tx);
 }
@@ -50,7 +57,7 @@ void sendFeedback() {
 
 void stepper_power_callback() {
   Stepper::stepper_power = digitalRead(STEPPER_POWER_PIN);
-  digitalWrite(13, Stepper::stepper_power);
+  //digitalWrite(13, Stepper::stepper_power);
   for (int i = 0; i < NUM_JOINTS; i++) {
     steppers[i].update_step_cnt();
   }
@@ -61,17 +68,22 @@ void setup() {
 
   comm_handle.set_callback(CMDCallback);
 
-
-  steppers[0].tune_controller(0.2, 0, 90, 100);
-  steppers[1].tune_controller(0.3, 0, 40, 50);
-  steppers[2].tune_controller(1, 0.0001, 30, 40);
-  steppers[3].tune_controller(0.6, 0.00001, 10, 150);
-  steppers[5].tune_controller(0.9, 0.00001, 10, 20);
+  // tune_controller(int _max_steps, float p_set, float p_0, int _min_delay, int _max_delay)
+  // calculate max steps by dividing appropriate degree by stepper's deg_per_step value
+  // to tune start with max_steps at half way to full range of motion and p_0 = 0, p_set=1
+  // find good p_set, if it skips steps in beginning increase p_0
+  steppers[0].tune_controller(2100, 1, 0, 10, 100);
+  steppers[1].tune_controller(2100, 1, 0, 10, 100);
+  steppers[2].tune_controller(2000, 1, 20, 20, 40);
+  steppers[3].tune_controller(600, 1, 50, 20, 100);
+  steppers[4].tune_controller(750, 1, 0, 10, 100);
+  steppers[5].tune_controller(500, 1, 0, 10, 100);
 
   Stepper::setSteppers(steppers, 6);
 
   // Interrupt sets stepper_power to current power state on change
   attachInterrupt(STEPPER_POWER_PIN, stepper_power_callback, CHANGE);
+  digitalWrite(led, HIGH);
 }
 
 void loop() {

@@ -45,20 +45,20 @@ class Left_PCS(PCS_SM):
 
             # If this state times out, only one jetson recieved TE signal
             smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=5),
-                                transitions={'Ready': 'Activate_Longeron_Cams',
+                                transitions={'Ready': 'Mission_Success',
                                              'Timeout': 'Mission_Fail'})
-            
+            """
             smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Deactivate_Longeron_Cams',
                                              'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Mission_Success',
+                               transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
-
+            """
 class Test_PCS(PCS_SM):
     def __init__(self):
-        self.balls_remaining = 2
+        self.balls_remaining = 4
 
         PCS_SM.__init__(self)
 
@@ -96,10 +96,12 @@ class Test_PCS(PCS_SM):
                                                 'Error': 'Reload_Fail'})
 
                 smach.StateMachine.add('Ball_Status', Ball_Status(self.get_balls_remaining, self.decrease_balls),
-                                    transitions={'2_Balls': 'Pickup_1',
-                                                    '1_Balls': 'Pickup_2',
-                                                    '0_Balls': 'Out_Of_Balls',
-                                                    'Error': 'Reload_Fail'})
+                                    transitions={'4_Balls': 'Pickup_1',
+                                                 '3_Balls': 'Pickup_2',
+                                                 '2_Balls': 'Out_Of_Balls', 
+                                                 '1_Balls': 'Out_Of_Balls', 
+                                                 '0_Balls': 'Out_Of_Balls',
+                                                 'Error': 'Reload_Fail'})
 
                 smach.StateMachine.add('Pickup_1', Pickup_1(),
                                     transitions={'Success': 'Success',
@@ -107,20 +109,25 @@ class Test_PCS(PCS_SM):
 
                 smach.StateMachine.add('Pickup_2', Pickup_2(),
                                     transitions={'Success': 'Success',
-                                                'Error': 'Reload_Fail'})
+                                                'Error': 'Ball_Status'})
 
             smach.StateMachine.add('Reload', Reload_SM,
                                 transitions={'Success': 'Unfold',
-                                             'Out_Of_Balls': 'Jetson_Sync_1',
+                                             'Out_Of_Balls': 'Jetson_Sync_2',
                                              'Reload_Fail': 'Mission_Fail'})
 
 
 
             smach.StateMachine.add('Unfold', Unfold(),
-                                transitions={'Success': 'Open_Gripper',
+                                transitions={'Success': 'Jetson_Sync_1',
                                             'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Open_Gripper', Open_Gripper(),
+            # about to throw
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake),
+                                transitions={'Ready': 'Throw',
+                                             'Timeout': 'Mission_Fail'})            
+
+            smach.StateMachine.add('Throw', Throw(),
                                 transitions={'Success': 'Fold',
                                             'Error': 'Mission_Fail'})
 
@@ -128,14 +135,16 @@ class Test_PCS(PCS_SM):
                                 transitions={'Success': 'Reload',
                                             'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
+            # Ready for left arm to catch, right arm to throw
+            smach.StateMachine.add('Jetson_Sync_2', Jetson_Sync(2, self.jet_comm, handshake, timeout=30),
                                             transitions={'Ready': 'Jetson_Sync_2',
                                                         'Timeout': 'Mission_Fail'})
-
-            smach.StateMachine.add('Jetson_Sync_2', Jetson_Sync(2, self.jet_comm, handshake, timeout=60),
+            # Ready to latch
+            smach.StateMachine.add('Jetson_Sync_3', Jetson_Sync(3, self.jet_comm, handshake, timeout=60),
                                             transitions={'Ready': 'Latch',
                                                         'Timeout': 'Mission_Fail'})
 
+            
             smach.StateMachine.add('Latch', Latch(),
                                 transitions={'Success': 'Mission_Success',
                                             'Error': 'Mission_Fail'})
@@ -154,7 +163,7 @@ class Test_PCS(PCS_SM):
 
 if __name__ == "__main__":
     rospy.init_node("PCS")
-    sm = Test_PCS()
+    sm = Left_PCS()
     try:
         sm.run()
     except KeyboardInterrupt:
