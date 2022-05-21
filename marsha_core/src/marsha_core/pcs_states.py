@@ -228,6 +228,7 @@ class Jetson_Sync(smach.State):
         # waits until other jetson is on the same state
         rospy.loginfo("(JET COMM): Waiting for State...")
         while self.jet_comm() != 'Jetson_Sync_' + str(self.sync_id):
+            # add something to detect if self.jet_comm() returns False which indicates it cannot communicate with other jetson
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
