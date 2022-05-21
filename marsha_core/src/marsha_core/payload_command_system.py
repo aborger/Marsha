@@ -129,8 +129,9 @@ class PCS_SM(object):
     def jet_comm(self):
         try:
             return self.jet_comm_service().current_state
-        except ServiceException:
+        except Exception as e:
             rospy.logerr("Cannot Communicate with other Jetson!")
+            print(e)
             return False
 
         
