@@ -122,9 +122,17 @@ class PCS_SM(object):
         
         if self.jet_connection:
             rospy.wait_for_service(other_arm + 'pcs_comm')
-            self.jet_comm = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
+            self.jet_comm_service = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
         
         self.mission_sm()
+        
+    def jet_comm(self):
+        try:
+            return self.jet_comm_service().current_state
+        except ServiceException:
+            rospy.logerr("Cannot Communicate with other Jetson!")
+            return False
+
         
 
     def connection_status(self):
