@@ -26,7 +26,6 @@ catkin_install_python(
     PROGRAMS
         nodes/locate
         nodes/record
-        nodes/record_longeron
         nodes/detect_object
         scripts/train
         scripts/view 
