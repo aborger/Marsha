@@ -38,7 +38,7 @@ class Detector(PCSNode):
 
             rospy.loginfo("TE Detected!")
 
-            rospy.sleep(0.5)
+            rospy.sleep(0.25)
             if GPIO.input(TE_PIN):
                 rospy.loginfo("TE Verified!")
                 verified = True
