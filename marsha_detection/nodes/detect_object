@@ -7,7 +7,6 @@ import time
 
 import sys
 
-print("Python version:" + str(sys.version))
 from marsha_detection.realsense_camera import *
 
 from std_msgs.msg import UInt8MultiArray
@@ -17,9 +16,9 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import UInt32
 from geometry_msgs.msg import Point
 
+from marsha_msgs.srv import PayloadCmd
+from marsha_core.pcs_node import *
 
-from marsha_msgs.srv import GetFrame
-from marsha_msgs.srv import GetDepth
 
 
 SIZE_REDUCTION = 6
@@ -32,15 +31,6 @@ YELLOW_CB = (np.array([20, 80, 80]), np.array([30, 255, 255]))
 
 CONV_SIZE = 5 # Note it will be double this value
 
-def conv_get_depth(frame, x, y):
-    depth_list = []
-    for col in range(x - CONV_SIZE, x + CONV_SIZE):
-        for row in range(y - CONV_SIZE, y + CONV_SIZE):
-            depth = frame.get_distance(y, x)
-            depth_list.append(depth)
-
-    avg = sum(depth_list) / len(depth_list)
-    return avg
 
 def point_to_position(point):
     point[0] -= 0.3
@@ -48,71 +38,18 @@ def point_to_position(point):
     point[2] -= 0.4
     return point
 
-class CamServer():
+class CamDetector(PCSNode):
     def __init__(self):
+        super(CamDetector, self).__init__("depth_cam")
         self.rs = RealsenseCamera()
-        self.get_frame_service = rospy.Service('get_rgb_frame', GetFrame, self.handleFrame)
-        self.get_depth_service = rospy.Service('get_depth', GetDepth, self.handleDepth)
 
         self.pos_pub = rospy.Publisher('object_pos', Point, queue_size=1)
         self.ball_pub_count = 0
 
-        self.frame_buffer = None
-        self.depth_buffer = [] # Current frame = depth_buffer[10]
-        self.frame_num = 0
-
-        self.curr_pos = None
-        self.curr_pos_frameID = 0
-
-        self.mal = MultiArrayLayout()
-        self.mal.dim.append(MultiArrayDimension())
-        self.mal.dim[0].label = "height"
-        self.mal.dim[0].size = IMAGE_HEIGHT
-        self.mal.dim[0].stride = CHANNELS*IMAGE_WIDTH*IMAGE_HEIGHT
-        self.mal.dim.append(MultiArrayDimension())
-        self.mal.dim[1].label = "width"
-        self.mal.dim[1].size = IMAGE_WIDTH
-        self.mal.dim[1].stride = CHANNELS*IMAGE_WIDTH
-        self.mal.dim.append(MultiArrayDimension())
-        self.mal.dim[2].label = "channel"
-        self.mal.dim[2].size = CHANNELS
-        self.mal.dim[2].stride = CHANNELS
-        self.mal.data_offset = 0
-
-    def handleFrame(self, req):
-        
-        frame = cv2.resize(self.frame_buffer, (IMAGE_WIDTH, IMAGE_HEIGHT))
-        pixel_list = np.reshape(frame, (CHANNELS*IMAGE_WIDTH*IMAGE_HEIGHT)).tolist()
-
-        frame = UInt8MultiArray()
-        frame.layout = self.mal
-        frame.data = pixel_list
-
-        return UInt8(self.frame_num), frame
-        
-
-    def handleDepth(self, req):
-        #print('Handingling frame:', req.frame_id.data, 'curr frame:', self.frame_num)
-        frame_difference = self.frame_num - req.frame_id.data
-        buffer_num = 10 - frame_difference
-
-        try:
-            depth_frame = self.depth_buffer[buffer_num]
+        # check if camera is plugged in and working
+        self.state = PCSstate.NA
 
 
-        except IndexError:
-            rospy.logerr("Detection System Delayed Too Much!")
-            return Point(0, 0, 0)
-
-        x_pix = int(req.x_pixel.data * SIZE_REDUCTION)
-        y_pix = int(req.y_pixel.data * SIZE_REDUCTION)
-        self.curr_pos = (x_pix, y_pix)
-        self.curr_pos_frameID = req.frame_id.data
-        point = self.rs.pixel_to_point(depth_frame, x_pix, y_pix)
-
-        position = point_to_position(point)
-
-        return Point(-1*position[0], -1*position[2], -1*position[1]) # Depth is y, y_pix is z
 
     def detect_color(self, frame, depth_frame):
         #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -147,24 +84,31 @@ class CamServer():
 
 
     def run(self):
-        rospy.init_node('record_depth_cam')
-        print('Running...')
+        spin_rate = 25
+        spin_cnt = 25
         while not rospy.is_shutdown():
+            if spin_cnt > spin_rate:
+                while self.pcs_cmd(self.state).cmd != PCScmd.ACTIVATE:
+                    if self.pcs_cmd(self.state).cmd == PCScmd.SHUTDOWN:
+                        rospy.signal_shutdown("PCS Shutdown Cmd")
+                        self.pcs_cmd(PCSstate.SHUTDOWN)
+                    self.state = PCSstate.DISABLED
+                    print("waiting for activation...")
+                    rospy.sleep(0.5)
+                self.state = PCSstate.GOOD
+                self.pcs_cmd(self.state)
+                spin_cnt = 0
+
             # Get frame
-
-
             ret, bgr_frame, depth_frame = self.rs.get_frame_stream()
-            print(bgr_frame.shape)
             if ret == False:
                 print("error")
- 
-            
-
 
             color = (0, 255, 0)
 
             frame, x_pix, y_pix = self.detect_color(bgr_frame, depth_frame)
 
+            # ball_pub_count reduces the frequency of publishing
             if self.ball_pub_count > 0:
                 if x_pix > 0 and y_pix > 0:
                     point = self.rs.pixel_to_point(depth_frame, x_pix, y_pix)
@@ -181,17 +125,18 @@ class CamServer():
             else:
                 self.ball_pub_count += 1
 
+            spin_cnt += 1
 
             #cv2.imshow('Depth', bgr_frame)
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
+            #key = cv2.waitKey(1)
+            #if key == 27:
+            #    break
+            
 
-            self.frame_buffer = frame
 
         self.rs.release()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    cam = CamServer()
+    cam = CamDetector()
     cam.run()

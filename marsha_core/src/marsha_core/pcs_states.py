@@ -161,7 +161,7 @@ class PCS_Activate_State(PCS_State):
     def execute(self, userdata):
         self.pcs_node_cmd(self.node_id, PCScmd.ACTIVATE)
 
-        while self.pcs_node_state(self.node_id) == PCSstate.NA:
+        while self.pcs_node_state(self.node_id) == PCSstate.NA or self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
             rospy.sleep(0.5)
         
         if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
@@ -180,6 +180,15 @@ class PCS_Deactivate_State(PCS_State):
             return 'Success'
         else:
             return 'Error'
+
+class PCS_Shutdown_State(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.SHUTDOWN)
+
+        while self.pcs_node_state(self.node_id) != PCSstate.SHUTDOWN:
+            rospy.sleep(0.5)
+
+        return 'Success'
 
 
 
@@ -251,4 +260,13 @@ class Activate_Longeron_Cams(PCS_Activate_State):
     pass
 
 class Deactivate_Longeron_Cams(PCS_Deactivate_State):
+    pass
+
+class Activate_Depth_Cam(PCS_Activate_State):
+    pass
+
+class Deactivate_Depth_Cam(PCS_Deactivate_State):
+    pass
+
+class Shutdown_Depth_Cam(PCS_Shutdown_State):
     pass

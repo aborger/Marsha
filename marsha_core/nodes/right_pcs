@@ -40,6 +40,7 @@ class Right_PCS(PCS_SM):
                                 transitions={'Ready': 'Mission_Success',
                                              'Timeout': 'Mission_Fail'})
 
+            """
             smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Deactivate_Longeron_Cams',
                                              'Error': 'Mission_Fail'})
@@ -47,9 +48,9 @@ class Right_PCS(PCS_SM):
             smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
+            """
 
-
-class Test_PCS(PCS_SM):
+class Sim_PCS(PCS_SM):
     def __init__(self):
         self.balls_remaining = 4
 
@@ -160,10 +161,32 @@ class Test_PCS(PCS_SM):
                                 transitions={'Success': 'Mission_Success',
                                             'Error': 'Mission_Fail'})
 
+class Test_PCS(PCS_SM):
+    def __init__(self):
+        PCS_SM.__init__(self)
 
+    def mission_sm(self):
+        handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
+        with self.sm:   
+            smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
+                                transitions={'Success': 'Activate_Depth_Cam', # usually Teensy comm check
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Activate_Depth_Cam', Activate_Depth_Cam("depth_cam", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Deactivate_Depth_Cam',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Deactivate_Depth_Cam', Deactivate_Depth_Cam("depth_cam", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Shutdown_Depth_Cam',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Shutdown_Depth_Cam', Shutdown_Depth_Cam("depth_cam", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Mission_Success',
+                                             'Error': 'Mission_Fail'})
+            
 if __name__ == "__main__":
     rospy.init_node("PCS")
-    sm = Test_PCS()
+    sm = Right_PCS()
     try:
         sm.run()
     except KeyboardInterrupt:
