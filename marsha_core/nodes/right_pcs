@@ -35,8 +35,9 @@ class Right_PCS(PCS_SM):
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Jetson_Sync_1',
                                              'Error': 'Mission_Fail'})
-
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=5),
+                                             
+            # If this state times out, only one jetson recieved TE signal
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
                                 transitions={'Ready': 'Mission_Success',
                                              'Timeout': 'Mission_Fail'})
 
