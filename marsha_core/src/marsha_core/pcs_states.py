@@ -242,8 +242,8 @@ class Jetson_Sync(smach.State):
                 return 'Timeout'
         try:
             self.jet_comm().current_state
-        except Exception as e:
-            raise(e)
+        except ServiceException:
+            rospy.logerr("Cannot Communicate with other Jetson!")
         
         self.reset_handshake_status()
 
