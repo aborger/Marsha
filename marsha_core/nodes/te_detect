@@ -7,7 +7,7 @@ TE_PIN = 5 # pin 29
 
 ERROR_CHECK_TIME = 1000 # Wait x milliseconds to confirm TE activation
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(TE_PIN, GPIO.IN)
+GPIO.setup(TE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 from marsha_msgs.srv import PayloadCmd
 from marsha_core.pcs_node import *
