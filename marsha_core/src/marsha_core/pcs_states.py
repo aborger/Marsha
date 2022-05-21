@@ -7,8 +7,8 @@ import smach_ros
 from marsha_core.pcs_node import PCSstate
 from marsha_core.pcs_node import PCScmd
 
-from marsha_core.marsha_services.move_cmds import *
-from marsha_core.marsha_services.gripper_cmds import *
+#from marsha_core.marsha_services.move_cmds import *
+#from marsha_core.marsha_services.gripper_cmds import *
 
 # ---------------------------------------------------------------- #
 #                              Reload                              #
@@ -45,25 +45,34 @@ class Step_0(Move_State):
 
 class Ball_Status(smach.State):
     def __init__(self, balls_remaining, decrease_balls):
-        smach.State.__init__(self, outcomes=['2_Balls', '1_Balls', '0_Balls', 'Error'])
+        smach.State.__init__(self, outcomes=['4_Balls', '3_Balls', '2_Balls', '1_Balls', '0_Balls', 'Error'])
 
         self.balls_remaining = balls_remaining
         self.decrease_balls = decrease_balls
 
     def execute(self, userdata):
         # left arm goes first
-        if self.balls_remaining() == 0:
-            outcome = '0_Balls'
-        elif self.balls_remaining() == 1:
-            outcome = '1_Balls'
-        elif self.balls_remaining() == 2:
-            outcome = '2_Balls'
-        else:
-            outcome = 'Error'
+        outcome = str(self.balls_remaining()) + "_Balls"
 
         self.decrease_balls()
 
         return outcome
+
+class Catch(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Catch_Success', 'Catch_Fail', 'Error'])
+
+    def execute(self, userdata):
+        joint_pose_cmd("pre_throw")
+        joint_pose_cmd("throw")
+        grasp_cmd("open")
+        rospy.sleep(1)
+        grasp_cmd("close")
+
+        if is_grasped().success:
+            return 'Catch_Success'
+        else:
+            return 'Catch_Fail'
 
 class Unfold(Move_State):
 
@@ -121,6 +130,17 @@ class Pickup_2(Move_State):
         else:
             rospy.logwarn("Ball was not picked up!")
             return 'Error'
+
+class Throw(Move_State):
+    def execute(self, userdata):
+        joint_pose_cmd("pre_throw")
+        #async_joint_pose_cmd("throw")
+        rospy.sleep(0.1)
+        grasp_cmd("open")
+        rospy.sleep(2)
+        grasp_cmd("close")
+
+        return 'Success'
 
 # ---------------------------------------------------------------- #
 #                         Peripherals                              #

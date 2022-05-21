@@ -37,6 +37,8 @@ catkin_install_python(
         nodes/left_pcs
         nodes/right_pcs
         nodes/te_detect
+        nodes/soft_robotics_telem
+        nodes/telemetry_downlink
         scripts/motor.py
         scripts/throw
         scripts/follow_ball

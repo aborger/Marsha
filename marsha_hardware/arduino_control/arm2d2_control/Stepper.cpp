@@ -5,7 +5,9 @@ Stepper* Stepper::steppers;
 int Stepper::num_steppers;
 bool Stepper::stepper_power;
 
-// ======================== Stepper with Encoder ==============================
+/* ========================================================== */
+/*               Construct Stepper With Encoder               */
+/* ========================================================== */
 // Not using inheritance because of the static array of steppers.
 Stepper::Stepper(int _step_pin, int _dir_pin, int enc_pinA, int enc_pinB) {
 
@@ -54,8 +56,9 @@ void Stepper::step_w_encoder() {
     }
   }
 }
-// ======================= Stepper =========================================
-// Stepper without encoder
+/* ============================================================= */
+/*               Construct Stepper Without Encoder               */
+/* ============================================================= */
 Stepper::Stepper(int _step_pin, int _dir_pin) {
   init(_step_pin, _dir_pin);
 }
@@ -64,6 +67,9 @@ Stepper::Stepper(int _step_pin, int _dir_pin, bool flip_direction) {
   init(_step_pin, _dir_pin);
 }
 
+/* ========================================================== */
+/*                                Setup                       */
+/* ========================================================== */
 void Stepper::init(int _step_pin, int _dir_pin) {
   step_pin = _step_pin;
   dir_pin = _dir_pin;
@@ -85,6 +91,9 @@ void Stepper::init(int _step_pin, int _dir_pin) {
 
 }
 
+/* ========================================================== */
+/*                                Speed                       */
+/* ========================================================== */
 void Stepper::set_speed(int _on_time, int _off_time) {
   on_time = _on_time;
   off_time = _off_time;
@@ -127,35 +136,40 @@ void Stepper::watch_bounds() {
   }
 }
 
-void Stepper::tune_controller(float p, float i, int _min_delay, int _max_delay) {
-  K_P = p;
-  K_I = i;
+void Stepper::tune_controller(int _max_steps, float p_set, float p_0, int _min_delay, int _max_delay) {
+  max_steps = _max_steps;
+  K_Pset = p_set;
+  K_P0 = p_0;
   min_delay = _min_delay;
   max_delay = _max_delay;
 }
 
 void Stepper::velPID() {
-  error = abs(desired_step - enc_step);
-  enc_error = K_I*abs(current_step - enc_step);
-  error_sum += enc_error;
-  if (error_sum > MAX_ERROR_SUM) {
-    error_sum = MAX_ERROR_SUM;
-  }
-  velocity_out = (int)(K_P*error - error_sum);
-  if (velocity_out < 0) {
-    velocity_out = 0;
-  }
+  int error = abs(desired_step - enc_step);
+  int init_dist = int(max_steps / abs(enc_step - init_step));
+  int v_out = map(K_Pset*error - K_P0*init_dist, 0, max_steps, 0, 100);
   
-  set_speed(velocity_out);
+  set_speed(v_out);
+}
+
+void Stepper::openController() {
+  int error = abs(desired_step - current_step);
+  int init_dist = int(max_steps / abs(current_step -  init_step));
+  //int v_out = int(100 / (1 + pow(EULER, (5 - error/100))));
+  int v_out = map(K_Pset*error - K_P0*init_dist, 0, max_steps, 0, 100);
+  
+  set_speed(v_out);
+  
 }
 
 void Stepper::step() {
-  velPID();
+  
   if (encoder_enabled) {
+    velPID();
     step_w_encoder();
   }
   else {
-    
+    openController();
     if (digitalRead(step_pin) == HIGH && timer > on_time) {
       digitalWrite(step_pin, LOW);
       timer = 0;
@@ -186,12 +200,9 @@ void Stepper::step() {
   }
 }
 
-//void Stepper::acc_step() {
-//  steppers[0].set_speed
-//}
-
 
 void Stepper::set_point(int step_position) {
+  init_step = step_position;
   desired_step = step_position;
   if (current_step < desired_step) {
     digitalWrite(dir_pin, pos_dir);

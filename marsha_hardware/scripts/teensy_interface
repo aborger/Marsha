@@ -79,7 +79,7 @@ class Interface(PCSNode):
                     xonxoff = False,
                     rtscts = False,
                     dsrdtr = False,
-                    writeTimeout = 2
+                    writeTimeout = 5
                 )
                 self.connected = True
             except KeyboardInterrupt:
@@ -171,6 +171,7 @@ class Interface(PCSNode):
 
     def run(self):
         self.arduino.reset_input_buffer()
+        rospy.loginfo("Running, If no data appears ensure the teensy is communicating through the same serial port.")
         while not rospy.is_shutdown():
             if not self.calibrating:
                 if self.tx_cnt > self.tx_rate:
@@ -183,14 +184,16 @@ class Interface(PCSNode):
 
             # read
             #char = arduino.read().decode()
+
             data_available = self.arduino.in_waiting
             if data_available > 0:
                 if self.calibrating:
                     self.calibrating = False
                     rospy.loginfo("Calibration Complete!")
                 try:
-                    json_string = self.arduino.read(data_available).decode()
-                    print(json_string)
+                    string = self.arduino.read_until("}")
+                    print(string)
+                    json_string = string.decode()
                     rx_dict = json.loads(json_string)
                     encoders = rx_dict["enc_feedback"]
 
@@ -205,20 +208,21 @@ class Interface(PCSNode):
                         self.grasped = False
                         self.grasp_time = 0
                     
+                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
                     self.enc_pub.publish(encoders)
                     
-                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
                     #print("Grip feedback", rx_dict["grip_desired"])
                             #' Step: ' +  str(rx_dict["curr_step"]) +
                             #' Speed: ' + str(rx_dict["curr_speed"]) +
                             #' Err Sum: ' + str(rx_dict["err_sum"]))
                 except Exception as e:
-                    print(e) 
+                    #    raise(e) 
                     # This issue is caused because the teensy interface is polling for data on the recieve line.
                     # This can be fixed by creating an interrupt to place any recieved data in a buffer.
                     # Currently it is not a large enough issue to spend the time doing this
-                    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
-                    print("Recv: " + json_string)
+                    rospy.logwarn(e)
+                    #    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
+                    #    rospy.logdebug("Recv: " + json_string)
                 except KeyError:
                     rospy.logerr("Communicated with Teensy, but un-readable data received.")
                     self.pcs_cmd(PCSstate.ERROR1)
@@ -230,5 +234,5 @@ class Interface(PCSNode):
 if __name__ == "__main__":
     #os.system("sudo chmod -R 777 /dev/ttyTHS1")
     interface = Interface()
-
+    print("running...")
     interface.run()
