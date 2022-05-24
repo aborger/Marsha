@@ -119,7 +119,6 @@
   <visual>
     <origin xyz="0 0 0" rpy="1.57 0 0"/>
     <geometry>
-      <!-- height is 0.125-->
       <mesh filename="package://arm2d2_description/meshes/soft_robotics.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </visual>
