@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="machine" default=""/>
-  <arg name="ns" default=""/>
+  <arg name="ns" default="left"/>
 
   <!-- move_group settings -->
   <arg name="allow_trajectory_execution" default="true"/>
