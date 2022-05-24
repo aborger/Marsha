@@ -1,0 +1,28 @@
+<launch>
+    <arg name="machine" default="jet1"/>
+    <arg name="ns" default="left"/>
+
+    <rosparam file="$(find arm2d2_hardware)/config/controllers.yaml" command="load"/>
+    <rosparam file="$(find arm2d2_moveit_config)/config/joint_limits.yaml" command="load"/>
+    <rosparam file="$(find arm2d2_hardware)/config/joint_config.yaml" command="load"/>
+
+
+    <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns)"/>
+
+    <node name="teensy_interface" pkg="marsha_hardware" type="teensy_interface" machine="$(arg machine)"/>
+
+    <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
+
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" ns="$(arg ns)"
+        args="--namespace=/$(arg ns)
+              /$(arg ns)/arm2d2/controllers/state
+              /$(arg ns)/arm2d2/controllers/position"
+        />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+    <remap from="/joint_trajectory_action" to="/position_trajectory_controller/follow_joint_trajectory"/>
+
+</launch>
+

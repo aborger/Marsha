@@ -1,0 +1,17 @@
+stepper_config:
+  num_joints: 6
+  joint_names:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - gripper_joint
+  deg_per_step:
+  # current values are estimates
+    - 0.0225 #0.09    # 360 / 4000
+    - 0.0128 #0.018   # 5000 / 90
+    - 0.0134 #0.036   # 90 / 2500
+    - 0.1 #0.3     # 90 / 300
+    - 0.1 #0.3     # 90 / 300
+    - 0.3     # 90 / 300
