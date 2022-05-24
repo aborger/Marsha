@@ -155,8 +155,8 @@ class PCS_State(smach.State):
         self.pcs_node_state = pcs_node_state
         self.pcs_node_cmd = pcs_node_cmd
 
-        pcs_nodes = rospy.get_param("/pcs_nodes")
-        self.node_id = pcs_nodes.index(pcs_node_name)
+        self.pcs_nodes = rospy.get_param("/pcs_nodes")
+        self.node_id = self.pcs_nodes.index(pcs_node_name)
 
 class PCS_Activate_State(PCS_State):
     def execute(self, userdata):
@@ -174,13 +174,12 @@ class PCS_Deactivate_State(PCS_State):
     def execute(self, userdata):
         self.pcs_node_cmd(self.node_id, PCScmd.DEACTIVATE)
 
-        while self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+        while self.pcs_node_state(self.node_id) != PCSstate.DISABLED:
+            rospy.loginfo("Deactivating node: " + str(self.pcs_nodes[self.node_id]) + " Node State: " + str(self.pcs_node_state(self.node_id)))
             rospy.sleep(0.5)
-        
-        if self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
-            return 'Success'
-        else:
-            return 'Error'
+
+        return 'Success'
+
 
 class PCS_Shutdown_State(PCS_State):
     def execute(self, userdata):

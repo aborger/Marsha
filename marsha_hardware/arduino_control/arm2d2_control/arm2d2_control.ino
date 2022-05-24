@@ -3,7 +3,6 @@
 #include "Stepper.h"
 #include "Comm.h"
 
-#define BAUD_RATE       115200
 
 #define SPIN_RATE       100
 #define FEEDBACK_RATE   1000000
@@ -19,7 +18,7 @@
 
 // PCB
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 16, 15), Stepper(31, 30, 41, 40)};
-Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32), Stepper(35, 34), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
+Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32), Stepper(35, 34), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
 
 // J6 tests
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(37, 36, 6, 5, true), Stepper(35, 34, 16, 15, true), Stepper(31, 30, 41, 40)};
@@ -73,10 +72,10 @@ void setup() {
   // to tune start with max_steps at half way to full range of motion and p_0 = 0, p_set=1
   // find good p_set, if it skips steps in beginning increase p_0
   steppers[0].tune_controller(2100, 1, 0, 10, 100);
-  steppers[1].tune_controller(2100, 1, 0, 10, 100);
+  steppers[1].tune_controller(2100, 0.5, 20, 10, 100);
   steppers[2].tune_controller(2000, 1, 20, 20, 40);
   steppers[3].tune_controller(600, 1, 50, 20, 100);
-  steppers[4].tune_controller(750, 1, 0, 10, 100);
+  steppers[4].tune_controller(750, 0.75, 20, 20, 100);
   steppers[5].tune_controller(500, 1, 0, 10, 100);
 
   Stepper::setSteppers(steppers, 6);

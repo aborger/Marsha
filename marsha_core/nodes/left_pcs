@@ -36,8 +36,12 @@ class Left_PCS(PCS_SM):
                                              'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
-                                transitions={'Ready': 'Wait_for_TE',
+                                transitions={'Ready': 'Activate_Longeron_Cams',
                                              'Timeout': 'Mission_Fail'})
+
+            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Wait_for_TE',
+                                             'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Jetson_Sync_1',
@@ -45,12 +49,9 @@ class Left_PCS(PCS_SM):
 
             # If this state times out, only one jetson recieved TE signal
             smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
-                                transitions={'Ready': 'Mission_Success',
+                                transitions={'Ready': 'Deactivate_Longeron_Cams',
                                              'Timeout': 'Mission_Fail'})
             
-            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Deactivate_Longeron_Cams',
-                                             'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
                                transitions={'Success': 'Mission_Success',

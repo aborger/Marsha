@@ -175,3 +175,4 @@ class PCS_SM(object):
 
     def run(self):
         outcome = self.sm.execute()
+        rospy.logwarn("Final State: " + str(outcome))

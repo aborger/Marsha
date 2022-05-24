@@ -33,7 +33,7 @@ class Interface(PCSNode):
         super(Interface, self).__init__("teensy_interface")
 
         self.led_cmd = False
-        self.tx_rate = 2000
+        self.tx_rate = 2500
         self.tx_cnt = 0
         self.connected = False
 
@@ -71,7 +71,7 @@ class Interface(PCSNode):
             try:
                 self.arduino = serial.Serial(
                     port = '/dev/ttyACM0',
-                    baudrate = 115200,
+                    baudrate = 9600, # 115200 can be used, but data is less reliable
                     bytesize = serial.EIGHTBITS,
                     parity = serial.PARITY_NONE,
                     stopbits = serial.STOPBITS_ONE,
@@ -157,7 +157,7 @@ class Interface(PCSNode):
             data_bytes = data_str.encode('utf-8')
 
             self.arduino.write(data_bytes)
-        #print("data", data_bytes)
+            #print("tx: " +  str(data_bytes))
 
     def transmit_led(self):
         data = {"led": int(self.led_cmd)}
@@ -184,51 +184,57 @@ class Interface(PCSNode):
 
             # read
             #char = arduino.read().decode()
+            data_available = 0
+            try:
+                data_available = self.arduino.in_waiting
+            except Exception as e:
+                rospy.logwarn("Error checking data: " + str(e))
+            else:
+                if data_available > 0:
+                    if self.calibrating:
+                        self.calibrating = False
+                        rospy.loginfo("Calibration Complete!")
+                    try:
+                        #string = self.arduino.read_until("}")
+                        string = self.arduino.read_until("}")
+                        #print(string)
+                        json_string = string.decode()
+                        rx_dict = json.loads(json_string)
+                        encoders = rx_dict["enc_feedback"]
 
-            data_available = self.arduino.in_waiting
-            if data_available > 0:
-                if self.calibrating:
-                    self.calibrating = False
-                    rospy.loginfo("Calibration Complete!")
-                try:
-                    string = self.arduino.read_until("}")
-                    print(string)
-                    json_string = string.decode()
-                    rx_dict = json.loads(json_string)
-                    encoders = rx_dict["enc_feedback"]
-
-                    if encoders[-1] > rospy.get_param('/gripper/hw/' + self.gripper_state) + 100:
-                        self.grasped = True
-                        if self.grasp_time == 0:
-                            self.grasp_time = rospy.get_rostime()
+                        if encoders[-1] > rospy.get_param('/gripper/hw/' + self.gripper_state) + 100:
+                            self.grasped = True
+                            if self.grasp_time == 0:
+                                self.grasp_time = rospy.get_rostime()
+                            else:
+                                if (rospy.get_rostime() - self.grasp_time).to_sec() > 4:
+                                    self.gripper_cmd = encoders[-1]
                         else:
-                            if (rospy.get_rostime() - self.grasp_time).to_sec() > 4:
-                                self.gripper_cmd = encoders[-1]
-                    else:
-                        self.grasped = False
-                        self.grasp_time = 0
-                    
-                    print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
-                    self.enc_pub.publish(encoders)
-                    
-                    #print("Grip feedback", rx_dict["grip_desired"])
-                            #' Step: ' +  str(rx_dict["curr_step"]) +
-                            #' Speed: ' + str(rx_dict["curr_speed"]) +
-                            #' Err Sum: ' + str(rx_dict["err_sum"]))
-                except Exception as e:
-                    #    raise(e) 
-                    # This issue is caused because the teensy interface is polling for data on the recieve line.
-                    # This can be fixed by creating an interrupt to place any recieved data in a buffer.
-                    # Currently it is not a large enough issue to spend the time doing this
-                    rospy.logwarn(e)
-                    #    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
-                    #    rospy.logdebug("Recv: " + json_string)
-                except KeyError:
-                    rospy.logerr("Communicated with Teensy, but un-readable data received.")
-                    self.pcs_cmd(PCSstate.ERROR1)
-                if not self.pcs_established:
-                    self.pcs_cmd(PCSstate.GOOD)
-                    self.pcs_established = True
+                            self.grasped = False
+                            self.grasp_time = 0
+                        
+                        print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
+                        self.enc_pub.publish(encoders)
+                        
+                        #print("Grip feedback", rx_dict["grip_desired"])
+                                #' Step: ' +  str(rx_dict["curr_step"]) +
+                                #' Speed: ' + str(rx_dict["curr_speed"]) +
+                                #' Err Sum: ' + str(rx_dict["err_sum"]))
+                    except Exception as e:
+                        #    raise(e) 
+                        # This issue is caused because the teensy interface is polling for data on the recieve line.
+                        # This can be fixed by creating an interrupt to place any recieved data in a buffer.
+                        # Currently it is not a large enough issue to spend the time doing this
+                        rospy.logwarn(e)
+                        print(string)
+                        #    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
+                        #    rospy.logdebug("Recv: " + json_string)
+                    except KeyError:
+                        rospy.logerr("Communicated with Teensy, but un-readable data received.")
+                        self.pcs_cmd(PCSstate.ERROR1)
+                    if not self.pcs_established:
+                        self.pcs_cmd(PCSstate.GOOD)
+                        self.pcs_established = True
         
 
 if __name__ == "__main__":
