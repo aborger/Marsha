@@ -3,13 +3,16 @@
     <arg name="jets" default="jet1"/>
     <arg name="launch_rviz" default="true"/>
 
+
+
     <rosparam file="$(find tundra_gripper)/config/poses.yaml" command="load"/>
+    <rosparam file="$(find marsha_core)/config/PCS.yaml" command="load"/>
     <group ns="$(arg ns)">
         <include file="$(find marsha_core)/launch/satlab_net.machine"/>
 
         <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
 
-
+        <node pkg="marsha_core" type="left_pcs" name="left_pcs" machine="$(arg jets)"/>
         
         <include file="$(find arm2d2_hardware)/launch/arm2d2_hardware_bringup.launch">
             <arg name="machine" value="$(arg jets)"/>
