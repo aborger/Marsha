@@ -47,6 +47,7 @@ class Comm {
     int buffer_index = 0;
   public:
     Comm();
+    bool connection_successful = false;
     void set_callback(void (*_spin_callback)(RxPacket &rx));
 
     void transmit(TxPacket tx);

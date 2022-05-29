@@ -65,14 +65,14 @@ void Arm2D2Interface::read() {
 // This math could be performed with a matrices for efficiency
 void Arm2D2Interface::write() {
 
-    ROS_DEBUG("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
+    ROS_INFO("Writing %f, %f, %f, %f, %f", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
 
     marsha_msgs::TeensyMsg msg;
 
     for(int i = 0; i < num_joints; i++) {
         short num_steps;
         num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]);
-        //SROS_DEBUG("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
+        ROS_INFO("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
         msg.steps.push_back(num_steps);
     }
 

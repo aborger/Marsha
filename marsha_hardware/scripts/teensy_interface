@@ -8,13 +8,13 @@ import math
 import os
 
 from std_srvs.srv import Trigger, TriggerResponse
+from std_msgs.msg import Bool
 
 from marsha_msgs.msg import TeensyMsg
 from marsha_msgs.srv import MoveCmd
 from marsha_msgs.srv import JointCmd
 
 from marsha_msgs.srv import PayloadCmd
-from marsha_core.pcs_node import *
 
 from control_msgs.srv import QueryTrajectoryState
 
@@ -22,18 +22,26 @@ from control_msgs.srv import QueryTrajectoryState
 # https://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
 os.system("sudo /home/aaron/unlock_serial.sh")
 
+STEP_TOLERANCE = 20
+CMD_EXECUTION_ATTEMPTS = 10
+
 def deg_to_rad(degree):
     return degree / 180 * math.pi
 
 
 
-class Interface(PCSNode):
+class Interface():
 
     def __init__(self):
-        super(Interface, self).__init__("teensy_interface")
+        rospy.init_node("teensy_interface")
+        self.ready_pub = rospy.Publisher('marsha_ready', Bool, queue_size=10)
+        self.ready = False
+        self.ready_pub.publish(False)
+        rospy.sleep(1)
+
 
         self.led_cmd = False
-        self.tx_rate = 2500
+        self.tx_rate = 5 # 2500 Node rate is 50 Hz so tx_rate is 50 / 5 = 10 Hz or 5 times a second
         self.tx_cnt = 0
         self.connected = False
 
@@ -49,11 +57,14 @@ class Interface(PCSNode):
 
         rospy.Service('gripper/grasp_cmd', MoveCmd, self.graspCmdCallback)
         rospy.Service('gripper/is_grasped', Trigger, self.is_grasped_callback)
+        rospy.Service('teensy_cmd_executed', Trigger, self.execution_state_cb)
 
         rospy.Subscriber('teensy_cmd', TeensyMsg, self.teensyCmdCallback)
         self.enc_pub = rospy.Publisher('enc_feedback', TeensyMsg, queue_size=10)
 
         self.step_cmd = []
+        self.enc_step = []
+        self.execution_checks = 0
         self.fake_joint_pos = 0
         self.grasped = False
         self.grasp_time = 0
@@ -63,7 +74,9 @@ class Interface(PCSNode):
         self.gripper_cmd = rospy.get_param('/gripper/hw/close')
 
         self.calibrating = False
-        self.pcs_established = False
+
+        self.rate = rospy.Rate(50)
+
 
         rospy.loginfo("Connecting...")
 
@@ -85,10 +98,32 @@ class Interface(PCSNode):
             except KeyboardInterrupt:
                 exit()
             except Exception as e:
-                print(e)
+                rospy.logerr(e)
                 time.sleep(1)
+                try:
+                    self.arduino = serial.Serial(
+                        port = '/dev/ttyACM1',
+                        baudrate = 9600, # 115200 can be used, but data is less reliable
+                        bytesize = serial.EIGHTBITS,
+                        parity = serial.PARITY_NONE,
+                        stopbits = serial.STOPBITS_ONE,
+                        timeout = 10,
+                        xonxoff = False,
+                        rtscts = False,
+                        dsrdtr = False,
+                        writeTimeout = 5
+                    )
+                    self.connected = True
+                except Exception as e:
+                    rospy.logerr(e)
+                    time.sleep(1)
 
-        rospy.loginfo("Connected!")
+        if self.connected:
+            rospy.loginfo("Connected!")
+        else:
+            rospy.logfatal("Could not connect to teensy!")
+            rospy.signal_shutdown("Could not connect to teensy.")
+
 
         #self.calibrate_callback(None)
 
@@ -102,6 +137,24 @@ class Interface(PCSNode):
         self.gripper_state = msg.pose_name
         self.gripper_cmd = rospy.get_param('/gripper/hw/' + msg.pose_name)
         return True
+
+    def execution_state_cb(self, msg):
+        res = TriggerResponse()
+        res.success = True
+        for joint_cmd, joint_enc in zip(self.step_cmd, self.enc_step):
+            if joint_cmd - joint_enc < 0 - STEP_TOLERANCE or joint_cmd - joint_enc > 0 + STEP_TOLERANCE:
+                res.success = False
+                if self.execution_checks > CMD_EXECUTION_ATTEMPTS:
+                    rospy.logwarn("Not Executing! Step CMD: " + str(joint_cmd) + " Encoder step: " + str(joint_enc))
+                    res.message = "fail"
+                    self.execution_checks = 0
+        if not res.success:
+            self.execution_checks += 1
+        else:
+            self.execution_checks = 0
+    
+
+        return res
 
     def calibrate_callback(self, msg):
         deg_per_steps = rospy.get_param('stepper_config/deg_per_step')
@@ -155,18 +208,12 @@ class Interface(PCSNode):
             #print("cmd:" + str(self.step_cmd))
             data_str = json.dumps(data) + '\n'
             data_bytes = data_str.encode('utf-8')
-
-            self.arduino.write(data_bytes)
-            #print("tx: " +  str(data_bytes))
-
-    def transmit_led(self):
-        data = {"led": int(self.led_cmd)}
-        data_str = json.dumps(data) + '\n'
-        data_bytes = data_str.encode('utf-8')
-        #print('Cmd:', data_bytes)
-        self.arduino.write(data_bytes)
-        self.led_cmd = not self.led_cmd
-
+            try:
+                self.arduino.write(data_bytes)
+            except serial.serialutil.SerialException as e:
+                rospy.logwarn("Failed to write to teensy.")
+                print(e)
+            #rospy.loginfo("tx: " +  str(data_bytes))
 
 
     def run(self):
@@ -191,6 +238,10 @@ class Interface(PCSNode):
                 rospy.logwarn("Error checking data: " + str(e))
             else:
                 if data_available > 0:
+                    if not self.ready:
+                        print("Publishing ready")
+                        self.ready_pub.publish(True)
+                        self.ready = True
                     if self.calibrating:
                         self.calibrating = False
                         rospy.loginfo("Calibration Complete!")
@@ -215,6 +266,7 @@ class Interface(PCSNode):
                         
                         print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
                         self.enc_pub.publish(encoders)
+                        self.enc_step = encoders
                         
                         #print("Grip feedback", rx_dict["grip_desired"])
                                 #' Step: ' +  str(rx_dict["curr_step"]) +
@@ -231,10 +283,9 @@ class Interface(PCSNode):
                         #    rospy.logdebug("Recv: " + json_string)
                     except KeyError:
                         rospy.logerr("Communicated with Teensy, but un-readable data received.")
-                        self.pcs_cmd(PCSstate.ERROR1)
-                    if not self.pcs_established:
-                        self.pcs_cmd(PCSstate.GOOD)
-                        self.pcs_established = True
+            self.rate.sleep()
+
+
         
 
 if __name__ == "__main__":

@@ -8,16 +8,31 @@ import smach_ros
 from marsha_core.pcs_node import PCSstate
 from marsha_core.pcs_node import PCScmd
 
-#from marsha_core.marsha_services.move_cmds import *
+from marsha_core.marsha_services.move_cmds import *
 #from marsha_core.marsha_services.gripper_cmds import *
 
 # ---------------------------------------------------------------- #
-#                              Reload                              #
+#                      Move State Templates                        #
 # ---------------------------------------------------------------- #
 
 class Move_State(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['Success', 'Error'])  
+        smach.State.__init__(self, outcomes=['Success', 'Error'])
+
+class Joint_Pose(smach.State):
+    def __init__(self, pose):
+        smach.State.__init__(self, outcomes=['Success', 'Error'])
+        self.pose = pose
+
+    def execute(self, userdata):
+        complete = joint_pose_cmd(self.pose).done
+
+        if complete:
+            return 'Success'
+        else:
+            return 'Error'
+
+
 
 # Move state has 'Success' and 'Error' transisitons
 class Home(Move_State):
@@ -142,6 +157,63 @@ class Throw(Move_State):
         grasp_cmd("close")
 
         return 'Success'
+
+
+
+class HW_Unfold(Move_State):
+    def execute(self, userdata):
+        complete = joint_pose_cmd("hw_fold/step_0").done
+        complete = joint_pose_cmd("hw_fold/step_1").done
+        complete = joint_pose_cmd("hw_fold/step_2").done
+
+        if complete:
+            return 'Success'
+        else:
+            return 'Error'
+
+class HW_Fold(Move_State):
+    def execute(self, userdata):
+        complete = joint_pose_cmd("hw_fold/step_2").done
+        complete = joint_pose_cmd("hw_fold/step_1").done
+        complete = joint_pose_cmd("hw_fold/step_0").done
+
+
+        if complete:
+            return 'Success'
+        else:
+            return 'Error'
+
+# ---------------------------------------------------------------- #
+#                      Maneuver State Machines                     #
+# ---------------------------------------------------------------- #
+Unfold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
+
+with Unfold_SM:
+
+    for i in range(0, 2):
+        smach.StateMachine.add('step_' + str(i), Joint_Pose("hw_fold/step_" + str(i)),
+                            transitions={'Success': 'step_' + str(i+1),
+                                        'Error': 'Fail'})
+
+    smach.StateMachine.add('step_2', Joint_Pose("hw_fold/step_2"),
+                        transitions={'Success': 'Success',
+                                     'Error': 'Fail'})
+
+Fold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
+
+with Fold_SM:
+
+    for i in range(2, 0, -1):
+        smach.StateMachine.add('step_' + str(i), Joint_Pose("hw_fold/step_" + str(i)),
+                            transitions={'Success': 'step_' + str(i-1),
+                                        'Error': 'Fail'})
+
+    smach.StateMachine.add('step_0', Joint_Pose("hw_fold/step_0"),
+                        transitions={'Success': 'Success',
+                                     'Error': 'Fail'})
+
+                                    
+
 
 # ---------------------------------------------------------------- #
 #                         Peripherals                              #

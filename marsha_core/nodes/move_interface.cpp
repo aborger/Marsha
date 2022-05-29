@@ -27,6 +27,7 @@
 #include <geometry_msgs/Pose.h>
 
 #include <std_msgs/Empty.h>
+#include <std_srvs/Trigger.h>
 #include <string>
 
 #include <geometry_msgs/Pose.h>
@@ -38,6 +39,7 @@
 #include <marsha_msgs/PostureCmd.h>
 #include <marsha_msgs/PlanGrasp.h>
 #include <marsha_msgs/JointCmd.h>
+#include <marsha_msgs/TeensyMsg.h>
 
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/MultiDOFJointTrajectoryPoint.h>
@@ -79,14 +81,15 @@ class MarshaMoveInterface {
         ros::Subscriber get_person_pos;
 
         ros::ServiceClient graspClient;
+        ros::ServiceClient teensyCmdState;
 
         std::string pose_param;
         std::string joint_param;
         
-        int num_joints;
+        int num_joints = 6;
 
         // Default RTT planning timeout
-        float ik_timeout;
+        float ik_timeout = 0.07;
 
 
         bool poseCmd(marsha_msgs::MoveCmd::Request &req,
@@ -153,31 +156,67 @@ class MarshaMoveInterface {
             return true;            
         }
 
+
         // Note: joint values in yaml file must be in radians
-        // Convert this to trajectory
+        // TODO: Convert this to trajectory
         bool jointPoseCmd(marsha_msgs::MoveCmd::Request &req,
                       marsha_msgs::MoveCmd::Response &res)
         {
-            std::string param =  joint_param + req.pose_name + "/";
+            std::string param =  joint_param + req.pose_name + "";
             ROS_INFO("Going to joint state: %s", param.c_str());
 
             std::vector<double> joint_group_positions;
 
-            ros::param::get(param, joint_group_positions);
 
             while (joint_group_positions.size() < num_joints) {
                 joint_group_positions.push_back(0.0);
             }
+            ros::param::get(param, joint_group_positions);
+
+            // Debugging
+            //ROS_INFO("Joint_group_positions: %f, %f, %f, %f, %f, %f", joint_group_positions[0], joint_group_positions[1], joint_group_positions[2], joint_group_positions[3], joint_group_positions[4], joint_group_positions[5]);
 
             move_group->setJointValueTarget(joint_group_positions);
+
+            // Debug
+            //ROS_INFO("Joint_group_positions after: %f, %f, %f, %f, %f, %f", joint_group_positions[0], joint_group_positions[1], joint_group_positions[2], joint_group_positions[3], joint_group_positions[4], joint_group_positions[5]);
 
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
 
             bool plan_success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_DEBUG("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
+            ROS_INFO("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
+
+            /* Debugging
+            for (int j = 0; j < 2; j++) {
+                for (int i = 0; i < 6; i++) {
+                    ROS_INFO("Trajectory (point: %i, pos: %i): %f", j, i, target_plan.trajectory_.joint_trajectory.points[j].positions[i]);
+                }
+            }*/
+
+            // This is very hacky and not the right way to do it
+            // Planning isnt working for some reason so I am essentially cutting out motion planning
+            // instead it goes directly to the desired angle.
+            for (int i = 0; i < num_joints; i++) {
+                target_plan.trajectory_.joint_trajectory.points[1].positions[i] = joint_group_positions[i];
+            }
 
             if (plan_success) {
+                ROS_INFO("Executing...");
                 move_group->execute(target_plan);
+                std_srvs::Trigger srv;
+                bool cmd_executed = false;
+
+                while (!cmd_executed) {
+                    teensyCmdState.call(srv);
+                    if (srv.response.message == "fail") {
+                        res.done = false;
+                        return true;
+                    }
+                    cmd_executed = srv.response.success;
+                    ros::Duration(0.5).sleep();
+                }
+
+
                 res.done = true;
                 return true;
             }
@@ -209,6 +248,8 @@ class MarshaMoveInterface {
 
             bool success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
             ROS_DEBUG("Plan status: %s", success ? "SUCCESSFUL" : "FAILED");
+
+
 
             if (success) {
                 move_group->asyncExecute(target_plan);
@@ -566,6 +607,7 @@ class MarshaMoveInterface {
             
 
             ros::param::get(ros::this_node::getNamespace() + "/IK_timeout", ik_timeout);
+            ROS_INFO("Planning time: %f", ik_timeout);
             move_group->setPlanningTime(ik_timeout);
             
             poseService = nh->advertiseService("pose_cmd", &MarshaMoveInterface::poseCmd, this);
@@ -580,6 +622,7 @@ class MarshaMoveInterface {
 
             //graspService = nh->advertiseService("grasp_cmd", &MarshaMoveInterface::graspCmd, this);
             graspClient = nh->serviceClient<marsha_msgs::MoveCmd>("gripper/grasp_cmd");
+            teensyCmdState = nh->serviceClient<std_srvs::Trigger>("teensy_cmd_executed");
 
             getPosService = nh->advertiseService("get_pos", &MarshaMoveInterface::getPose, this);
             //position_sub = nh->subscribe("pos_cmd", 1000, &MarshaMoveInterface::positionCallBack, this);
@@ -595,7 +638,8 @@ class MarshaMoveInterface {
             // The marsha_hardware package has a second method to get num_joints
             // ros::param::get("stepper_config/num_joints", num_joints);
             // TODO: Consolidate these two params
-            ros::param::get(ros::this_node::getNamespace() + "/num_joints", num_joints);
+            ros::param::get(ros::this_node::getNamespace() + "/stepper_config/num_joints", num_joints);
+            ROS_INFO("Running with %i joints", num_joints);
 
             pose_param = ros::this_node::getNamespace() + "/pose/";
             joint_param = ros::this_node::getNamespace() + "/joints/";

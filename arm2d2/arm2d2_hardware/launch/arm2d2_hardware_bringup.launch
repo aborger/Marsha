@@ -9,7 +9,7 @@
 
     <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns)"/>
 
-    <node name="teensy_interface" pkg="marsha_hardware" type="teensy_interface" machine="$(arg machine)"/>
+    <node name="teensy_interface" pkg="marsha_hardware" type="teensy_interface" output="screen" machine="$(arg machine)"/>
 
     <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen" machine="$(arg machine)"/>
 

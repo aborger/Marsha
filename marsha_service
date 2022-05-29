@@ -1,8 +1,9 @@
+#!/usr/bin/env bash
 echo "Check Ros output with journalctl-u marsha"
 source /home/aaron/catkin_ws/devel/setup.bash
 
 ROS_MASTER_URI=http://jet:11311
 
 ROS_HOSTNAME=jet
-
-roscore
+echo "Launching..."
+roslaunch arm2d2_hardware arm2d2.launch

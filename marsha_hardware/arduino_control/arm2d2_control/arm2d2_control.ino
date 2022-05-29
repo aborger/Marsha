@@ -2,10 +2,12 @@
 
 #include "Stepper.h"
 #include "Comm.h"
+#include "TimerOne.h"
 
 
 #define SPIN_RATE       100
 #define FEEDBACK_RATE   1000000
+#define BLINK_RATE      10000 //1000000
 #define NUM_JOINTS      6
 
 #define NUM_INFO        2
@@ -18,7 +20,9 @@
 
 // PCB
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 16, 15), Stepper(31, 30, 41, 40)};
-Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32), Stepper(35, 34), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
+//Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
+Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(37, 36, 15, 16), Stepper(35, 34, 6, 5), Stepper(31, 30, 41, 40)};
+
 
 // J6 tests
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(37, 36, 6, 5, true), Stepper(35, 34, 16, 15, true), Stepper(31, 30, 41, 40)};
@@ -26,6 +30,7 @@ Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), St
 int led = 13;
 int spinCounter = 0;
 int feedbackCounter = 0;
+int blinkCounter = 0;
 
 
 Comm comm_handle;
@@ -71,9 +76,9 @@ void setup() {
   // calculate max steps by dividing appropriate degree by stepper's deg_per_step value
   // to tune start with max_steps at half way to full range of motion and p_0 = 0, p_set=1
   // find good p_set, if it skips steps in beginning increase p_0
-  steppers[0].tune_controller(2100, 1, 0, 10, 100);
-  steppers[1].tune_controller(2100, 0.5, 20, 10, 100);
-  steppers[2].tune_controller(2000, 1, 20, 20, 40);
+  steppers[0].tune_controller(5000, 0.5, 20, 100, 120);
+  steppers[1].tune_controller(5000, 0.5, 20, 20, 100);
+  steppers[2].tune_controller(5000, 0.75, 20, 30, 100);
   steppers[3].tune_controller(600, 1, 50, 20, 100);
   steppers[4].tune_controller(750, 0.75, 20, 20, 100);
   steppers[5].tune_controller(500, 1, 0, 10, 100);
@@ -82,11 +87,13 @@ void setup() {
 
   // Interrupt sets stepper_power to current power state on change
   attachInterrupt(STEPPER_POWER_PIN, stepper_power_callback, CHANGE);
+  //Timer1.initialize(10);
+  //Timer1.attachInterrupt(timerCB);
   digitalWrite(led, HIGH);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+   // put your main code here, to run repeatedly:
   if (spinCounter > SPIN_RATE) {
     comm_handle.spin();
     spinCounter = 0;
@@ -95,7 +102,21 @@ void loop() {
     sendFeedback();
     feedbackCounter = 0;
   }
+  if (!comm_handle.connection_successful) {
+    if (blinkCounter > BLINK_RATE) {
+      digitalWrite(led, !digitalRead(led));
+      blinkCounter = 0;
+    }
+  }
+  
+  
 
   spinCounter++;
   feedbackCounter++;
+  blinkCounter++;
 }
+/*
+void timerCB() {
+
+}
+*/

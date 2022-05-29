@@ -25,37 +25,50 @@ class Left_PCS(PCS_SM):
         handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
         with self.sm:
             # if this fails perform experiment with one arm
-            smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
-                                transitions={'Success': 'Jetson_Sync_0', # usually Teensy comm check
-                                             'Error': 'Mission_Fail'})
+            #smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
+            #                    transitions={'Success': 'Wait_for_TE', # usually Teensy comm check
+            #                                 'Error': 'Mission_Fail'})
 
             # if this fails perform experiment with one arm
             # need to send msg to other arm that this failed
-            smach.StateMachine.add('Teensy_Comm_Check', Teensy_Comm_Check("teensy_interface", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Jetson_Sync_0',
-                                             'Error': 'Mission_Fail'})
+            #smach.StateMachine.add('Teensy_Comm_Check', Teensy_Comm_Check("teensy_interface", self.pcs_node_state, self.pcs_node_cmd),
+            #                    transitions={'Success': 'Jetson_Sync_0',
+            #                                 'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
-                                transitions={'Ready': 'Activate_Longeron_Cams',
-                                             'Timeout': 'Mission_Fail'})
+            #smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
+            #                    transitions={'Ready': 'Activate_Longeron_Cams',
+            #                                 'Timeout': 'Mission_Fail'})
 
-            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Wait_for_TE',
-                                             'Error': 'Mission_Fail'})
+            #smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+            #                    transitions={'Success': 'Wait_for_TE',
+            #                                 'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Jetson_Sync_1',
+                                transitions={'Success': 'Unfold',
                                              'Error': 'Mission_Fail'})
+
+
+            smach.StateMachine.add('Unfold', Unfold_SM,
+                                transitions={'Success': 'Fold',
+                                             'Fail': 'Fold'})
+
+            smach.StateMachine.add('Fold', Fold_SM,
+                                transitions={'Success': 'Mission_Success',
+                                             'Fail': 'Mission_Fail'})
+
+
+
+
 
             # If this state times out, only one jetson recieved TE signal
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
-                                transitions={'Ready': 'Deactivate_Longeron_Cams',
-                                             'Timeout': 'Mission_Fail'})
+            #smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
+            #                    transitions={'Ready': 'Deactivate_Longeron_Cams',
+            #                                 'Timeout': 'Mission_Fail'})
             
 
-            smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
-                               transitions={'Success': 'Mission_Success',
-                                             'Error': 'Mission_Fail'})
+            #smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+            #                   transitions={'Success': 'Mission_Success',
+            #                                 'Error': 'Mission_Fail'})
             
 class Test_PCS(PCS_SM):
     def __init__(self):
