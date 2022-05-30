@@ -23,7 +23,7 @@ from control_msgs.srv import QueryTrajectoryState
 os.system("sudo /home/aaron/unlock_serial.sh")
 
 STEP_TOLERANCE = 20
-CMD_EXECUTION_ATTEMPTS = 15
+CMD_EXECUTION_ATTEMPTS = 20
 
 def deg_to_rad(degree):
     return degree / 180 * math.pi
@@ -65,6 +65,8 @@ class Interface():
         self.step_cmd = []
         self.enc_step = []
         self.execution_checks = 0
+        self.teensy_watchdog_cnt = 0
+
         self.fake_joint_pos = 0
         self.grasped = False
         self.grasp_time = 0
@@ -265,9 +267,10 @@ class Interface():
                             self.grasped = False
                             self.grasp_time = 0
                         
-                        print ('Encoders:  ' +  str(rx_dict["enc_feedback"]))
+                        print('Encoders:  ' +  str(rx_dict["enc_feedback"]))
                         self.enc_pub.publish(encoders)
                         self.enc_step = encoders
+                        self.teensy_watchdog_cnt = 0
                         
                         #print("Grip feedback", rx_dict["grip_desired"])
                                 #' Step: ' +  str(rx_dict["curr_step"]) +
@@ -279,11 +282,15 @@ class Interface():
                         # This can be fixed by creating an interrupt to place any recieved data in a buffer.
                         # Currently it is not a large enough issue to spend the time doing this
                         rospy.logwarn(e)
-                        print(string)
+                        rospy.logdebug("Data Received during error: " + string)
                         #    rospy.logwarn("Teensy feedback rate is faster than the jetson can handle. Multiple transmissions recieved before Teensy Interface was ready.")
                         #    rospy.logdebug("Recv: " + json_string)
                     except KeyError:
                         rospy.logerr("Communicated with Teensy, but un-readable data received.")
+            self.teensy_watchdog_cnt += 1
+
+            if self.teensy_watchdog_cnt > 10:
+                rospy.signal_shutdown("Watchdog failed. Restarting.")
             self.rate.sleep()
 
 

@@ -186,16 +186,16 @@ class HW_Fold(Move_State):
 # ---------------------------------------------------------------- #
 #                      Maneuver State Machines                     #
 # ---------------------------------------------------------------- #
+NUM_FOLDING_STEPS = 2
 Unfold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 
 with Unfold_SM:
-
-    for i in range(0, 2):
+    for i in range(0, NUM_FOLDING_STEPS):
         smach.StateMachine.add('step_' + str(i), Joint_Pose("hw_fold/step_" + str(i)),
                             transitions={'Success': 'step_' + str(i+1),
                                         'Error': 'Fail'})
 
-    smach.StateMachine.add('step_2', Joint_Pose("hw_fold/step_2"),
+    smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose("hw_fold/step_" + str(NUM_FOLDING_STEPS)),
                         transitions={'Success': 'Success',
                                      'Error': 'Fail'})
 
@@ -203,7 +203,7 @@ Fold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 
 with Fold_SM:
 
-    for i in range(2, 0, -1):
+    for i in range(NUM_FOLDING_STEPS, 0, -1):
         smach.StateMachine.add('step_' + str(i), Joint_Pose("hw_fold/step_" + str(i)),
                             transitions={'Success': 'step_' + str(i-1),
                                         'Error': 'Fail'})

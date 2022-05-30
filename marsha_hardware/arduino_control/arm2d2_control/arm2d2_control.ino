@@ -5,9 +5,9 @@
 #include "TimerOne.h"
 
 
-#define SPIN_RATE       5
-#define FEEDBACK_RATE   10000
-#define BLINK_RATE      10000 //1000000
+#define SPIN_RATE       100
+#define FEEDBACK_RATE   1000000
+#define BLINK_RATE      1000000 //1000000
 #define NUM_JOINTS      6
 
 #define NUM_INFO        2
@@ -21,7 +21,7 @@
 // PCB
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 16, 15), Stepper(31, 30, 41, 40)};
 //Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
-Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(37, 36, 15, 16), Stepper(35, 34, 6, 5), Stepper(31, 30, 41, 40)};
+Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(31, 30, 40, 41), Stepper(37, 36, 15, 16), Stepper(35, 34, 6, 5), Stepper(33, 32, 18, 17)};
 
 
 // J6 tests
@@ -78,7 +78,8 @@ void setup() {
   // find good p_set, if it skips steps in beginning increase p_0
   steppers[0].tune_controller(5000, 0.5, 20, 100, 120);
   steppers[1].tune_controller(5000, 0.5, 20, 20, 100);
-  steppers[2].tune_controller(5000, 1, 10, 20, 40);
+  steppers[2].tune_controller(5000, 0.75, 10, 20, 40);
+  steppers[2].TOLERANCE = 20;
   steppers[3].tune_controller(600, 1, 50, 20, 100);
   steppers[4].tune_controller(750, 0.75, 20, 20, 100);
   steppers[5].tune_controller(500, 1, 0, 10, 100);
@@ -87,16 +88,12 @@ void setup() {
 
   // Interrupt sets stepper_power to current power state on change
   attachInterrupt(STEPPER_POWER_PIN, stepper_power_callback, CHANGE);
-  Timer1.initialize(10);
-  Timer1.attachInterrupt(timerCB);
+  //Timer1.initialize(10);
+  //Timer1.attachInterrupt(timerCB);
   digitalWrite(led, HIGH);
 }
 
 void loop() {
-
-}
-
-void timerCB() {
   if (spinCounter > SPIN_RATE) {
     comm_handle.spin();
     spinCounter = 0;
@@ -117,4 +114,8 @@ void timerCB() {
   spinCounter++;
   feedbackCounter++;
   blinkCounter++;
+}
+
+void timerCB() {
+
 }

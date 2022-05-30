@@ -5,7 +5,7 @@
 #include "TimerOne.h"
 #include <Encoder.h>
 
-#define TOLERANCE    10
+
 #define TIMER_INTERVAL  10
 
 
@@ -31,6 +31,8 @@ class Stepper {
 
     
     int desired_step = 0;
+
+    
     
     
 
@@ -103,6 +105,8 @@ class Stepper {
 
     int get_enc_step();
     int get_desired_step();
+
+    int TOLERANCE = 10;
 
 
     
