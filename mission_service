@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+echo "Starting Mission..."
+
+source /home/aaron/catkin_ws/devel/setup.bash
+
+ROS_MASTER_URI=http://jet:11311
+
+ROS_HOSTNAME=jet
+echo "Launching..."
+
+roslaunch marsha_core left_mission.launch --wait

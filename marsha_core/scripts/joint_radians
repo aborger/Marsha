@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import rospy
+
+from marsha_msgs.msg import TeensyMsg
+
+deg_per_steps = rospy.get_param("stepper_config/deg_per_step")
+
+def enc_callback(msg):
+    enc_steps = msg.steps
+    for i in range(len(enc_steps)):
+        rad = (enc_steps[i] * deg_per_steps[i]) * 3.14159/180
+        print "|  {0:1.4f}  ".format(rad),
+    print("|")
+        
+
+
+def main():
+    rospy.init_node('degree_converter')
+    rospy.Subscriber("enc_feedback", TeensyMsg, enc_callback)
+    rospy.spin()
+
+if __name__ == "__main__":
+    main()
