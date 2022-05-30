@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
-#define BAUD_RATE   115200
+#define BAUD_RATE   9600
 #define RX_BUFFER_SIZE 200
 #define TX_BUFFER_SIZE 400
 
@@ -47,6 +47,7 @@ class Comm {
     int buffer_index = 0;
   public:
     Comm();
+    bool connection_successful = false;
     void set_callback(void (*_spin_callback)(RxPacket &rx));
 
     void transmit(TxPacket tx);

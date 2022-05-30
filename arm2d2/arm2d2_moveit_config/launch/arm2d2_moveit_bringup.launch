@@ -1,10 +1,12 @@
 <launch>
 
-    <arg name="ns" default=""/>
+    <arg name="ns" default="left"/>
     <arg name="machine" default=""/>
-    <arg name="launch_rviz" default=""/>
+    <arg name="launch_rviz" default="false"/>
 
-    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch"/>
+    <include file="$(find arm2d2_moveit_config)/launch/planning_context.launch">
+        <arg name="ns" value="$(arg ns)"/>
+    </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/move_group.launch">
         <arg name="machine" value="$(arg machine)"/>
@@ -12,6 +14,7 @@
     </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/moveit_rviz.launch" if="$(arg launch_rviz)">
+        <arg name="ns" value="$(arg ns)"/>
         <arg name="config" value="true"/>
     </include>
 

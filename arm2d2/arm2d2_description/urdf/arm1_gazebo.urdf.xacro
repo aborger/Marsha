@@ -22,8 +22,18 @@
   <xacro:unless value="$(arg include_arm_base)">
     <link name="world"/>
 
-  <link name="base_link">
-    <inertial>
+    <link name="base_link"/>
+
+    <joint name="world_joint" type="fixed">
+      <parent link="world"/>
+      <child link="base_link"/>
+      <!-- rpy="1.57 0 0"-->
+      <origin xyz="0 0 0.0775" rpy="0 0 0"/>
+    </joint>
+  </xacro:unless>
+
+  <link name="base_connector">
+      <inertial>
       <origin rpy="0 0 0" xyz="0.06861790086338357 -0.0835697992386399 0.07107579694115096"/>
       <mass value="4.519107238213137"/>
       <inertia ixx="0.059779" ixy="-0.0" ixz="0.0" iyy="0.062251" iyz="0.000956" izz="0.076317"/>
@@ -43,44 +53,50 @@
     </collision>
   </link>
 
-    <joint name="world_joint" type="fixed">
-      <parent link="world"/>
-      <child link="base_link"/>
-      <origin xyz="0 0 0.0725" rpy="1.57 0 0"/>
-    </joint>
-  </xacro:unless>
+  <joint name="base_connector_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_connector"/>
+    <origin xyz="0 0 -0.005" rpy="1.57 0 0"/>
+  </joint>
 
-  <xacro:if value="${ns == 'left'}">
-    <link name="link_1">
-      <inertial>
-        <origin xyz="-0.023234210000508494 0.032933361084236216 0.002920663644532681" rpy="0 0 0"/>
-        <mass value="0.22666453646044638"/>
-        <inertia ixx="0.000128" iyy="0.000201" izz="0.000231" ixy="3.1e-05" iyz="-5e-06" ixz="1.5e-05"/>
-      </inertial>
-      <visual>
-        <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-        <material name="silver"/>
-      </visual>
-      <collision>
-        <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
-    </link>
 
-    
-    <joint name="joint_1" type="revolute">
-      <origin xyz="0.0851 0.006604 -0.0851" rpy="0 0 0"/>
-      <parent link="base_link"/>
-      <child link="link_1"/>
-      <axis xyz="0.0 -1.0 0.0"/>
-      <limit effort="100" lower="-3.1415" upper="3.1415" velocity="100"/>
-    </joint>
-  </xacro:if>
+  <link name="link_1">
+    <inertial>
+      <origin xyz="-0.023234210000508494 0.032933361084236216 0.002920663644532681" rpy="0 0 0"/>
+      <mass value="0.22666453646044638"/>
+      <inertia ixx="0.000128" iyy="0.000201" izz="0.000231" ixy="3.1e-05" iyz="-5e-06" ixz="1.5e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.0851 -0.006604 0.0851" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://arm2d2_description/meshes/link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  
+  <joint name="joint_1" type="revolute">
+    <!-- p value corresponds to starting point for stepper -->
+    <xacro:if value="${ns == 'left'}">
+      <!-- p=2.82584 -->
+      <origin xyz="-0.0851 0.006604 -0.0851" rpy="0 2.775 0"/>
+    </xacro:if>
+    <xacro:unless value="${ns == 'left'}">
+      <origin xyz="0.0851 0.006604 -0.0851" rpy="0 0.15708 0"/>
+    </xacro:unless>
+    <parent link="base_connector"/>
+    <child link="link_1"/>
+    <axis xyz="0.0 -1.0 0.0"/>
+    <limit effort="100" lower="-3.1415" upper="3.1415" velocity="100"/>
+  </joint>
+
 
 
   <link name="link_2">
@@ -106,12 +122,17 @@
 
   <joint name="joint_2" type="revolute">
     <xacro:if value="${ns == 'left'}">
-      <origin xyz="0.005205 0.04 -0.000685" rpy="0 0 0"/>
+      <origin xyz="0.005205 0.04 -0.000685" rpy="-0.436332 0 0.03927"/>
+      <limit lower="-1.919862" upper="1.396263" effort="100" velocity="100"/>
     </xacro:if>
+    <xacro:unless value="${ns == 'left'}">
+      <origin xyz="0.005205 0.04 -0.000685" rpy="0 0 0"/>
+      <limit upper="1.919862" lower="-1.396263" effort="100" velocity="100"/>
+    </xacro:unless>
     <parent link="link_1" />
     <child link="link_2" />
     <axis xyz="-0.991445 -0.0 0.130526"/>
-    <limit upper="1.919862" lower="-1.396263" effort="100" velocity="100"/>
+    
   </joint>
 
   <link name="link_3">
@@ -136,11 +157,17 @@
   </link>
 
   <joint name="joint_3" type="revolute">
-    <origin xyz="-0.005959 0.136681 0.031347" rpy="0 0 0"/>
+    <xacro:if value="${ns == 'left'}">
+     <origin xyz="-0.005959 0.136681 0.031347" rpy="-3.42078 0.23562 -0.03"/>
+     <limit lower="-4.101524" upper="0.698132" effort="100" velocity="100"/>
+    </xacro:if>
+    <xacro:unless value="${ns == 'left'}">
+      <origin xyz="-0.005959 0.136681 0.031347" rpy="0 0 0"/>
+      <limit upper="4.101524" lower="-0.698132" effort="100" velocity="100"/>
+    </xacro:unless>
     <parent link="link_2" />
     <child link="link_3" />
     <axis xyz="-0.991445 -0.0 0.130526"/>
-    <limit upper="4.101524" lower="-0.698132" effort="100" velocity="100"/>
   </joint>
 
   <link name="link_4">
@@ -195,11 +222,18 @@
   </link>
 
   <joint name="joint_5" type="revolute">
-    <origin xyz="0.032067 -0.036743 0.089586" rpy="0 0 0"/>
+    <xacro:if value="${ns == 'left'}">
+     <origin xyz="0.032067 -0.036743 0.089586" rpy="-2.38412 0.23562 0.1"/>
+     <limit lower="-3.228859" upper="0.785398" effort="100" velocity="100"/>
+    </xacro:if>
+    <xacro:unless value="${ns == 'left'}">
+      <origin xyz="0.032067 -0.036743 0.089586" rpy="0 0 0"/>
+      <limit upper="3.228859" lower="-0.785398" effort="100" velocity="100"/>
+    </xacro:unless>
+    
     <parent link="link_4" />
     <child link="link_5" />
     <axis xyz="-0.991445 -0.0 0.130526"/>
-    <limit upper="3.228859" lower="-0.785398" effort="100" velocity="100"/>
   </joint>
 
   <!-- Fake link that allows gripper to "spin" even though the hardware does not have a revolute gripper joint -->
@@ -216,6 +250,14 @@
   <!-- Box that provides gripper collider only for moveit so gazebo does not simulate collisions -->
   <xacro:unless value="$(arg include_gripper)">
     <link name="gripper_connector">
+      <inertial>
+        <origin rpy="0 0 0" xyz="2.9287E-10 -1.6472E-09 0.0091432"/>
+        <mass value="0.013863"/>
+        <inertia ixx="1.3596E-06" ixy="3.0585E-13" ixz="5.7102E-14" iyy="1.7157E-06" iyz="6.3369E-09" izz="2.4332E-06"/>
+      </inertial>
+    </link>
+
+    <link name="gripper_collider">
       <xacro:unless value="$(arg include_gripper)">
         <!-- Removed to test sim handoff
         <collision>
@@ -234,10 +276,16 @@
         </geometry>
       </visual>-->
     </link>
+
+    <joint name="gripper_collider_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="link_5"/>
+      <child link="gripper_collider"/>
+    </joint>
   </xacro:unless>
   
   <joint name="gripper_joint" type="revolute">
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="-0.03 -0.041 0.0045" rpy="0 0 0"/>
     <parent link="link_5"/>
     <child link="gripper_connector"/>
     <axis xyz="0 0 1"/>

@@ -73,7 +73,7 @@ void AR3Interface::write() {
     for(int i = 0; i < num_joints; i++) {
         short num_steps;
         num_steps = int(radToDeg(cmd[i]) / deg_per_steps[i]);
-        ROS_INFO("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
+        ROS_DEBUG("CMD: %f steps: %i deg_p_steps: %f", cmd[i], num_steps, deg_per_steps[i]);
 
         msg.steps.push_back(num_steps);
         

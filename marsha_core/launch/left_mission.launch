@@ -8,11 +8,12 @@
         <arg name="launch_rviz" value="false"/>
     </include>
     -->
+    <rosparam file="$(find marsha_core)/config/PCS.yaml" command="load"/>
     
     <group ns="left">
-        <node pkg="marsha_core" name="pcs" type="left_pcs" output="screen"/>
+        <node pkg="marsha_core" name="left_pcs" type="left_pcs" output="screen"/>
         <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
-        <node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>
+        <!--<node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>-->
     
     </group>
 

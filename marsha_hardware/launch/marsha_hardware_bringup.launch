@@ -11,7 +11,7 @@
 
     <include file="$(find marsha_hardware)/launch/hardware_comm.launch"/>
 
-    <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output="screen"/>
+    <node name="marsha_hardware_interface" pkg="marsha_hardware" type="marsha_hardware_interface_node" output=/>
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/" 
         args="/ar3/controllers/state

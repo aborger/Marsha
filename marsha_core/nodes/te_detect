@@ -34,7 +34,7 @@ class Detector(PCSNode):
         while not verified:
             rospy.loginfo("Waiting for TE...")
             while not GPIO.event_detected(TE_PIN):
-                rospy.sleep(0.1)
+                rospy.sleep(0.5)
 
             rospy.loginfo("TE Detected!")
 

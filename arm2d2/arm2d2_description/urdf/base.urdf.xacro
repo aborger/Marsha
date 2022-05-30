@@ -64,6 +64,7 @@
     <mass value="0.06861748378285525"/>
     <inertia ixx="1.9e-05" iyy="1.9e-05" izz="1.7e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
   </inertial>
+  
   <visual>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
@@ -71,6 +72,7 @@
     </geometry>
     <material name="silver"/>
   </visual>
+  
   <!--<collision>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
@@ -81,7 +83,7 @@
 
 
 <joint name="gripper_mount_l_joint" type="fixed">
-  <origin xyz="-0.12 -3e-06 -0.008829" rpy="0 0 0"/>
+  <origin xyz="-0.145 -8e-06 -0.008829" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="gripper_mount_l"/>
 </joint>
@@ -108,24 +110,41 @@
 </link>
 
 <joint name="gripper_mount_r_joint" type="fixed">
-  <origin xyz="0 -3e-06 -0.008829" rpy="0 0 0"/>
+  <origin xyz="0.025 -8e-06 -0.008829" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="gripper_mount_r"/>
 </joint>
 
 <link name="soft_robotics">
   <visual>
-    <origin xyz="0 -0.04184 0.063" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="1.57 0 0"/>
     <geometry>
-      <box size="0.05 0.15 0.125"/>
+      <mesh filename="package://arm2d2_description/meshes/soft_robotics.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </visual>
 </link>
 
 <joint name="srob_joint" type="fixed">
-  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <origin xyz="-0.03561 0.041939 0" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="soft_robotics"/>
+</joint>
+
+<link name="camera_mount">
+  <visual>
+    <!-- z= 0.078232 - 0.01555 + 0.06985 - 0.005 = 0.100711-->
+    <!-- middle of bp - dist to mount hole + dist between longeron holes - dist to mid of mount-->
+    <origin xyz="0.0612 0.165 0.095" rpy="1.57 0 -1.57"/>
+    <geometry>
+      <mesh filename="package://arm2d2_description/meshes/camera_mount.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+</link>
+
+<joint name="cam_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="camera_mount"/>
 </joint>
 
 <link name="longeron_1">
@@ -183,7 +202,7 @@
 </link>
 
 <joint name="longeron_4_j" type="fixed">
-  <origin xyz="0 -0.1725 0.0616" rpy="0 0 0"/>
+  <origin xyz="0 -0.1775 0.0616" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="longeron_4"/>
 </joint>
@@ -203,17 +222,19 @@
       </geometry>
       <material name="silver"/>
     </visual>
+    <!--
     <collision>
       <origin rpy="0 0 0" xyz="-0.068617 0.090846 -0.0"/>
       <geometry>
         <mesh filename="package://arm2d2_description/meshes/base_plate.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
+    -->
   </link>
 
 
   <joint name="top_plate_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.204724"/>
+    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.211324"/>
     <parent link="base_link"/>
     <child link="top_plate"/>
   </joint>
