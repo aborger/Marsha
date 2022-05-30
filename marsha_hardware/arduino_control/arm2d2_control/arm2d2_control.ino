@@ -5,8 +5,8 @@
 #include "TimerOne.h"
 
 
-#define SPIN_RATE       100
-#define FEEDBACK_RATE   1000000
+#define SPIN_RATE       5
+#define FEEDBACK_RATE   10000
 #define BLINK_RATE      10000 //1000000
 #define NUM_JOINTS      6
 
@@ -78,7 +78,7 @@ void setup() {
   // find good p_set, if it skips steps in beginning increase p_0
   steppers[0].tune_controller(5000, 0.5, 20, 100, 120);
   steppers[1].tune_controller(5000, 0.5, 20, 20, 100);
-  steppers[2].tune_controller(5000, 0.75, 20, 30, 100);
+  steppers[2].tune_controller(5000, 1, 10, 20, 40);
   steppers[3].tune_controller(600, 1, 50, 20, 100);
   steppers[4].tune_controller(750, 0.75, 20, 20, 100);
   steppers[5].tune_controller(500, 1, 0, 10, 100);
@@ -87,13 +87,16 @@ void setup() {
 
   // Interrupt sets stepper_power to current power state on change
   attachInterrupt(STEPPER_POWER_PIN, stepper_power_callback, CHANGE);
-  //Timer1.initialize(10);
-  //Timer1.attachInterrupt(timerCB);
+  Timer1.initialize(10);
+  Timer1.attachInterrupt(timerCB);
   digitalWrite(led, HIGH);
 }
 
 void loop() {
-   // put your main code here, to run repeatedly:
+
+}
+
+void timerCB() {
   if (spinCounter > SPIN_RATE) {
     comm_handle.spin();
     spinCounter = 0;
@@ -115,8 +118,3 @@ void loop() {
   feedbackCounter++;
   blinkCounter++;
 }
-/*
-void timerCB() {
-
-}
-*/

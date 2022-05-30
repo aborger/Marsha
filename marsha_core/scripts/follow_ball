@@ -37,7 +37,27 @@ class Follower():
 
         rospy.spin()
 
+    def pos_callBack(self, msg):
+        joint_angles = []
+        for _ in range(self.num_joints-1):
+            joint_angles.append(0.0)
+
+        # prevent division by 0
+        if msg.z == 0:
+            msg.z = 0.0000001
+
+        print("y:" + str(msg.y) + " z: " + str(msg.z))
+        joint_angles[1] = math.atan(msg.y/msg.z)
+        print("angle: " + str(joint_angles[1]))
+
+        joint_angles[0] = -1.9
+        joint_angles[1] = joint_angles[1]
+        print("adj angle: " + str(joint_angles[1]))
+        print("joint_angles: " + str(joint_angles))
+
+        self.joint_cmd(joint_angles)
     # Should probably avg ball position
+    """   AR3
     def pos_callBack(self, msg):
         joint_angles = []
         for _ in range(self.num_joints):
@@ -85,6 +105,7 @@ class Follower():
 
 
         self.joint_cmd(joint_angles)
+    """
 
 
         

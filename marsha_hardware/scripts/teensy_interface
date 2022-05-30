@@ -23,7 +23,7 @@ from control_msgs.srv import QueryTrajectoryState
 os.system("sudo /home/aaron/unlock_serial.sh")
 
 STEP_TOLERANCE = 20
-CMD_EXECUTION_ATTEMPTS = 10
+CMD_EXECUTION_ATTEMPTS = 15
 
 def deg_to_rad(degree):
     return degree / 180 * math.pi
@@ -138,6 +138,7 @@ class Interface():
         self.gripper_cmd = rospy.get_param('/gripper/hw/' + msg.pose_name)
         return True
 
+    # should probably be determined by the joint angle not changing
     def execution_state_cb(self, msg):
         res = TriggerResponse()
         res.success = True
