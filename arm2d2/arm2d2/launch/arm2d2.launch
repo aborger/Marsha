@@ -1,21 +1,21 @@
 <launch>
   
-  <arg name="machine" default="jet2"/>
+  <arg name="machine" default="jet1"/>
   <arg name="ns" default="left"/>
   <arg name="launch_rviz" default="true"/>
+  <arg name="launch_world" default="true"/>
+  <arg name="include_arm_base" default="true"/>
+  
 
-  <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
-
-  <include file="$(find marsha_core)/launch/satlab_net.machine"/>
-
-  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+  
 
   <group ns="$(arg ns)">
-    <rosparam param="IK_timeout">1</rosparam>
+    <rosparam param="IK_timeout">0.1</rosparam>
 
     <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch">
       <arg name="ns" value="$(arg ns)"/>
-      <arg name="launch_world" value="false"/>
+      <arg name="launch_world" value="$(arg launch_world)"/>
+      <arg name="include_arm_base" value="$(arg include_arm_base)"/>
     </include>
 
     <include file="$(find arm2d2_moveit_config)/launch/arm2d2_moveit_bringup.launch">
@@ -25,6 +25,12 @@
     </include>
 
     <node name="move_interface" pkg="marsha_core" type="move_interface" respawn="false" output="screen" machine="$(arg machine)"/>
+    <node name="fold_interface" pkg="arm2d2" type="folding" machine="$(arg machine)"/>
+
+    <include file="$(find tundra_gripper)/launch/gripper.launch">
+      <arg name="machine" value="$(arg machine)"/>
+      <arg name="ns" value="$(arg ns)"/>
+    </include>
   </group>
 
 
