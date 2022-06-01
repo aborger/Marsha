@@ -23,7 +23,7 @@ print("Services loaded!")
 def unfold():
     print("unfolding...")
     grasp_cmd('half')
-    for i in range(0, 9):
+    for i in range(0, 6):
         print(i)
         if i == 1:
             grasp_cmd('close')
@@ -33,7 +33,7 @@ def unfold():
 def fold():
     print("folding...")
     grasp_cmd("close")
-    for i in range(8, -1, -1):
+    for i in range(5, -1, -1):
         joint_cmd("folding/step_" + str(i))
 
 

@@ -90,14 +90,11 @@ def power_consumption():
 class PCS_SM(object):
     def __init__(self):
 
-        self.stateComm = rospy.Service('pcs_comm', StateComm, self.state_comm_callback)
-
-        # ensures both jetsons are on the same sync state
-        self.curr_sync_id = 0
-        self.handshake_status = False
-
-
         self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
+        
+        # used for smach gui
+        #self.sis = smach_ros.IntrospectionServer(rospy.get_namespace() + 'pcs_cmd', self.sm, rospy.get_namespace() + 'pcs_cmd')
+        #self.sis.start()
 
         rospy.Service('payload_cmd', PayloadCmd, self.payload_cmd_cb)
 
@@ -114,45 +111,27 @@ class PCS_SM(object):
             other_arm = "/right/"
         else:
             other_arm = "/left/"
+            
 
-        self.jet_connection = jets_connected()
+
+
+        self.jet_connection = True #jets_connected()
 
         # Note: This needs to be done after comm check
         rospy.loginfo('Waiting for service...')
         
         #if self.jet_connection:
-        #    rospy.wait_for_service(other_arm + 'pcs_comm')
-        #    self.jet_comm_service = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
+
+        # else perform with one arm
         
         self.mission_sm()
         
-    def jet_comm(self):
-        try:
-            return self.jet_comm_service().current_state
-        except rospy.ServiceException as e:
-            rospy.logerr("Cannot communicate with other Jetson!")
-            return False
 
         
 
+
     def connection_status(self):
         return self.jet_connection
-
-    def state_comm_callback(self, req):
-        states = self.sm.get_active_states()
-        if states[0] == 'Jetson_Sync_' + str(self.curr_sync_id):
-            self.handshake_status = True
-
-        return states[0]
-
-    def get_handshake_status(self):
-        return self.handshake_status
-
-    def set_sync_id(self, id):
-        self.curr_sync_id = id
-
-    def reset_handshake(self):
-        self.handshake_status = False
 
     def payload_cmd_cb(self, msg):
         rospy.logdebug("From: " + str(msg.pcs_id) + " Msg: " + str(msg.state))
