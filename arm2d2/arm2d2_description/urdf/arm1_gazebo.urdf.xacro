@@ -86,10 +86,10 @@
     <!-- p value corresponds to starting point for stepper -->
     <xacro:if value="${ns == 'left'}">
       <!-- p=2.82584 -->
-      <origin xyz="-0.0851 0.006604 -0.0851" rpy="0 2.775 0"/>
+      <origin xyz="0.085 0.006604 -0.085" rpy="0 -0.35  0"/>
     </xacro:if>
     <xacro:unless value="${ns == 'left'}">
-      <origin xyz="0.0851 0.006604 -0.0851" rpy="0 0.15708 0"/>
+      <origin xyz="-0.085 0.006604 -0.085" rpy="0 3.3 0"/>
     </xacro:unless>
     <parent link="base_connector"/>
     <child link="link_1"/>
@@ -122,11 +122,11 @@
 
   <joint name="joint_2" type="revolute">
     <xacro:if value="${ns == 'left'}">
-      <origin xyz="0.005205 0.04 -0.000685" rpy="-0.436332 0 0.03927"/>
+      <origin xyz="-0.005205 0.04 -0.000685" rpy="-0.436332 3.14 -0.03927"/>
       <limit lower="-1.919862" upper="1.396263" effort="100" velocity="100"/>
     </xacro:if>
     <xacro:unless value="${ns == 'left'}">
-      <origin xyz="0.005205 0.04 -0.000685" rpy="0 0 0"/>
+      <origin xyz="-0.005205 0.04 -0.000685" rpy="0 3.14 0"/>
       <limit upper="1.919862" lower="-1.396263" effort="100" velocity="100"/>
     </xacro:unless>
     <parent link="link_1" />

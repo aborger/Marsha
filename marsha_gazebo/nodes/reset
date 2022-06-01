@@ -68,20 +68,21 @@ ar3_pickup.position.z = 0.1
 
 l_pickup_1 = Pose()
 l_pickup_1.position.x = -0.13
-l_pickup_1.position.y = -0.02
-l_pickup_1.position.z = 0.1025
+l_pickup_1.position.y = -0.03
+l_pickup_1.position.z = 0.11
 
 
 # left pickup 2
 l_pickup_2 = Pose()
 l_pickup_2.position.x = -0.08
 l_pickup_2.position.y = -0.01
-l_pickup_2.position.z = 0.1025
+l_pickup_2.position.z = 0.11
+
 
 
 l_pickup_3 = Pose()
 l_pickup_3.position.x = 0.13
-l_pickup_3.position.y = -0.02
+l_pickup_3.position.y = -0.03
 l_pickup_3.position.z = 0.1025
 
 l_pickup_4 = Pose()
@@ -106,7 +107,7 @@ def reset(req):
 
     twist = Twist()
 
-    success = set_link_properties(link_name="pickup_object::pickup_object", gravity_mode=gravity)
+    success = set_link_properties(link_name="ball_1::pickup_object", gravity_mode=gravity)
     success = set_link_properties(link_name="ball_2::pickup_object", gravity_mode=gravity)
     success = set_link_properties(link_name="ball_3::pickup_object", gravity_mode=gravity)
     success = set_link_properties(link_name="ball_4::pickup_object", gravity_mode=gravity)

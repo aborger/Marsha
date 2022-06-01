@@ -11,6 +11,8 @@
 
   <group ns="$(arg ns)">
     <rosparam param="IK_timeout">0.1</rosparam>
+    <rosparam param="balls_remaining">2</rosparam>
+    <rosparam param="sync_id">-1</rosparam>
 
     <include file="$(find arm2d2)/launch/arm2d2_gazebo_bringup.launch">
       <arg name="ns" value="$(arg ns)"/>

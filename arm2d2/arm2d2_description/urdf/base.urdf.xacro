@@ -114,7 +114,7 @@
   <parent link="base_link"/>
   <child link="gripper_mount_r"/>
 </joint>
-
+<!--
 <link name="soft_robotics">
   <visual>
     <origin xyz="0 0 0" rpy="1.57 0 0"/>
@@ -129,11 +129,12 @@
   <parent link="base_link"/>
   <child link="soft_robotics"/>
 </joint>
-
+-->
+<!--
 <link name="camera_mount">
   <visual>
-    <!-- z= 0.078232 - 0.01555 + 0.06985 - 0.005 = 0.100711-->
-    <!-- middle of bp - dist to mount hole + dist between longeron holes - dist to mid of mount-->
+     z= 0.078232 - 0.01555 + 0.06985 - 0.005 = 0.100711
+     middle of bp - dist to mount hole + dist between longeron holes - dist to mid of mount
     <origin xyz="0.0612 0.165 0.095" rpy="1.57 0 -1.57"/>
     <geometry>
       <mesh filename="package://arm2d2_description/meshes/camera_mount.stl" scale="0.001 0.001 0.001"/>
@@ -146,7 +147,7 @@
   <parent link="base_link"/>
   <child link="camera_mount"/>
 </joint>
-
+-->
 <link name="longeron_1">
   <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/>

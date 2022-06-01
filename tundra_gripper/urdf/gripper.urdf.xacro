@@ -34,6 +34,27 @@
     <child link="palm"/>
   </joint>
 
+<link name="ball_pusher">
+  <visual>
+    <origin xyz="0 -0.025 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.025 0.01 0.025"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin xyz="0 -0.03 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.025 0.01 0.025"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="pusher_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="palm"/>
+  <child link="ball_pusher"/>
+</joint>
+
 
   <link name="actuator_1">
     <inertial>
@@ -178,7 +199,7 @@
         <update_rate>10</update_rate>
         <grip_count_threshold>1</grip_count_threshold>
         <max_grip_count>4</max_grip_count>
-        <release_tolerance>0.009</release_tolerance>
+        <release_tolerance>0.007</release_tolerance>
         <disable_collisions_on_attach>false</disable_collisions_on_attach>
         <contact_topic>__default_topic__</contact_topic>
       </plugin>
