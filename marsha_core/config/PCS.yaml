@@ -3,3 +3,4 @@ pcs_nodes:
   - te_detector
   - teensy_interface
   - telemetry
+  - ai_agent

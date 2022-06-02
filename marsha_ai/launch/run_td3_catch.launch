@@ -1,8 +1,8 @@
 <launch>
-    <include file="$(find ar3_gazebo)/launch/simulate.launch"/>
+    <include file="$(find arm2d2)/launch/simulate.launch"/>
     <rosparam file="$(find marsha_ai)/config/td3_hyperparameters.yaml" command="load"/>
 
-    <arg name="machine" default="jet1"/>
+    <arg name="machine" default="jet2"/>
 
     <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
 

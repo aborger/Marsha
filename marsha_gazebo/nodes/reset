@@ -69,14 +69,14 @@ ar3_pickup.position.z = 0.1
 l_pickup_1 = Pose()
 l_pickup_1.position.x = -0.13
 l_pickup_1.position.y = -0.03
-l_pickup_1.position.z = 0.11
+l_pickup_1.position.z = 0.1025
 
 
 # left pickup 2
 l_pickup_2 = Pose()
 l_pickup_2.position.x = -0.08
 l_pickup_2.position.y = -0.01
-l_pickup_2.position.z = 0.11
+l_pickup_2.position.z = 0.1025
 
 
 
@@ -133,7 +133,7 @@ def reset(req):
 
 
 class l_dir:
-    def __init__(self, x=-0.3, y=-0.3, z=0.3, force=0.25):
+    def __init__(self, x=-0.15, y=-0.15, z=0.15, force=0.25):
         self.x = x
         self.y = y
         self.z = z
@@ -156,7 +156,7 @@ class l_dir:
         return pose
 
     def get_randomized_force(self):
-        rand = np.random.normal(0, 0.01, size=(3,))
+        rand = np.random.normal(0, 0.001, size=(3,))
         force = self.force
         force.x += rand[0]
         force.y += rand[1]
@@ -171,7 +171,7 @@ ar3_grav_launches = [l_dir(x=3)]
 
 ar3_launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
 
-arm2d2_launches = [l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
+arm2d2_launches = [l_dir(x=0.22, y=1, z=0.125)] #[l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
 
 
 def launcher(data):
@@ -190,7 +190,7 @@ def launcher(data):
     # Add velocity
     ref_point = Point(0, 0, 0)
     wrench = Wrench()
-    wrench.force = Vector3(5, 0, 0)
+    wrench.force = Vector3(0.5, 0, 0)
     wrench.force = l.get_randomized_force()
     
     # Testing in grav, move later

@@ -288,7 +288,7 @@
     <origin xyz="-0.03 -0.041 0.0045" rpy="0 0 0"/>
     <parent link="link_5"/>
     <child link="gripper_connector"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 1 0"/>
     <limit lower="-3.1415" upper="3.1415" effort="100" velocity="100"/>
   </joint>
   <transmission name="transmission_1">

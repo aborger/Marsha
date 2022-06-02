@@ -6,21 +6,22 @@
         - arm2d2_hw
         - ar3_hw
     -->
-    <arg name="robot" default="ar3_gazebo"/>
-    <!--<include file="$(find arm2d2)/launch/simulate.launch">
+    <include file="$(find arm2d2)/launch/simulate.launch">
         <arg name="top_plate" value="false"/>
         <arg name="launch_base" value="false"/>
         <arg name="launch_rviz" value="false"/>
-    </include>-->
-
+        <arg name="single_ball" value="true"/>
+    </include>
+    <!--
     <include file="$(find ar3_gazebo)/launch/simulate.launch">
         <arg name="launch_rviz" value="false"/>
     </include>
-
+    -->
     <arg name="machine" default="jet2"/>
 
     <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
     <rosparam file="$(find marsha_ai)/config/trajectory_predictor.yaml" command="load"/>
+    <rosparam file="$(find marsha_detection)/config/measurement_parameters.yaml" command="load"/>
 
 
     

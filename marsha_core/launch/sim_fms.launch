@@ -1,0 +1,25 @@
+<launch>
+
+    <rosparam file="$(find marsha_ai)/config/td3_hyperparameters.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+    <rosparam file="$(find marsha_core)/config/PCS.yaml" command="load"/>
+    <rosparam file="$(find marsha_detection)/config/measurement_parameters.yaml" command="load"/>
+
+    <include file="$(find arm2d2)/launch/simulate.launch">
+        <arg name="num_arms" value="2"/>
+        <arg name="top_plate" value="true"/>
+    </include>
+
+    <node pkg="marsha_ai" type="grasp_generator" name="grasp_generator" machine="jet2"/>
+    <node pkg="marsha_ai" type="trajectory_predictor_kalman" name="trajectory_predictor" machine="jet2" launch-prefix="bash -c 'sleep 5; $0 $a'"/>
+    
+    <node pkg="marsha_ai" type="ai_pcs" name="ai_pcs" ns="left" machine="jet2"/>
+
+    <node pkg="marsha_core" type="left_pcs" name="left_pcs" ns="left" machine="jet2"/>
+    <node pkg="marsha_core" type="right_pcs" name="right_pcs" ns="right" machine="jet2"/>
+    
+    <node pkg="marsha_gazebo" type="object_location" name="obj_location"/>
+
+
+
+</launch>
