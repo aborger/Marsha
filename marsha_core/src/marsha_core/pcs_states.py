@@ -92,9 +92,17 @@ class Wait_State(smach.State):
 # ---------------------------------------------------------------- #
 #                      Jetson Comm States                          #
 # ---------------------------------------------------------------- #
+# tells other arm, this arm is about to catch
+class Signal_Catch(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Done'])
+
+    def execute(self, userdata):
+        rospy.set_param('sync_id', CATCH_PENDING)
+        return 'Done'
 
 class Check_Catch(smach.State):
-    def __init__(self, timeout=10, poll_period=0.5):
+    def __init__(self, timeout=20, poll_period=0.5):
         smach.State.__init__(self, outcomes=['Caught', 'Missed', 'Timeout', 'Not_Catching'])
 
         self.timeout = timeout
@@ -112,22 +120,25 @@ class Check_Catch(smach.State):
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
-                return 'Timeout'
+                outcome = 'Timeout'
 
         catch_status = rospy.get_param(other_arm + 'sync_id')
         if catch_status == CATCH_NA:
-            return 'Not_Catching'
+            outcome = 'Not_Catching'
         elif catch_status == CATCH_SUCCESS:
-            return 'Caught'
+            outcome = 'Caught'
         elif catch_status == CATCH_FAIL:
-            return 'Missed'
+            outcome = 'Missed'
+        else:
+            rospy.logerr("(JET COMM ERR) Catch status returned: " + str(catch_status))
+            outcome = 'Timeout'
 
         # Reset parameter
         rospy.set_param(other_arm + 'catch_status', CATCH_NA)
+        return outcome
 
         
 
-        return 'Ready'
 
 class Ball_Status(smach.State):
     def __init__(self, other_arm_status=False):
@@ -185,7 +196,8 @@ class Jetson_Sync(smach.State):
         # waits until other jetson is on the same state
         rospy.loginfo("(JET COMM): Waiting for Handshake...")
         while rospy.get_param(other_sync_param) != self.sync_id:
-            rospy.loginfo("ID: " + str(self.sync_id) + " other ID: " + str(rospy.get_param(other_sync_param)))
+            # debug
+            #rospy.loginfo("ID: " + str(self.sync_id) + " other ID: " + str(rospy.get_param(other_sync_param)))
             # add something to detect if self.jet_comm() returns False which indicates it cannot communicate with other jetson
             rospy.sleep(self.poll_period)
             time_elapsed += self.poll_period
@@ -193,6 +205,17 @@ class Jetson_Sync(smach.State):
                 return 'Timeout'
 
         return 'Ready'
+
+# Done after throwing to keep other arm on same state
+class Reduce_Balls(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Done'])
+
+    def execute(self, userdata):
+        balls_remaining = rospy.get_param('balls_remaining')
+        rospy.set_param('balls_remaining', balls_remaining-1)
+
+        return 'Done'
 
 # ---------------------------------------------------------------- #
 #                           Complex Moves                          #
@@ -241,6 +264,20 @@ class Catch(smach.State):
             rospy.set_param('sync_id', CATCH_FAIL)
             return 'Fail'
 
+class Is_Grasped(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Success', 'Fail'])
+
+    def execute(self, userdata):
+        if False: #is_grasped():
+            rospy.set_param('sync_id', CATCH_SUCCESS)
+            rospy.sleep(1) # wait for signal to be recieved
+            return 'Success'
+        else:
+            rospy.set_param('sync_id', CATCH_FAIL)
+            rospy.sleep(1) # wait for signal to be recieved
+            return 'Fail'
+
 
 class Open_Gripper(Move_State):
     def execute(self, userdata):
@@ -260,10 +297,7 @@ class Pickup_1(Move_State):
 
         rospy.sleep(1)
 
-        balls_remaining = rospy.get_param('balls_remaining')
-        rospy.set_param('balls_remaining', balls_remaining-1)
         if is_grasped().success:
-            # decrease number of balls
             return 'Success'
         else:
             rospy.logwarn("Ball was not picked up!")
@@ -282,10 +316,7 @@ class Pickup_2(Move_State):
 
         rospy.sleep(1)
 
-        balls_remaining = rospy.get_param('balls_remaining')
-        rospy.set_param('balls_remaining', balls_remaining-1)
         if is_grasped().success:
-            # decrease number of balls
             return 'Success'
         else:
             rospy.logwarn("Ball was not picked up!")
@@ -344,17 +375,22 @@ with Fold_SM:
 Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
 
 with Catch_SM:
-    smach.StateMachine.add('Pre_Catch', Joint_Pose_State("catch"),
-                        transitions={'Success': 'Ready_Catch',
+
+    smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
+                        transitions={'Success': 'Open_Gripper',
                                      'Error': 'Catch_Fail'})
 
-    smach.StateMachine.add('Ready_Catch', Grasp_Cmd_State("open"),
+    smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
                         transitions={'Success': 'Jetson_Sync_Pass',
                                      'Error': 'Catch_Fail'})
-
+                        
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
-                        transitions={'Ready': 'Catch',
+                        transitions={'Ready': 'Ready_Catch',
                                      'Timeout': 'Catch_Fail'})
+
+    smach.StateMachine.add('Ready_Catch', Joint_Pose_State("catch"),
+                        transitions={'Success': 'Catch',
+                                     'Error': 'Catch_Fail'})
 
     smach.StateMachine.add('Catch', Catch(),
                         transitions={'Success': 'Catch_Success',
@@ -400,20 +436,25 @@ with Throw_SM:
     
     # Attempt to catch if this sync times out
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass"),
-                        transitions={'Ready': 'Throw',
+                        transitions={'Ready': 'Wait_to_Throw',
                                     'Timeout': 'Throw_Fail'})
     
+    smach.StateMachine.add('Wait_to_Throw', Wait_State(1),
+                        transitions={'Complete': 'Throw'})
     
     smach.StateMachine.add('Throw', Async_Joint_Pose_State("throw"),
                         transitions={'Success': 'Wait_to_Release',
                                     'Error': 'Throw_Fail'})
 
-    smach.StateMachine.add('Wait_to_Release', Wait_State(0.2),
+    smach.StateMachine.add('Wait_to_Release', Wait_State(0.15),
                         transitions={'Complete': 'Release'})
 
     smach.StateMachine.add('Release', Grasp_Cmd_State("open"),
-                        transitions={'Success': 'Check_Catch',
+                        transitions={'Success': 'Reduce_Balls',
                                     'Error': 'Throw_Fail'})
+
+    smach.StateMachine.add('Reduce_Balls', Reduce_Balls(),
+                        transitions={'Done': 'Check_Catch'})
     
     smach.StateMachine.add('Check_Catch', Check_Catch(),
                         transitions={'Caught': 'Pass_Complete',
@@ -451,6 +492,39 @@ class PCS_Activate_State(PCS_State):
         else:
             return 'Error'
 
+class PCS_Pulse_State(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.PULSE_CHECK)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA or self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
+            rospy.sleep(1)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Success'
+        else:
+            return 'Error'
+
+# pretty much the same as activate and pulse state, but allows for different proceed signal
+class PCS_Feedback_State(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.STATUS)
+
+        time_elapsed = 0
+        poll_period = 0.5
+        timeout = 10
+
+        while self.pcs_node_state(self.node_id) != PCSstate.STATUS_GOOD or self.pcs_node_state(self.node_id) != PCSstate.DISABLED:
+            rospy.sleep(0.5)
+            time_elapsed += poll_period
+            if time_elapsed > timeout:
+                return 'Error'
+
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.STATUS_GOOD:
+            return 'Success'
+        else:
+            return 'Error'
+
 class PCS_Deactivate_State(PCS_State):
     def execute(self, userdata):
         self.pcs_node_cmd(self.node_id, PCScmd.DEACTIVATE)
@@ -472,7 +546,7 @@ class PCS_Shutdown_State(PCS_State):
         return 'Success'
 
 
-
+# These are kind of unneccessary they just rename their parent states
 
 
 class Teensy_Comm_Check(PCS_Activate_State):
@@ -481,11 +555,29 @@ class Teensy_Comm_Check(PCS_Activate_State):
 class Wait_for_TE(PCS_Activate_State):
     pass
 
+
+
+
+class Wait_for_AI(PCS_Pulse_State):
+    pass
+
+class Activate_AI(PCS_Activate_State):
+    pass
+
+class AI_Catch_Status(PCS_Feedback_State):
+    pass
+
+
+
+
 class Activate_Longeron_Cams(PCS_Activate_State):
     pass
 
 class Deactivate_Longeron_Cams(PCS_Deactivate_State):
     pass
+
+
+
 
 class Activate_Depth_Cam(PCS_Activate_State):
     pass

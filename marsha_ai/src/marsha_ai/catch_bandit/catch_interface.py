@@ -52,48 +52,54 @@ class CatchInterface(RosInterface):
     """
     CatchInterface provides an interface between the OpenAI gym environment and ROS.
     """
-    def __init__(self):
-        super(CatchInterface, self).__init__()
 
-        self.setup_services()
+    # arm_ns is "left" or "right" for which arm the interface controls
+    def __init__(self, arm_ns="left", training=False):
+        #super(CatchInterface, self).__init__()
 
-        self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
+        self.setup_services(arm_ns)
+
+        # change to reset when training
+        if training:
+            self.reset_pub = rospy.Publisher("/reset", Empty, queue_size=10)
+        else:
+            self.reset_pub = rospy.Publisher("/ball_release", Empty, queue_size=10)
 
         self.reset_pub.publish()
 
     # Could setup a timeout and return true or false if successful
-    def setup_services(self):
+    def setup_services(self, arm_ns):
         rospy.loginfo("Waiting for services...")
 
-        rospy.wait_for_service('generate_grasp')
-        self.generate_grasp = rospy.ServiceProxy('generate_grasp', GenerateGrasp)
 
-        rospy.wait_for_service('/left/posture_cmd')
-        self.posture_cmd = rospy.ServiceProxy('/left/posture_cmd', PostureCmd)
+        rospy.wait_for_service('/' + arm_ns + '/posture_cmd')
+        self.posture_cmd = rospy.ServiceProxy('/' + arm_ns + '/posture_cmd', PostureCmd)
 
-        rospy.wait_for_service('/left/plan_grasp')
-        self.plan_grasp = rospy.ServiceProxy('/left/plan_grasp', PlanGrasp)
+        rospy.wait_for_service('/' + arm_ns + '/plan_grasp')
+        self.plan_grasp = rospy.ServiceProxy('/' + arm_ns + '/plan_grasp', PlanGrasp)
 
-        rospy.wait_for_service('predict_position')
-        self.predict_position = rospy.ServiceProxy('predict_position', PredictPosition)
+        rospy.wait_for_service('/' + arm_ns + '/get_pos')
+        self.get_pos = rospy.ServiceProxy('/' + arm_ns + '/get_pos', GetPos)
 
-        rospy.wait_for_service('/left/get_pos')
-        self.get_pos = rospy.ServiceProxy('/left/get_pos', GetPos)
+        rospy.wait_for_service('/' + arm_ns + '/gripper/grasp_cmd')
+        self.grasp_cmd = rospy.ServiceProxy('/' + arm_ns + '/gripper/grasp_cmd', MoveCmd)
 
-        rospy.wait_for_service('/left/gripper/grasp_cmd')
-        self.grasp_cmd = rospy.ServiceProxy('/left/gripper/grasp_cmd', MoveCmd)
+        rospy.wait_for_service('/' + arm_ns + '/gripper/is_grasped')
+        self.is_grasped = rospy.ServiceProxy('/' + arm_ns + '/gripper/is_grasped', Trigger)
+        
 
-        rospy.wait_for_service('/left/gripper/is_grasped')
-        self.is_grasped = rospy.ServiceProxy('/left/gripper/is_grasped', Trigger)
+        rospy.wait_for_service('/observe_trajectory')
+        self.observe = rospy.ServiceProxy('/observe_trajectory', ObjectObservation)
 
-        rospy.wait_for_service('prediction_ready')
-        self.prediction_ready = rospy.ServiceProxy('prediction_ready', Trigger)
-
-        rospy.wait_for_service('observe_trajectory')
-        self.observe = rospy.ServiceProxy('observe_trajectory', ObjectObservation)
-
+        rospy.wait_for_service('/generate_grasp')
+        self.generate_grasp = rospy.ServiceProxy('/generate_grasp', GenerateGrasp)
         rospy.loginfo("Services setup!")
 
+        rospy.wait_for_service('/prediction_ready')
+        self.prediction_ready = rospy.ServiceProxy('/prediction_ready', Trigger)
+
+        rospy.wait_for_service('/predict_position')
+        self.predict_position = rospy.ServiceProxy('/predict_position', PredictPosition)
 
     # action_space (r, theta, phi, time)
     def perform_action(self, action):
@@ -159,10 +165,9 @@ class CatchInterface(RosInterface):
             info = {'catch_success': catch_success, 'plan_results': plan_results}
 
             return reward, plan_success, info
-        except rospy.service.ServiceException:
-            rospy.logerr("Service Unavailable, retrying service setup...")
-            setup_services()
-
+        except rospy.service.ServiceException as e:
+            rospy.logerr("Service Unavailable: " + str(e))
+            
         
 
 
@@ -174,7 +179,8 @@ class CatchInterface(RosInterface):
         while not self.prediction_ready().success:
             if attempts > 750:
                 self.reset_simulation()
-            print("waiting")
+                attempts = 0
+            print("Waiting for prediction")
             poll_rate.sleep()
             attempts += 1
 

@@ -12,7 +12,7 @@ from marsha_core.payload_command_system import PCS_SM
 from marsha_core.pcs_states import *
 
 
-
+USE_AI = True
 
 
 
@@ -74,7 +74,7 @@ class Sim_PCS(PCS_SM):
     def __init__(self):
         PCS_SM.__init__(self)
 
-    # mission_fails should result in checking what is wrong and then resuming state machine
+    # mission_fails should result in checking what is wrong and then resuming state machine, if it cannot fix then latch
     # need to put a time limit
     def mission_sm(self):
 
@@ -88,8 +88,13 @@ class Sim_PCS(PCS_SM):
 
             # ensures same starting position
             smach.StateMachine.add('Home', Home(),
-                                transitions={'Success': 'Jetson_Sync_0',
+                                transitions={'Success': 'AI_Initialization',
                                             'Error': 'Mission_Fail'})
+
+            # do it without AI if this fails
+            smach.StateMachine.add('AI_Initialization', Wait_for_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Jetson_Sync_0',
+                                             'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=30),
                                 transitions={'Ready': 'Reload_SM',
@@ -115,10 +120,53 @@ class Sim_PCS(PCS_SM):
                                              "Throw_Success": 'Check_Reload',
                                              "Throw_Fail": 'Mission_Fail'})
 
-            # throw sm goes back and picks a ball up
-            smach.StateMachine.add('Catch_SM', Catch_SM,
-                                transitions={'Catch_Success': 'Throw_SM',
-                                             'Catch_Fail': 'Other_Ball_Status'})
+            if USE_AI:
+                # ideally the AI_Catch_SM goes in the pcs_states library, but the PCS_States need to be passed the pcs_comms
+                AI_Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
+
+                with AI_Catch_SM:
+
+                    smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
+                                        transitions={'Success': 'Open_Gripper',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
+                                        transitions={'Success': 'Jetson_Sync_Pass',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
+                                        transitions={'Ready': 'Signal_Catch',
+                                                     'Timeout': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Signal_Catch', Signal_Catch(),
+                                        transitions={'Done': 'AI_Catch'})
+
+                    smach.StateMachine.add('AI_Catch', Activate_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                        transitions={'Success': 'Wait_for_Catch',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Wait_for_Catch', AI_Catch_Status("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                        transitions={'Success': 'Is_Grasped',
+                                                    'Error': 'Is_Grasped'}) 
+
+                    # Check for grasped which also updates other arm on catch status
+                    smach.StateMachine.add('Is_Grasped', Is_Grasped(),
+                                        transitions={'Success': 'Catch_Success',
+                                                     'Fail': 'Catch_Fail'})
+
+           
+
+                smach.StateMachine.add('Catch_SM', AI_Catch_SM,
+                                    transitions={'Catch_Success': 'Throw_SM',
+                                                 'Catch_Fail': 'Other_Ball_Status'})
+
+
+
+            else:
+                # throw sm goes back and picks a ball up
+                smach.StateMachine.add('Catch_SM', Catch_SM,
+                                    transitions={'Catch_Success': 'Throw_SM',
+                                                'Catch_Fail': 'Other_Ball_Status'})
 
             smach.StateMachine.add('Other_Ball_Status', Ball_Status(other_arm_status=True),
                                 transitions={'2': 'Catch_SM',
