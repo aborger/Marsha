@@ -235,7 +235,7 @@
 
 
   <joint name="top_plate_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.211324"/>
+    <origin rpy="0 0 0" xyz="0.068617 -0.090846 0.215"/>
     <parent link="base_link"/>
     <child link="top_plate"/>
   </joint>

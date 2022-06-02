@@ -10,7 +10,7 @@
   
 
   <group ns="$(arg ns)">
-    <rosparam param="IK_timeout">0.1</rosparam>
+    <rosparam param="IK_timeout">0.2</rosparam>
     <rosparam param="balls_remaining">2</rosparam>
     <rosparam param="sync_id">-1</rosparam>
 

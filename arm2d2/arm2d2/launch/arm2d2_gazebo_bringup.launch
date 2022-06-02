@@ -7,7 +7,7 @@
 
 
     <!-- Urdf for arm only -->
-    <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns) include_arm_base:=$(arg include_arm_base)"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find arm2d2_description)/urdf/arm1_gazebo.urdf.xacro ns:=$(arg ns) include_arm_base:=$(arg include_arm_base) top_plate:=true"/> <!-- top_plate:=true -->
 
     <!-- Load controller configuration -->
     <rosparam file="$(find arm2d2_moveit_config)/config/arm2d2_gazebo_controllers.yaml" command="load"/>
