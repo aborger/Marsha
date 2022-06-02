@@ -21,6 +21,11 @@ if rospy.get_namespace() == "/left/":
     other_arm = "/right/"
 else:
     other_arm = "/left/"
+
+
+global mission_clock # dict relating rospy time to mission time
+global THROW_WINDOWS
+THROW_WINDOWS = [122, 142, 162, 182, 202, 222, 242, 262]
 # ---------------------------------------------------------------- #
 #                      Move State Templates                        #
 # ---------------------------------------------------------------- #
@@ -35,7 +40,16 @@ class Joint_Pose_State(smach.State):
         self.pose = pose
 
     def execute(self, userdata):
-        complete = joint_pose_cmd(self.pose).done
+        complete = False
+        try:
+            complete = joint_pose_cmd(self.pose).done
+        except Exception as e:
+            try:
+                rospy.logwarn("Joint Pose Cmd Err: " + str(e))
+                # try again
+                complete = joint_pose_cmd(self.pose).done
+            except Exception as e:
+                rospy.logwarn("Retrying move failed.")
 
         if complete:
             return 'Success'
@@ -217,6 +231,67 @@ class Reduce_Balls(smach.State):
 
         return 'Done'
 
+class Set_Mission_Clock(smach.State):
+    def __init__(self, mission_time):
+        smach.State.__init__(self, outcomes=['Done'])
+        self.mission_time = mission_time
+
+    def execute(self, userdata):
+        global mission_clock 
+        mission_clock = {'ros': rospy.get_time(), 'mission': self.mission_time}
+
+        return 'Done'
+
+class Wait_For_Mission_Clock(smach.State):
+    def __init__(self, mission_time):
+        smach.State.__init__(self, outcomes=['Done'])
+        self.mission_time = mission_time
+
+    def execute(self, userdata):
+        global mission_clock
+        # seconds between mission milestone and desired mission time + rospy time at mission milestone
+        future_rospy_seconds = (self.mission_time - mission_clock['mission']) + mission_clock['ros']
+        future_rospy_time = rospy.Time.from_sec(future_rospy_seconds)
+        time_until = future_rospy_time - rospy.get_rostime()
+
+        rospy.sleep(time_until)
+        return 'Done'
+
+class Wait_for_Throw_Window(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Done', 'Out_Of_Windows'])
+        
+    def execute(self, userdata):
+        global mission_clock
+        global THROW_WINDOWS
+
+        current_mission_time = rospy.get_time() - mission_clock['ros'] + mission_clock['mission']
+        rospy.loginfo("Current Mission Time: T+" + str(current_mission_time))
+
+        desired_mission_time = -1
+        # Throw windows is a list from earliest to latest window
+        # Get the first window that has not passed yet
+        for window_time in THROW_WINDOWS:
+            if current_mission_time < window_time:
+                # wait until this window
+                desired_mission_time = window_time
+                break
+
+        if desired_mission_time == -1:
+            return 'Out_Of_Windows'
+        else:
+            rospy.loginfo("Waiting until T+" + str(desired_mission_time))
+            future_rospy_seconds = (desired_mission_time - mission_clock['mission']) + mission_clock['ros']
+            future_rospy_time = rospy.Time.from_sec(future_rospy_seconds)
+            time_until = future_rospy_time - rospy.get_rostime()
+
+            rospy.sleep(time_until)
+            return 'Done'
+
+
+
+
+
 # ---------------------------------------------------------------- #
 #                           Complex Moves                          #
 # ---------------------------------------------------------------- #
@@ -344,7 +419,7 @@ with Unfold_SM:
     for i in range(0, NUM_FOLDING_STEPS):
         smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
                             transitions={'Success': 'step_' + str(i+1),
-                                        'Error': 'Fail'})
+                                        'Error': 'step_' + str(i)})
 
     smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose_State("folding/step_" + str(NUM_FOLDING_STEPS)),
                         transitions={'Success': 'Success',
@@ -364,7 +439,7 @@ with Fold_SM:
     for i in range(NUM_FOLDING_STEPS, 0, -1):
         smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
                         transitions={'Success': 'step_' + str(i-1),
-                                     'Error': 'Fail'})
+                                     'Error': 'step_' + str(i)})
 
     smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
                         transitions={'Success': 'Success',
@@ -430,8 +505,12 @@ Throw_SM = smach.StateMachine(outcomes=["Pass_Complete", "Throw_Success", "Throw
 with Throw_SM:
 
     smach.StateMachine.add('Pre_Throw', Joint_Pose_State("pre_throw"),
-                        transitions={'Success': 'Jetson_Sync_Pass',
+                        transitions={'Success': 'Wait_for_Throw_Window',
                                     'Error': 'Throw_Fail'})
+
+    smach.StateMachine.add('Wait_for_Throw_Window', Wait_for_Throw_Window(),
+                        transitions={'Done': 'Jetson_Sync_Pass',
+                                     'Out_Of_Windows': 'Throw_Fail'})
 
     
     # Attempt to catch if this sync times out
@@ -446,7 +525,7 @@ with Throw_SM:
                         transitions={'Success': 'Wait_to_Release',
                                     'Error': 'Throw_Fail'})
 
-    smach.StateMachine.add('Wait_to_Release', Wait_State(0.15),
+    smach.StateMachine.add('Wait_to_Release', Wait_State(0.2),
                         transitions={'Complete': 'Release'})
 
     smach.StateMachine.add('Release', Grasp_Cmd_State("open"),

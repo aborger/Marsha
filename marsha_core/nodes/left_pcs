@@ -13,6 +13,7 @@ from marsha_core.pcs_states import *
 
 
 USE_AI = True
+FOLLOW_TIMELINE = True
 
 
 
@@ -74,6 +75,9 @@ class Sim_PCS(PCS_SM):
     def __init__(self):
         PCS_SM.__init__(self)
 
+
+
+
     # mission_fails should result in checking what is wrong and then resuming state machine, if it cannot fix then latch
     # need to put a time limit
     def mission_sm(self):
@@ -97,8 +101,12 @@ class Sim_PCS(PCS_SM):
                                              'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=30),
-                                transitions={'Ready': 'Reload_SM',
+                                transitions={'Ready': 'Set_Mission_Clock',
                                              'Timeout': 'Mission_Fail'})
+
+            # Use this at TE-R
+            smach.StateMachine.add('Set_Mission_Clock', Set_Mission_Clock(82),
+                                transitions={'Done': 'Reload_SM'})
 
             smach.StateMachine.add('Check_Reload', Ball_Status(),
                                 transitions={'2': 'Prepare_Reload',
@@ -121,46 +129,10 @@ class Sim_PCS(PCS_SM):
                                              "Throw_Fail": 'Mission_Fail'})
 
             if USE_AI:
-                # ideally the AI_Catch_SM goes in the pcs_states library, but the PCS_States need to be passed the pcs_comms
-                AI_Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
 
-                with AI_Catch_SM:
-
-                    smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
-                                        transitions={'Success': 'Open_Gripper',
-                                                    'Error': 'Catch_Fail'})
-
-                    smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
-                                        transitions={'Success': 'Jetson_Sync_Pass',
-                                                    'Error': 'Catch_Fail'})
-
-                    smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
-                                        transitions={'Ready': 'Signal_Catch',
-                                                     'Timeout': 'Catch_Fail'})
-
-                    smach.StateMachine.add('Signal_Catch', Signal_Catch(),
-                                        transitions={'Done': 'AI_Catch'})
-
-                    smach.StateMachine.add('AI_Catch', Activate_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
-                                        transitions={'Success': 'Wait_for_Catch',
-                                                    'Error': 'Catch_Fail'})
-
-                    smach.StateMachine.add('Wait_for_Catch', AI_Catch_Status("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
-                                        transitions={'Success': 'Is_Grasped',
-                                                    'Error': 'Is_Grasped'}) 
-
-                    # Check for grasped which also updates other arm on catch status
-                    smach.StateMachine.add('Is_Grasped', Is_Grasped(),
-                                        transitions={'Success': 'Catch_Success',
-                                                     'Fail': 'Catch_Fail'})
-
-           
-
-                smach.StateMachine.add('Catch_SM', AI_Catch_SM,
+                smach.StateMachine.add('Catch_SM', self.AI_Catch_SM,
                                     transitions={'Catch_Success': 'Throw_SM',
                                                  'Catch_Fail': 'Other_Ball_Status'})
-
-
 
             else:
                 # throw sm goes back and picks a ball up
@@ -189,6 +161,8 @@ class Sim_PCS(PCS_SM):
             smach.StateMachine.add('Secure_Latch', Grasp_Cmd_State("close"),
                                 transitions={'Success': 'Mission_Success',
                                              'Error': 'Mission_Fail'})
+
+
 
 
 

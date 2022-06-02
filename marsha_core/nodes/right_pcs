@@ -75,8 +75,11 @@ class Sim_PCS(PCS_SM):
 
             # Ready to unlatch
             smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=60),
-                                transitions={'Ready': 'Unfold',
+                                transitions={'Ready': 'Set_Mission_Clock',
                                              'Timeout': 'Mission_Fail'})
+
+            smach.StateMachine.add('Set_Mission_Clock', Set_Mission_Clock(82),
+                                transitions={'Done': 'Unfold'})
 
             smach.StateMachine.add('Unfold', Unfold_SM,
                                 transitions={'Success': 'Catch_SM',
@@ -101,7 +104,7 @@ class Sim_PCS(PCS_SM):
                                         transitions={'Success': 'Jetson_Sync_Pass',
                                                     'Error': 'Catch_Fail'})
 
-                    smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
+                    smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=60),
                                         transitions={'Ready': 'Signal_Catch',
                                                      'Timeout': 'Catch_Fail'})
 

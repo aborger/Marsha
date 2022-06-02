@@ -289,7 +289,7 @@ class TrajectoryPredictor {
 
             float dist = eigen_dist(z, kpos);
             if(!hasConverged()) {
-                ROS_INFO("Dist: %f", dist);    
+                ROS_DEBUG("Dist: %f", dist);    
             }      
             accuracy.push_back(dist);
             if (accuracy.size() > NUM_ACCURACY_MEASUREMENTS) {
