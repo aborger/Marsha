@@ -108,6 +108,10 @@ class Sim_PCS(PCS_SM):
             smach.StateMachine.add('Set_Mission_Clock', Set_Mission_Clock(82),
                                 transitions={'Done': 'Reload_SM'})
 
+            #Mission_SM = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
+
+            #with Mission_SM:
+
             smach.StateMachine.add('Check_Reload', Ball_Status(),
                                 transitions={'2': 'Prepare_Reload',
                                             '1': 'Prepare_Reload',
@@ -119,20 +123,20 @@ class Sim_PCS(PCS_SM):
 
             smach.StateMachine.add('Reload_SM', Reload_SM,
                                 transitions={'Success': 'Throw_SM',
-                                             'Out_Of_Balls': 'Other_Ball_Status',
-                                             'Fail': 'Mission_Fail'})
+                                            'Out_Of_Balls': 'Other_Ball_Status',
+                                            'Fail': 'Mission_Fail'})
 
 
             smach.StateMachine.add('Throw_SM', Throw_SM,
                                 transitions={"Pass_Complete": 'Catch_SM',
-                                             "Throw_Success": 'Check_Reload',
-                                             "Throw_Fail": 'Mission_Fail'})
+                                            "Throw_Success": 'Check_Reload',
+                                            "Throw_Fail": 'Mission_Fail'})
 
             if USE_AI:
 
                 smach.StateMachine.add('Catch_SM', self.AI_Catch_SM,
                                     transitions={'Catch_Success': 'Throw_SM',
-                                                 'Catch_Fail': 'Other_Ball_Status'})
+                                                'Catch_Fail': 'Other_Ball_Status'})
 
             else:
                 # throw sm goes back and picks a ball up
@@ -142,25 +146,30 @@ class Sim_PCS(PCS_SM):
 
             smach.StateMachine.add('Other_Ball_Status', Ball_Status(other_arm_status=True),
                                 transitions={'2': 'Catch_SM',
-                                             '1': 'Catch_SM',
-                                             '0': 'Prepare_to_Latch'})
+                                            '1': 'Catch_SM',
+                                            '0': 'Prepare_to_Latch'})
 
             smach.StateMachine.add('Prepare_to_Latch', Fold_SM,
                                 transitions={'Success': 'Open_Latch',
-                                             'Fail': 'Mission_Fail'})
+                                            'Fail': 'Mission_Fail'})
 
             smach.StateMachine.add('Open_Latch', Grasp_Cmd_State("half_closed"),
                                 transitions={'Success': 'Latch',
-                                             'Error': 'Mission_Fail'})
+                                            'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Latch', Joint_Pose_State("home"),
                                 transitions={'Success': 'Secure_Latch',
-                                             'Error': 'Mission_Fail'})
+                                            'Error': 'Mission_Fail'})
 
             # Check for grasped object to ensure latch is successful
             smach.StateMachine.add('Secure_Latch', Grasp_Cmd_State("close"),
                                 transitions={'Success': 'Mission_Success',
-                                             'Error': 'Mission_Fail'})
+                                            'Error': 'Mission_Fail'})
+
+
+
+            # Abort_Mission Latches the arms to prepare for re-entry, but must check if the arm is deployed or not
+
 
 
 

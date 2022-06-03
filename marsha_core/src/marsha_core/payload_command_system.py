@@ -22,6 +22,7 @@ from marsha_msgs.srv import PayloadCmd
 
 NUM_CONNECTION_ATTEMPTS = 3
 
+
 # Used to check jetson power
 #os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
 
@@ -154,6 +155,7 @@ class PCS_SM(object):
 
     def mission_sm(self):
         pass
+
     
 
     def run(self):

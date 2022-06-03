@@ -4,6 +4,7 @@
 import rospy
 import smach
 import smach_ros
+import json
 
 from marsha_core.pcs_node import PCSstate
 from marsha_core.pcs_node import PCScmd
@@ -26,6 +27,27 @@ else:
 global mission_clock # dict relating rospy time to mission time
 global THROW_WINDOWS
 THROW_WINDOWS = [122, 142, 162, 182, 202, 222, 242, 262]
+
+CHECKPOINT_DIR = "/home/jet/.marsha/"
+CHECKPOINT_FILE = CHECKPOINT_DIR + rospy.get_namespace().replace("/","") + "_sm_checkpoint.log"
+# checkpoint dict contains deployed status and number of balls remaining, latched, mission_time
+# Only partially implemented. This would allow it to restart from a known state if necessary
+def make_checkpoint(deploy_status=None, balls_remaining=None):
+    f = open(CHECKPOINT_FILE, "r")
+    checkpoint_string = f.read()
+    checkpoint_dict = json.loads(checkpoint_string)
+
+    if deploy_status != None:
+        checkpoint_dict["deploy_status"] = deploy_status
+
+    if balls_remaining != None:
+        checkpoint_dict["balls_remaining"] = balls_remaining
+
+    json_string = json.dumps(checkpoint_dict)
+    f = open(CHECKPOINT_FILE, "w")
+    f.write(json_string)
+    f.close()
+
 # ---------------------------------------------------------------- #
 #                      Move State Templates                        #
 # ---------------------------------------------------------------- #
@@ -168,6 +190,9 @@ class Ball_Status(smach.State):
     def execute(self, userdata):
         balls_remaining = rospy.get_param(self.balls_remaining_param)
 
+        if not self.check_other_arm:
+            make_checkpoint(balls_remaining=balls_remaining)
+
         if balls_remaining < 0:
             balls_remaining = 0
             
@@ -287,7 +312,6 @@ class Wait_for_Throw_Window(smach.State):
 
             rospy.sleep(time_until)
             return 'Done'
-
 
 
 
@@ -420,10 +444,12 @@ with Unfold_SM:
         smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
                             transitions={'Success': 'step_' + str(i+1),
                                         'Error': 'step_' + str(i)})
-
+balls_remaining
     smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose_State("folding/step_" + str(NUM_FOLDING_STEPS)),
                         transitions={'Success': 'Success',
                                      'Error': 'Fail'})
+
+    smach.StateMachine.add()
 
 
 # ================================================================ #
