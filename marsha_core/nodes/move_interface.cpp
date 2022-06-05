@@ -162,61 +162,27 @@ class MarshaMoveInterface {
         bool jointPoseCmd(marsha_msgs::MoveCmd::Request &req,
                       marsha_msgs::MoveCmd::Response &res)
         {
-            std::string param =  joint_param + req.pose_name + "";
+            // Check if param is there to prevent going back home with unkown params
+            std::string param =  joint_param + req.pose_name + "/";
             ROS_INFO("Going to joint state: %s", param.c_str());
 
             std::vector<double> joint_group_positions;
 
+            ros::param::get(param, joint_group_positions);
 
             while (joint_group_positions.size() < num_joints) {
                 joint_group_positions.push_back(0.0);
             }
-            ros::param::get(param, joint_group_positions);
-
-            // Debugging
-            //ROS_INFO("Joint_group_positions: %f, %f, %f, %f, %f, %f", joint_group_positions[0], joint_group_positions[1], joint_group_positions[2], joint_group_positions[3], joint_group_positions[4], joint_group_positions[5]);
 
             move_group->setJointValueTarget(joint_group_positions);
-
-            // Debug
-            //ROS_INFO("Joint_group_positions after: %f, %f, %f, %f, %f, %f", joint_group_positions[0], joint_group_positions[1], joint_group_positions[2], joint_group_positions[3], joint_group_positions[4], joint_group_positions[5]);
 
             moveit::planning_interface::MoveGroupInterface::Plan target_plan;
 
             bool plan_success = (move_group->plan(target_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-            ROS_INFO("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
-
-            /* Debugging
-            for (int j = 0; j < 2; j++) {
-                for (int i = 0; i < 6; i++) {
-                    ROS_INFO("Trajectory (point: %i, pos: %i): %f", j, i, target_plan.trajectory_.joint_trajectory.points[j].positions[i]);
-                }
-            }*/
-
-            // This is very hacky and not the right way to do it
-            // Planning isnt working for some reason so I am essentially cutting out motion planning
-            // instead it goes directly to the desired angle.
-            for (int i = 0; i < num_joints; i++) {
-                target_plan.trajectory_.joint_trajectory.points[1].positions[i] = joint_group_positions[i];
-            }
+            ROS_DEBUG("Plan status: %s", plan_success ? "SUCCESSFUL" : "FAILED");
 
             if (plan_success) {
-                ROS_INFO("Executing...");
                 move_group->execute(target_plan);
-                std_srvs::Trigger srv;
-                bool cmd_executed = false;
-
-                while (!cmd_executed) {
-                    teensyCmdState.call(srv);
-                    if (srv.response.message == "fail") {
-                        res.done = false;
-                        return true;
-                    }
-                    cmd_executed = srv.response.success;
-                    ros::Duration(0.5).sleep();
-                }
-
-
                 res.done = true;
                 return true;
             }

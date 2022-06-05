@@ -64,7 +64,8 @@ class GraspGenerator {
             print_vect(wrist_vector);
             wrist_vector.normalize();
 
-            tf::Vector3 z = tf::Vector3(0, 0, 1);
+            // correlates to the gripper joint axis
+            tf::Vector3 z = tf::Vector3(0, -1, 0);
 
 
             tf::Vector3 rot_axis = wrist_vector.cross(z);
@@ -80,13 +81,15 @@ class GraspGenerator {
             ROS_INFO("Dot product with other axis: %f", dot_product);
 
             ROS_INFO("rotation angle: %f", rot_angle);
+
             if (dot_product < 0) {
                 rot_angle = M_PI - rot_angle;
             }
             ROS_INFO("Actual rot angle: %f", rot_angle);
 
-            
+            //tf::Quaternion starting_orientation = tf::Quaternion(0.1379, 0.7031, 0.6837, 0.1376);
             tf::Quaternion orientation = tf::Quaternion(rot_axis.normalized(), rot_angle);
+            //orientation = orientation * starting_orientation;
             
             
             

@@ -55,6 +55,7 @@ include_directories(
 catkin_install_python(
   PROGRAMS
    nodes/ai_node
+   nodes/ai_pcs
    nodes/mdp_ai_node
    nodes/spawn_tensorboard
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
