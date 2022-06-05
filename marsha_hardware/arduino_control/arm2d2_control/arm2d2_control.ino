@@ -20,8 +20,8 @@
 
 // PCB
 //Stepper steppers[] = {Stepper(25, 24, 23, 22), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 16, 15), Stepper(31, 30, 41, 40)};
-//Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
-Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(31, 30, 40, 41), Stepper(37, 36, 15, 16), Stepper(35, 34, 6, 5), Stepper(33, 32, 18, 17)};
+Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(33, 32, 18, 17), Stepper(35, 34, 5, 6), Stepper(37, 36, 15, 16), Stepper(31, 30, 41, 40)};
+//Stepper steppers[] = {Stepper(25, 24, 22, 23, true), Stepper(29, 28, 21, 20), Stepper(31, 30, 40, 41), Stepper(37, 36, 15, 16), Stepper(35, 34, 6, 5), Stepper(33, 32, 18, 17)};
 
 
 // J6 tests

@@ -120,9 +120,9 @@ class PCS_SM(object):
         # Note: This needs to be done after comm check
         rospy.loginfo('Waiting for service...')
         
-        #if self.jet_connection:
-        #    rospy.wait_for_service(other_arm + 'pcs_comm')
-        #    self.jet_comm_service = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
+        if self.jet_connection:
+            rospy.wait_for_service(other_arm + 'pcs_comm')
+            self.jet_comm_service = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
         
         self.mission_sm()
         

@@ -44,8 +44,12 @@ class Left_PCS(PCS_SM):
             #                                 'Error': 'Mission_Fail'})
 
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
-                                transitions={'Success': 'Unfold',
+                                transitions={'Success': 'Jetson_Sync_0',
                                              'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
+                                transitions={'Ready': 'Unfold',
+                                             'Timeout': 'Mission_Fail'})
 
 
             smach.StateMachine.add('Unfold', Unfold_SM,

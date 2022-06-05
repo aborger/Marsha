@@ -85,7 +85,7 @@ class Interface():
         while not self.connected:
             try:
                 self.arduino = serial.Serial(
-                    port = '/dev/ttyACM0',
+                    port = '/dev/ttyTHS1',
                     baudrate = 9600, # 115200 can be used, but data is less reliable
                     bytesize = serial.EIGHTBITS,
                     parity = serial.PARITY_NONE,
@@ -97,6 +97,7 @@ class Interface():
                     writeTimeout = 5
                 )
                 self.connected = True
+		rospy.loginfo("Connected on /dev/ttyTHS1")
             except KeyboardInterrupt:
                 exit()
             except Exception as e:
@@ -104,7 +105,7 @@ class Interface():
                 time.sleep(1)
                 try:
                     self.arduino = serial.Serial(
-                        port = '/dev/ttyACM1',
+                        port = '/dev/ttyACM0',
                         baudrate = 9600, # 115200 can be used, but data is less reliable
                         bytesize = serial.EIGHTBITS,
                         parity = serial.PARITY_NONE,
@@ -116,6 +117,7 @@ class Interface():
                         writeTimeout = 5
                     )
                     self.connected = True
+		    rospy.loginfo("Connected on /dev/ttyACM0")
                 except Exception as e:
                     rospy.logerr(e)
                     time.sleep(1)
@@ -223,6 +225,7 @@ class Interface():
         self.arduino.reset_input_buffer()
         rospy.loginfo("Running, If no data appears ensure the teensy is communicating through the same serial port.")
         while not rospy.is_shutdown():
+	    rospy.loginfo("Getting data...")
             if not self.calibrating:
                 if self.tx_cnt > self.tx_rate:
                     self.transmit_step()
@@ -251,7 +254,7 @@ class Interface():
                     try:
                         #string = self.arduino.read_until("}")
                         string = self.arduino.read_until("}")
-                        #print(string)
+                        print(string)
                         json_string = string.decode()
                         rx_dict = json.loads(json_string)
                         encoders = rx_dict["enc_feedback"]
@@ -289,7 +292,8 @@ class Interface():
                         rospy.logerr("Communicated with Teensy, but un-readable data received.")
             self.teensy_watchdog_cnt += 1
 
-            if self.teensy_watchdog_cnt > 10:
+            if self.teensy_watchdog_cnt > 20:
+		rospy.logfatal("Teensy watchdog counter failed!")
                 rospy.signal_shutdown("Watchdog failed. Restarting.")
             self.rate.sleep()
 

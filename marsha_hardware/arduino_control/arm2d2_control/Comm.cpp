@@ -67,8 +67,11 @@ void Comm::spin() {
     if (ch == '\n') {
       
       DeserializationError error = deserializeJson(rx_doc, rx_buffer); // Convert bytes to char array as json string
-      
-      if (!error) {
+
+      if (error) {
+        connection_successful = false;
+      }
+      else {
         if (!connection_successful) {
           connection_successful = true;
           digitalWrite(13, HIGH);
