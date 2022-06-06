@@ -44,7 +44,9 @@ catkin_install_python(
         scripts/throw
         scripts/follow_ball
         scripts/catch
+        scripts/dumb_catch
         scripts/joint_radians
+        scripts/led_test
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

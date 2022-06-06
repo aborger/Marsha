@@ -22,6 +22,7 @@ from marsha_msgs.srv import PayloadCmd
 
 NUM_CONNECTION_ATTEMPTS = 3
 
+
 # Used to check jetson power
 #os.system("sudo chmod 777 /sys/bus/i2c/drivers/ina3221x/6-0040/iio:device0/in_voltage1_input")
 
@@ -90,14 +91,11 @@ def power_consumption():
 class PCS_SM(object):
     def __init__(self):
 
-        self.stateComm = rospy.Service('pcs_comm', StateComm, self.state_comm_callback)
-
-        # ensures both jetsons are on the same sync state
-        self.curr_sync_id = 0
-        self.handshake_status = False
-
-
         self.sm = smach.StateMachine(outcomes=["Mission_Success", "Mission_Fail"])
+        
+        # used for smach gui
+        #self.sis = smach_ros.IntrospectionServer(rospy.get_namespace() + 'pcs_cmd', self.sm, rospy.get_namespace() + 'pcs_cmd')
+        #self.sis.start()
 
         rospy.Service('payload_cmd', PayloadCmd, self.payload_cmd_cb)
 
@@ -114,45 +112,30 @@ class PCS_SM(object):
             other_arm = "/right/"
         else:
             other_arm = "/left/"
+            
 
-        self.jet_connection = jets_connected()
+        # contains a tuple relating ros time to mission time (Use after TE)
+        self.mission_clock = None
+
+        self.jet_connection = True #jets_connected()
 
         # Note: This needs to be done after comm check
         rospy.loginfo('Waiting for service...')
         
-        if self.jet_connection:
-            rospy.wait_for_service(other_arm + 'pcs_comm')
-            self.jet_comm_service = rospy.ServiceProxy(other_arm + 'pcs_comm', StateComm)
+        #if self.jet_connection:
+
+        # else perform with one arm
+
+        self.load_additional_SMs()
         
         self.mission_sm()
         
-    def jet_comm(self):
-        try:
-            return self.jet_comm_service().current_state
-        except rospy.ServiceException as e:
-            rospy.logerr("Cannot communicate with other Jetson!")
-            return False
 
         
 
+
     def connection_status(self):
         return self.jet_connection
-
-    def state_comm_callback(self, req):
-        states = self.sm.get_active_states()
-        if states[0] == 'Jetson_Sync_' + str(self.curr_sync_id):
-            self.handshake_status = True
-
-        return states[0]
-
-    def get_handshake_status(self):
-        return self.handshake_status
-
-    def set_sync_id(self, id):
-        self.curr_sync_id = id
-
-    def reset_handshake(self):
-        self.handshake_status = False
 
     def payload_cmd_cb(self, msg):
         rospy.logdebug("From: " + str(msg.pcs_id) + " Msg: " + str(msg.state))
@@ -167,6 +150,8 @@ class PCS_SM(object):
     def pcs_node_cmd(self, node_id, cmd):
         self.pcs_node_cmds[node_id] = cmd
 
+    def set_mission_clock(self, rospy_time, mission_time):
+        self.mission_clock = (rospy_time, mission_time)
 
     def mission_sm(self):
         pass
@@ -176,3 +161,38 @@ class PCS_SM(object):
     def run(self):
         outcome = self.sm.execute()
         rospy.logwarn("Final State: " + str(outcome))
+
+    # Additional state machines that need PCS properties
+    def load_additional_SMs(self):
+        # ideally the AI_Catch_SM goes in the pcs_states library, but the PCS_States need to be passed the pcs_comms
+        self.AI_Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
+
+        with self.AI_Catch_SM:
+
+            smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
+                                transitions={'Success': 'Open_Gripper',
+                                            'Error': 'Catch_Fail'})
+
+            smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
+                                transitions={'Success': 'Jetson_Sync_Pass',
+                                            'Error': 'Catch_Fail'})
+
+            smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
+                                transitions={'Ready': 'Signal_Catch',
+                                                'Timeout': 'Catch_Fail'})
+
+            smach.StateMachine.add('Signal_Catch', Signal_Catch(),
+                                transitions={'Done': 'AI_Catch'})
+
+            smach.StateMachine.add('AI_Catch', Activate_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Wait_for_Catch',
+                                            'Error': 'Catch_Fail'})
+
+            smach.StateMachine.add('Wait_for_Catch', AI_Catch_Status("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Is_Grasped',
+                                            'Error': 'Is_Grasped'}) 
+
+            # Check for grasped which also updates other arm on catch status
+            smach.StateMachine.add('Is_Grasped', Is_Grasped(),
+                                transitions={'Success': 'Catch_Success',
+                                                'Fail': 'Catch_Fail'})

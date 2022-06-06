@@ -12,6 +12,7 @@ from marsha_core.payload_command_system import PCS_SM
 from marsha_core.pcs_states import *
 
 
+USE_AI = True
 
 class Right_PCS(PCS_SM):
     def __init__(self):
@@ -25,9 +26,8 @@ class Right_PCS(PCS_SM):
                                 transitions={'Success': 'Jetson_Sync_0', # usually Teensy comm check
                                              'Error': 'Mission_Fail'})
 
-            
-            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake, timeout=100),
-                                transitions={'Ready': 'Mission_Success',
+            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=60),
+                                transitions={'Ready': 'Wait_for_TE',
                                              'Timeout': 'Mission_Fail'})
             """
             smach.StateMachine.add('Teensy_Comm_Check', Teensy_Comm_Check("teensy_interface", self.pcs_node_state, self.pcs_node_cmd),
@@ -39,7 +39,7 @@ class Right_PCS(PCS_SM):
                                              'Error': 'Mission_Fail'})
                                           
             # If this state times out, only one jetson recieved TE signal
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake, timeout=10),
+            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, timeout=10),
                                 transitions={'Ready': 'Mission_Success',
                                              'Timeout': 'Mission_Fail'})
 
@@ -55,114 +55,121 @@ class Right_PCS(PCS_SM):
 
 class Sim_PCS(PCS_SM):
     def __init__(self):
-        self.balls_remaining = 4
-
         PCS_SM.__init__(self)
 
-
-    def get_balls_remaining(self):
-        return self.balls_remaining
-
-    def decrease_balls(self):
-        self.balls_remaining -= 1 
-
-
-    def mission_sm(self):
-        handshake = (self.get_handshake_status, self.reset_handshake, self.set_sync_id)
         with self.sm:
             # if this fails perform experiment with one arm
+            """
             smach.StateMachine.add('Jetson_Comm_Check', Jetson_Comm_Check(self.connection_status),
                                 transitions={'Success': 'Home', # usually Teensy comm check
                                              'Error': 'Mission_Fail'})
+            """
 
             # ensures same starting position
             smach.StateMachine.add('Home', Home(),
-                                transitions={'Success': 'Jetson_Sync_0',
+                                transitions={'Success': 'AI_Initialization',
                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('AI_Initialization', Wait_for_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Jetson_Sync_0',
+                                             'Error': 'Mission_Fail'})
 
             # Ready to unlatch
-            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, self.jet_comm, handshake),
-                                            transitions={'Ready': 'Unfold_Catch',
-                                                        'Timeout': 'Mission_Fail'})
+            smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=60),
+                                transitions={'Ready': 'Set_Mission_Clock',
+                                             'Timeout': 'Mission_Fail'})
 
+            smach.StateMachine.add('Set_Mission_Clock', Set_Mission_Clock(82),
+                                transitions={'Done': 'Unfold'})
 
-            smach.StateMachine.add('Unfold_Catch', Unfold(),
-                                transitions={'Success': 'Jetson_Sync_1',
-                                            'Error': 'Mission_Fail'})
+            smach.StateMachine.add('Unfold', Unfold_SM,
+                                transitions={'Success': 'Catch_SM',
+                                             'Fail': 'Mission_Fail'})
 
-            # Ready to catch
-            smach.StateMachine.add('Jetson_Sync_1', Jetson_Sync(1, self.jet_comm, handshake),
-                                            transitions={'Ready': 'Catch',
-                                                        'Timeout': 'Jetson_Sync_2'})
+            smach.StateMachine.add('Other_Ball_Status', Ball_Status(other_arm_status=True),
+                                transitions={'2': 'Catch_SM',
+                                             '1': 'Catch_SM',
+                                             '0': 'Check_Reload'})
 
-            smach.StateMachine.add('Catch', Catch(),
-                                transitions={'Catch_Success': 'Throw',
-                                             'Catch_Fail': 'Throw_Ball_Status',
+            if USE_AI:
+                # ideally the AI_Catch_SM goes in the pcs_states library, but the PCS_States need to be passed the pcs_comms
+                AI_Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
+
+                with AI_Catch_SM:
+
+                    smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
+                                        transitions={'Success': 'Open_Gripper',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
+                                        transitions={'Success': 'Jetson_Sync_Pass',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=60),
+                                        transitions={'Ready': 'Signal_Catch',
+                                                     'Timeout': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Signal_Catch', Signal_Catch(),
+                                        transitions={'Done': 'AI_Catch'})
+
+                    smach.StateMachine.add('AI_Catch', Activate_AI("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                        transitions={'Success': 'Wait_for_Catch',
+                                                    'Error': 'Catch_Fail'})
+
+                    smach.StateMachine.add('Wait_for_Catch', AI_Catch_Status("ai_agent", self.pcs_node_state, self.pcs_node_cmd),
+                                        transitions={'Success': 'Is_Grasped',
+                                                    'Error': 'Is_Grasped'}) 
+
+                    # Check for grasped which also updates other arm on catch status
+                    smach.StateMachine.add('Is_Grasped', Is_Grasped(),
+                                        transitions={'Success': 'Catch_Success',
+                                                     'Fail': 'Catch_Fail'})
+
+           
+
+                smach.StateMachine.add('Catch_SM', AI_Catch_SM,
+                                    transitions={'Catch_Success': 'Throw_SM',
+                                                 'Catch_Fail': 'Other_Ball_Status'})
+            else:
+                smach.StateMachine.add('Catch_SM', Catch_SM,
+                                    transitions={'Catch_Success':  'Throw_SM',
+                                                'Catch_Fail': 'Other_Ball_Status'})
+
+            smach.StateMachine.add('Check_Reload', Ball_Status(),
+                                transitions={'2': 'Prepare_Reload',
+                                            '1': 'Prepare_Reload',
+                                            '0': 'Prepare_to_Latch'}) 
+
+            smach.StateMachine.add('Prepare_Reload', Fold_SM,
+                                transitions={'Success': 'Reload_SM',
+                                            'Fail': 'Mission_Fail'}) 
+
+            smach.StateMachine.add('Reload_SM', Reload_SM,
+                                transitions={'Success': 'Throw_SM',
+                                             'Out_Of_Balls': 'Prepare_to_Latch',
+                                             'Fail': 'Mission_Fail'}) 
+
+            smach.StateMachine.add('Throw_SM', Throw_SM,
+                                transitions={"Pass_Complete": 'Catch_SM',
+                                             "Throw_Success": 'Check_Reload',
+                                             "Throw_Fail": 'Mission_Fail'})
+            
+            smach.StateMachine.add('Prepare_to_Latch', Fold_SM,
+                                transitions={'Success': 'Open_Latch',
+                                             'Fail': 'Mission_Fail'})
+
+            smach.StateMachine.add('Open_Latch', Grasp_Cmd_State("half_closed"),
+                                transitions={'Success': 'Latch',
                                              'Error': 'Mission_Fail'})
 
-            # Ready for right arm to throw, left arm to catch
-            smach.StateMachine.add('Jetson_Sync_2', Jetson_Sync(2, self.jet_comm, handshake, timeout=60),
-                                            transitions={'Ready': 'Reload',
-                                                        'Timeout': 'Mission_Fail'})
-
-            Reload_SM = smach.StateMachine(outcomes=["Success", "Catching", "Out_Of_Balls", "Reload_Fail"])
-
-            with Reload_SM:
-
-                smach.StateMachine.add('Step_0', Step_0(),
-                                    transitions={'Success': 'Reload_Ball_Status',
-                                                'Error': 'Reload_Fail'})
-
-                smach.StateMachine.add('Reload_Ball_Status', Ball_Status(self.get_balls_remaining, self.decrease_balls),
-                                    transitions={'4_Balls': 'Catching', 
-                                                 '3_Balls': 'Catching',
-                                                 '2_Balls': 'Pickup_1',
-                                                 '1_Balls': 'Pickup_2', 
-                                                 '0_Balls': 'Out_Of_Balls',
-                                                 'Error': 'Reload_Fail'})
-
-                smach.StateMachine.add('Pickup_1', Pickup_1(),
-                                    transitions={'Success': 'Success',
-                                                'Error': 'Reload_Ball_Status'})
-
-                smach.StateMachine.add('Pickup_2', Pickup_2(),
-                                    transitions={'Success': 'Success',
-                                                'Error': 'Reload_Ball_Status'})
-
-            smach.StateMachine.add('Reload', Reload_SM,
-                                transitions={'Success': 'Unfold_Throw',
-                                             'Catching': 'Jetson_Sync_1',
-                                             'Out_Of_Balls': 'Jetson_Sync_3',
-                                             'Reload_Fail': 'Mission_Fail'})
-
-            smach.StateMachine.add('Unfold_Throw', Unfold(),
-                                transitions={'Success': 'Throw',
-                                            'Error': 'Mission_Fail'})
-
-            smach.StateMachine.add('Throw', Open_Gripper(),
-                                transitions={'Success': 'Throw_Ball_Status',
-                                            'Error': 'Mission_Fail'})
-
-            smach.StateMachine.add('Throw_Ball_Status', Ball_Status(self.get_balls_remaining, self.decrease_balls),
-                                transitions={'4_Balls': 'Jetson_Sync_1',
-                                             '3_Balls': 'Jetson_Sync_1',
-                                             '2_Balls': 'Fold',
-                                             '1_Balls': 'Fold', 
-                                             '0_Balls': 'Jetson_Sync_3',
+            smach.StateMachine.add('Latch', Joint_Pose_State("home"),
+                                transitions={'Success': 'Secure_Latch',
                                              'Error': 'Mission_Fail'})
 
-            smach.StateMachine.add('Fold', Fold(),
-                                transitions={'Success': 'Reload',
-                                            'Error': 'Mission_Fail'})
-
-            # Ready to latch
-            smach.StateMachine.add('Jetson_Sync_3', Jetson_Sync(3, self.jet_comm, handshake),
-                                            transitions={'Ready': 'Latch',
-                                                        'Timeout': 'Mission_Fail'})
-
-            smach.StateMachine.add('Latch', Latch(),
+            # Check for grasped object to ensure latch is successful
+            smach.StateMachine.add('Secure_Latch', Grasp_Cmd_State("close"),
                                 transitions={'Success': 'Mission_Success',
-                                            'Error': 'Mission_Fail'})
+                                             'Error': 'Mission_Fail'})
 
 class Test_PCS(PCS_SM):
     def __init__(self):

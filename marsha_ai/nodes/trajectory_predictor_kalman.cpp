@@ -202,7 +202,7 @@ class TrajectoryPredictor {
                 sum += accuracy[i];
             }
             float avg = sum / accuracy.size();
-            ROS_INFO("avg: %f, sufficient converge: %f", avg, sufficient_convergence);
+            ROS_DEBUG("avg: %f, sufficient converge: %f", avg, sufficient_convergence);
         
             return avg < sufficient_convergence;;
 
@@ -217,8 +217,8 @@ class TrajectoryPredictor {
     public:
 
         TrajectoryPredictor(ros::NodeHandle *nh) {
-            object_position_subscriber = nh->subscribe("object_pos", 1, &TrajectoryPredictor::position_callback, this);
-            reset_subscriber = nh->subscribe("reset", 1, &TrajectoryPredictor::reset_callback, this);    
+            object_position_subscriber = nh->subscribe("/object_pos", 1, &TrajectoryPredictor::position_callback, this);
+            reset_subscriber = nh->subscribe("ball_release", 1, &TrajectoryPredictor::reset_callback, this);    
 
             prediction_ready_service = nh->advertiseService("prediction_ready", &TrajectoryPredictor::readyToPredict, this);
             predict_position_service = nh->advertiseService("predict_position", &TrajectoryPredictor::predictPosition, this);
@@ -289,7 +289,7 @@ class TrajectoryPredictor {
 
             float dist = eigen_dist(z, kpos);
             if(!hasConverged()) {
-                ROS_INFO("Dist: %f", dist);    
+                ROS_DEBUG("Dist: %f", dist);    
             }      
             accuracy.push_back(dist);
             if (accuracy.size() > NUM_ACCURACY_MEASUREMENTS) {

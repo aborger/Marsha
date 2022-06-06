@@ -46,13 +46,11 @@ class Follower():
         if msg.z == 0:
             msg.z = 0.0000001
 
-        print("y:" + str(msg.y) + " z: " + str(msg.z))
-        joint_angles[1] = math.atan(msg.y/msg.z)
-        print("angle: " + str(joint_angles[1]))
+        print("x: " + str(msg.x) + " y:" + str(msg.y) + " z: " + str(msg.z))
 
-        joint_angles[0] = -1.9
-        joint_angles[1] = joint_angles[1]
-        print("adj angle: " + str(joint_angles[1]))
+        joint_angles[0] = math.atan(msg.x/msg.y)
+
+        joint_angles[1] = math.atan(msg.y/msg.z)
         print("joint_angles: " + str(joint_angles))
 
         self.joint_cmd(joint_angles)

@@ -10,7 +10,7 @@
 
 #define DEFAULT_PACKET_SIZE   6
 
-#define hw_serial   Serial
+#define hw_serial   Serial1
 
 
 class RxPacket {
