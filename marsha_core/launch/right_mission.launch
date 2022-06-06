@@ -3,7 +3,11 @@
     <group ns="right">
         <node pkg="marsha_core" name="pcs" type="right_pcs" output="screen"/>
         <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
+
+        <!--<node pkg="marsha_detection" name="record" type="record" output="screen"/>-->
     
     </group>
 
 </launch>
+
+
