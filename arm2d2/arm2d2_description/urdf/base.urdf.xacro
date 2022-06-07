@@ -57,7 +57,7 @@
   <child link="base_link"/>
 </joint>
 
-
+<!--
 <link name="gripper_mount_l">
   <inertial>
     <origin xyz="0.060099999999972134 -0.08246115124410087 0.038698562774923354" rpy="0 0 0"/>
@@ -73,12 +73,12 @@
     <material name="silver"/>
   </visual>
   
-  <!--<collision>
+  <collision>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
     </geometry>
-  </collision>-->
+  </collision>
 </link>
 
 
@@ -101,12 +101,12 @@
     </geometry>
     <material name="silver"/>
   </visual>
-  <!--<collision>
+  <collision>
     <origin xyz="-0.0 3e-06 0.011329" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://arm2d2_description/meshes/gripper_mount.stl" scale="0.001 0.001 0.001"/>
     </geometry>
-  </collision>-->
+  </collision>
 </link>
 
 <joint name="gripper_mount_r_joint" type="fixed">
@@ -114,6 +114,7 @@
   <parent link="base_link"/>
   <child link="gripper_mount_r"/>
 </joint>
+-->
 <!--
 <link name="soft_robotics">
   <visual>
