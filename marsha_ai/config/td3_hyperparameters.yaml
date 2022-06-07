@@ -1,4 +1,14 @@
 hyperparameters:
-  total_timesteps: 10000 # Number of timesteps to train on
+  total_timesteps: 100000 # Number of timesteps to train on
   eval_frequency: 50 # How many timesteps before evaluating
   n_eval_ep: 1 # Number of evaluation episodes
+  learning_starts: 1000 # Exploration steps before learning begins
+
+  noise_sigma: 0.1
+
+  pre_grasp_distance: 2
+  post_grasp_distance: 0.5
+
+  # Rewards
+  pre_grasp_fail_punishment: 4
+  grasp_plan_fail_punishment: 2

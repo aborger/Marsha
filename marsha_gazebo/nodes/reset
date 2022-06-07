@@ -41,6 +41,9 @@ import time
 from std_srvs.srv import Trigger, TriggerResponse
 MODEL_NAME = "pickup_object"
 
+START_DIST = 1
+RANDOMNESS = 0.0001
+
 # Not using any more, but dont want to delete just incase
 #delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
 #spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
@@ -133,30 +136,31 @@ def reset(req):
 
 
 class l_dir:
-    def __init__(self, x=-0.15, y=-0.15, z=0.15, force=0.25):
+    def __init__(self, x=-0.15, y=-0.15, z=0.15, force=0.2):
         self.x = x
         self.y = y
         self.z = z
-        if (x == 1):
+        if (x == START_DIST):
             self.force = Vector3(-1 * force, 0, 0)
-        elif (x == -1):
+        elif (x == -START_DIST):
             self.force = Vector3(1 * force, 0, 0)
-        elif (y == 1):
+        elif (y == START_DIST):
             self.force = Vector3(0, -1 * force, 0)
-        elif (y == -1):
+        elif (y == -START_DIST):
             self.force = Vector3(0, 1 * force, 0)
         else:
             self.force = Vector3(0, 0, 1 * force)
 
     def get_pose(self):
+        rand = np.random.normal(0, 0.05, size=(3,)) # randomness: 0.1
         pose = Pose()
-        pose.position.x = self.x
-        pose.position.y = self.y
-        pose.position.z = self.z
+        pose.position.x = self.x + rand[0]
+        pose.position.y = self.y + rand[1]
+        pose.position.z = self.z + rand[2]
         return pose
 
     def get_randomized_force(self):
-        rand = np.random.normal(0, 0.001, size=(3,))
+        rand = np.random.normal(0, 0.001, size=(3,)) #randomness: 0.005 
         force = self.force
         force.x += rand[0]
         force.y += rand[1]
@@ -171,8 +175,9 @@ ar3_grav_launches = [l_dir(x=3)]
 
 ar3_launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
 
-arm2d2_launches = [l_dir(x=0.22, y=1, z=0.125)] #[l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
+#arm2d2_launches = [l_dir(x=0.22, y=1, z=0.125)] #[l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
 
+arm2d2_launches = [l_dir(x=START_DIST, y=0.3), l_dir(x=-1*START_DIST, y=0.3)] #, l_dir(x=1, y=0.45)]
 
 def launcher(data):
     launches = ar3_launches
