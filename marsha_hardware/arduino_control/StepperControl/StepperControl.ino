@@ -16,7 +16,7 @@
 #define FEEDBACK_RATE   10000
 #define SPIN_RATE       1000
 #define BAUD_RATE       115200
-
+#define enc_Rate        0
 
 
 
@@ -31,6 +31,7 @@ int feedbackCounter = 0;
 int spinCounter = 0;
 bool timerSetup = false;
 
+int enc_Counter;
 
 // Creation of stepper array allows iteration through steppers
 // Stepper(step_pin, dir_pin)
@@ -96,7 +97,7 @@ void setup() {
   pinMode(led, OUTPUT);
   digitalWrite(led, HIGH);
 
- 
+ enc_Counter = 0;
     
 }
 
@@ -132,4 +133,20 @@ void timerCallBack() {
     spinCounter++;
 
     digitalWrite(led, HIGH);
+
+    get_encoder();
+    enc_Counter++;
+}
+
+
+
+
+void get_encoder() {
+  if (enc_counter>enc_rate) {
+    current_step = myEnc.read();
+    enc_counter=0;
+  }
+  else {
+    enc_counter++;
+  }
 }
