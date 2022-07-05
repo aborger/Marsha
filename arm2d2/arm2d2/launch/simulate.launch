@@ -29,7 +29,7 @@
 
     <include file="$(find arm2d2)/launch/arm2d2.launch" if="$(eval arg('num_arms') >= 1)">
         <arg name="ns" value="left"/>
-        <arg name="machine" value="jet2"/>
+        <arg name="machine" value=""/>
         <arg name="launch_rviz" value="$(arg launch_rviz)"/>
         <arg name="launch_world" value="false"/>
         <arg name="include_arm_base" value="$(arg launch_base)"/>
@@ -37,7 +37,7 @@
 
     <include file="$(find arm2d2)/launch/arm2d2.launch" if="$(eval arg('num_arms') == 2)">
         <arg name="ns" value="right"/>
-        <arg name="machine" value="jet2"/>
+        <arg name="machine" value=""/>
         <arg name="launch_rviz" value="$(arg launch_rviz)"/>
         <arg name="launch_world" value="false"/>
         <arg name="include_arm_base" value="$(arg launch_base)"/>
