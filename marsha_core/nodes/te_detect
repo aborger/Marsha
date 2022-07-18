@@ -3,7 +3,7 @@
 import RPi.GPIO as GPIO
 import rospy
 
-TE_PIN = 5 # pin 29
+TE_PIN = 6
 
 ERROR_CHECK_TIME = 1000 # Wait x milliseconds to confirm TE activation
 GPIO.setmode(GPIO.BCM)

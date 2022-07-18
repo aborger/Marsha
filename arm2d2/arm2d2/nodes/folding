@@ -19,21 +19,29 @@ joint_cmd = rospy.ServiceProxy(ns + 'joint_pose_cmd', MoveCmd)
 rospy.wait_for_service(ns + "gripper/grasp_cmd")
 grasp_cmd = rospy.ServiceProxy(ns + "gripper/grasp_cmd", MoveCmd)
 
+rospy.wait_for_service(ns + "async_joint_pose_cmd")
+async_joint_pose_cmd = rospy.ServiceProxy(ns + "async_joint_pose_cmd", MoveCmd)
+
 print("Services loaded!")
 def unfold():
     print("unfolding...")
-    grasp_cmd('half')
-    for i in range(0, 6):
+    grasp_cmd('half_closed')
+    for i in range(0, 5):
         print(i)
-        if i == 1:
-            grasp_cmd('close')
+        #if i == 0:
+            #async_joint_pose_cmd("folding/step_" + str(i))
+            #grasp_cmd('half_closed')
+
+            #if i == 1:
+                #grasp_cmd('close')
+        print("folding step: " + str(i))
         joint_cmd("folding/step_" + str(i))
 
 
 def fold():
     print("folding...")
-    grasp_cmd("close")
-    for i in range(5, -1, -1):
+    #grasp_cmd("close")
+    for i in range(4, -1, -1):
         joint_cmd("folding/step_" + str(i))
 
 

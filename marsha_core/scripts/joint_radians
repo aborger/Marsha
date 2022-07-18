@@ -10,7 +10,7 @@ def enc_callback(msg):
     enc_steps = msg.steps
     for i in range(len(enc_steps)):
         rad = (enc_steps[i] * deg_per_steps[i]) * 3.14159/180
-        print "|  {0:1.4f}  ".format(rad),
+        print "|  {0:1.3f}  ".format(rad),
     print("|")
         
 

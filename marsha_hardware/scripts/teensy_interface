@@ -210,7 +210,7 @@ class Interface():
         state = self.controller_state(rospy.get_rostime())
         if state.acceleration[0] == 0.0:
             data = {"steps": self.step_cmd}
-            #print("cmd:" + str(self.step_cmd))
+            print("cmd:" + str(self.step_cmd))
             data_str = json.dumps(data) + '\n'
             data_bytes = data_str.encode('utf-8')
             try:
@@ -225,7 +225,6 @@ class Interface():
         self.arduino.reset_input_buffer()
         rospy.loginfo("Running, If no data appears ensure the teensy is communicating through the same serial port.")
         while not rospy.is_shutdown():
-	    rospy.loginfo("Getting data...")
             if not self.calibrating:
                 if self.tx_cnt > self.tx_rate:
                     self.transmit_step()
@@ -254,7 +253,7 @@ class Interface():
                     try:
                         #string = self.arduino.read_until("}")
                         string = self.arduino.read_until("}")
-                        print(string)
+                        #print(string)
                         json_string = string.decode()
                         rx_dict = json.loads(json_string)
                         encoders = rx_dict["enc_feedback"]
@@ -292,7 +291,7 @@ class Interface():
                         rospy.logerr("Communicated with Teensy, but un-readable data received.")
             self.teensy_watchdog_cnt += 1
 
-            if self.teensy_watchdog_cnt > 20:
+            if self.teensy_watchdog_cnt > 30:
 		rospy.logfatal("Teensy watchdog counter failed!")
                 rospy.signal_shutdown("Watchdog failed. Restarting.")
             self.rate.sleep()

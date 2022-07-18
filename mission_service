@@ -5,7 +5,7 @@ source ~/catkin_ws/devel/setup.bash
 
 ROS_MASTER_URI=http://jet:11311
 
-ROS_HOSTNAME=marsha
+ROS_HOSTNAME=jet
 echo "Launching..."
 
-roslaunch marsha_core right_mission.launch --wait
+roslaunch marsha_core left_mission.launch --wait

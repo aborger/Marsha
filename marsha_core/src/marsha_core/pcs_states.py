@@ -431,7 +431,7 @@ class Pickup_2(Move_State):
 #                      Maneuver State Machines                     #
 # ---------------------------------------------------------------- #
 
-NUM_FOLDING_STEPS = 5
+NUM_FOLDING_STEPS = 4
 
 # ================================================================ #
 
@@ -444,12 +444,12 @@ with Unfold_SM:
         smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
                             transitions={'Success': 'step_' + str(i+1),
                                         'Error': 'step_' + str(i)})
-balls_remaining
+
     smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose_State("folding/step_" + str(NUM_FOLDING_STEPS)),
                         transitions={'Success': 'Success',
                                      'Error': 'Fail'})
 
-    smach.StateMachine.add()
+    #smach.StateMachine.add()
 
 
 # ================================================================ #

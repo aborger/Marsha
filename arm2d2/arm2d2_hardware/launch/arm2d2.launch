@@ -9,6 +9,8 @@
     <rosparam file="$(find arm2d2)/config/poses.yaml" command="load"/>
     <rosparam file="$(find marsha_core)/config/PCS.yaml" command="load"/>
 
+    <param name="/use_sim_time" value="false"/>
+
     <group ns="$(arg ns)">
         <include file="$(find marsha_core)/config/satlab_net.machine"/>
 

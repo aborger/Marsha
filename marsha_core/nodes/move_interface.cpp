@@ -183,6 +183,21 @@ class MarshaMoveInterface {
 
             if (plan_success) {
                 move_group->execute(target_plan);
+
+                std_srvs::Trigger srv;
+                bool cmd_executed = false;
+
+                while (!cmd_executed) {
+                    teensyCmdState.call(srv);
+                    if (srv.response.message == "fail") {
+                        res.done = false;
+                        return true;
+                    }
+                    else {
+                        cmd_executed = srv.response.success;
+                        ros::Duration(0.1).sleep();
+                    }
+                }
                 res.done = true;
                 return true;
             }

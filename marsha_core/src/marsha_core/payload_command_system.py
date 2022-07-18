@@ -100,6 +100,7 @@ class PCS_SM(object):
         rospy.Service('payload_cmd', PayloadCmd, self.payload_cmd_cb)
 
         pcs_nodes = rospy.get_param("/pcs_nodes")
+        rospy.set_param('sync_id', "-1")
 
         # this list contains the state for each node
         # access a node's state with self.pcs_nodes[node_id]
@@ -117,7 +118,7 @@ class PCS_SM(object):
         # contains a tuple relating ros time to mission time (Use after TE)
         self.mission_clock = None
 
-        self.jet_connection = True #jets_connected()
+        self.jet_connection = jets_connected()
 
         # Note: This needs to be done after comm check
         rospy.loginfo('Waiting for service...')
