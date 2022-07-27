@@ -234,7 +234,24 @@ class Jetson_Sync(smach.State):
 
         # waits until other jetson is on the same state
         rospy.loginfo("(JET COMM): Waiting for Handshake...")
+
+        other_jet_init = False
+
+        while not other_jet_init:
+            rospy.loginfo("Waiting for other jet to start mission...")
+            try:
+                rospy.get_param(other_sync_param)
+                other_jet_init = True
+            except:
+                rospy.logwarn("Continuing to wait...")
+
+            rospy.sleep(self.poll_period)
+            time_elapsed += self.poll_period
+            if time_elapsed > self.timeout:
+                return 'Timeout'
+
         while rospy.get_param(other_sync_param) != self.sync_id:
+            other_jet_init = True
             # debug
             #rospy.loginfo("ID: " + str(self.sync_id) + " other ID: " + str(rospy.get_param(other_sync_param)))
             # add something to detect if self.jet_comm() returns False which indicates it cannot communicate with other jetson
@@ -242,6 +259,7 @@ class Jetson_Sync(smach.State):
             time_elapsed += self.poll_period
             if time_elapsed > self.timeout:
                 return 'Timeout'
+
 
         return 'Ready'
 
@@ -440,16 +458,32 @@ Unfold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 
 with Unfold_SM:
 
-    for i in range(0, NUM_FOLDING_STEPS):
-        smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
-                            transitions={'Success': 'step_' + str(i+1),
-                                        'Error': 'step_' + str(i)})
+    smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
+                            transitions={'Success': 'step_1',
+                                        'Error': 'step_1'})
 
-    smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose_State("folding/step_" + str(NUM_FOLDING_STEPS)),
-                        transitions={'Success': 'Success',
-                                     'Error': 'Fail'})
+    smach.StateMachine.add('step_1', Joint_Pose_State("folding/step_1"),
+                            transitions={'Success': 'close_gripper',
+                                        'Error': 'close_gripper'})
 
-    #smach.StateMachine.add()
+
+    smach.StateMachine.add('close_gripper', Grasp_Cmd_State("close"),
+                        transitions={'Success': 'step_2',
+                                        'Error': 'step_2'})
+
+    smach.StateMachine.add('step_2', Joint_Pose_State("folding/step_2"),
+                            transitions={'Success': 'step_3',
+                                        'Error': 'step_3'})
+
+    smach.StateMachine.add('step_3', Joint_Pose_State("folding/step_3"),
+                            transitions={'Success': 'step_4',
+                                        'Error': 'step_4'})
+
+    smach.StateMachine.add('step_4', Joint_Pose_State("folding/step_4"),
+                            transitions={'Success': 'Success',
+                                        'Error': 'Success'})
+
+
 
 
 # ================================================================ #
@@ -458,18 +492,34 @@ Fold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 
 with Fold_SM:
 
-    smach.StateMachine.add('Close_Gripper', Grasp_Cmd_State("close"),
-                        transitions={'Success': 'step_' + str(NUM_FOLDING_STEPS),
-                                     'Error': 'Fail'})
 
-    for i in range(NUM_FOLDING_STEPS, 0, -1):
-        smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
-                        transitions={'Success': 'step_' + str(i-1),
-                                     'Error': 'step_' + str(i)})
+    smach.StateMachine.add('Close_Gripper', Grasp_Cmd_State("close"),
+                        transitions={'Success': 'step_4',
+                                     'Error': 'step_4'})
+
+    smach.StateMachine.add('step_4', Joint_Pose_State("folding/step_4"),
+                            transitions={'Success': 'step_3',
+                                        'Error': 'step_3'})
+
+    smach.StateMachine.add('step_3', Joint_Pose_State("folding/step_3"),
+                        transitions={'Success': 'step_2',
+                                    'Error': 'step_2'})
+
+    smach.StateMachine.add('step_2', Joint_Pose_State("folding/step_2"),
+                        transitions={'Success': 'step_1',
+                                    'Error': 'step_1'})
+
+    smach.StateMachine.add('step_1', Joint_Pose_State("folding/step_1"),
+                    transitions={'Success': 'open_gripper',
+                                'Error': 'open_gripper'})
+
+    smach.StateMachine.add('open_gripper', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'step_0',
+                                    'Error': 'step_0'})
 
     smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
-                        transitions={'Success': 'Success',
-                                     'Error': 'Fail'})
+                    transitions={'Success': 'Success',
+                                'Error': 'Success'})
 
 
 # ================================================================ #
@@ -597,6 +647,43 @@ class PCS_Activate_State(PCS_State):
         else:
             return 'Error'
 
+class Blink_LED(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.STATUS)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA or self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Success'
+        else:
+            return 'Error'
+
+
+
+class Check_RBF_Status(PCS_State):
+    def __init__(self, pcs_node_name=None, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
+        smach.State.__init__(self, outcomes=['Enabled', 'Disabled'])
+
+        self.read_state_comm = state_comm
+        self.pcs_node_state = pcs_node_state
+        self.pcs_node_cmd = pcs_node_cmd
+
+        self.pcs_nodes = rospy.get_param("/pcs_nodes")
+        self.node_id = self.pcs_nodes.index(pcs_node_name)
+
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.ACTIVATE)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Enabled'
+        else:
+            return 'Disabled'
+
+
 class PCS_Pulse_State(PCS_State):
     def execute(self, userdata):
         self.pcs_node_cmd(self.node_id, PCScmd.PULSE_CHECK)
@@ -691,4 +778,9 @@ class Deactivate_Depth_Cam(PCS_Deactivate_State):
     pass
 
 class Shutdown_Depth_Cam(PCS_Shutdown_State):
+    pass
+
+
+
+class Activate_Led(PCS_Activate_State):
     pass

@@ -22,8 +22,8 @@ from control_msgs.srv import QueryTrajectoryState
 # https://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
 os.system("sudo /home/aaron/unlock_serial.sh")
 
-STEP_TOLERANCE = 20
-CMD_EXECUTION_ATTEMPTS = 20
+ANGLE_TOLERANCE = 10
+CMD_EXECUTION_ATTEMPTS = 30
 
 def deg_to_rad(degree):
     return degree / 180 * math.pi
@@ -146,8 +146,9 @@ class Interface():
     def execution_state_cb(self, msg):
         res = TriggerResponse()
         res.success = True
-        for joint_cmd, joint_enc in zip(self.step_cmd, self.enc_step):
-            if joint_cmd - joint_enc < 0 - STEP_TOLERANCE or joint_cmd - joint_enc > 0 + STEP_TOLERANCE:
+        deg_per_steps = rospy.get_param('stepper_config/deg_per_step')
+        for joint_cmd, joint_enc, deg_per_step in zip(self.step_cmd, self.enc_step, deg_per_steps):
+            if (joint_cmd - joint_enc) * deg_per_step < 0 - ANGLE_TOLERANCE or (joint_cmd - joint_enc) * deg_per_step > 0 + ANGLE_TOLERANCE:
                 res.success = False
                 if self.execution_checks > CMD_EXECUTION_ATTEMPTS:
                     rospy.logwarn("Not Executing! Step CMD: " + str(joint_cmd) + " Encoder step: " + str(joint_enc))

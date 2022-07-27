@@ -13,6 +13,6 @@ gripper:
     close:
       0
     half_closed:
-      3000
+      2000
     grasp_mount:
       -3000    

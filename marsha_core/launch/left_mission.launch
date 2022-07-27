@@ -6,7 +6,10 @@
     <group ns="left">
         <node pkg="marsha_core" name="left_pcs" type="left_pcs" output="screen"/>
         <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
-        <!--<node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>-->
+        <node pkg="marsha_core" name="rbf_detect" type="rbf_detect" output="screen"/>
+        <node pkg="marsha_core" name="green_led" type="led_cmd" output="screen"/>
+        <node pkg="marsha_core" name="red_led" type="led_cmd" output="screen"/>
+        <node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>
     
     </group>
 

@@ -27,41 +27,86 @@ class Left_PCS(PCS_SM):
 
             # if fail do with one arm
             smach.StateMachine.add('Jetson_Sync_0', Jetson_Sync(0, timeout=60),
-                                transitions={'Ready': 'Wait_for_TE',
-                                             'Timeout': 'Mission_Fail'})
+                                transitions={'Ready': 'Activate_Longeron_Cams',
+                                             'Timeout': 'Signal_Err'})
+
+            smach.StateMachine.add('Activate_Longeron_Cams', Activate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                               transitions={'Success': 'Check_RBF_Status',
+                                             'Error': 'Signal_Init'})
+            
+            smach.StateMachine.add('Check_RBF_Status', Check_RBF_Status("rbf_detector", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Enabled': "Signal_PDI_Active",
+                                             'Disabled': "Signal_Init"})
+
+            smach.StateMachine.add('Signal_PDI_Active', Blink_LED("green_led", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={"Success": 'Check_RBF_Status',
+                                            'Error': 'Check_RBF_Status'})
+
+            smach.StateMachine.add('Signal_Init', Activate_Led("green_led", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Wait_for_TE',
+                                                'Error': 'Wait_for_TE'})
 
             smach.StateMachine.add('Wait_for_TE', Wait_for_TE("te_detector", self.pcs_node_state, self.pcs_node_cmd),
                                 transitions={'Success': 'Set_Mission_Clock',
-                                             'Error': 'Mission_Fail'})
+                                             'Error': 'Signal_Err'})
 
             smach.StateMachine.add('Set_Mission_Clock', Set_Mission_Clock(82),
                                 transitions={'Done': 'Jetson_Sync_TE'})
 
             # if timeout, only one jetson recieved te
             smach.StateMachine.add('Jetson_Sync_TE', Jetson_Sync("TE", timeout=10),
-                                transitions={'Ready': 'Unfold',
-                                             'Timeout': 'Mission_Fail'})
+                                transitions={'Ready': 'Unlatch',
+                                             'Timeout': 'Signal_Err'})
+
+            smach.StateMachine.add('Unlatch', Grasp_Cmd_State("half_closed"),
+                                transitions={'Success': 'Unfold',
+                                             'Error': 'Unfold'})
 
             smach.StateMachine.add('Unfold', Unfold_SM,
                                 transitions={'Success': 'Fold',
                                             'Fail': 'Fold'})
 
             smach.StateMachine.add('Fold', Fold_SM,
-                                transitions={'Success': 'Mission_Success',
-                                                'Fail': 'Mission_Fail'})
-
-            """
+                                transitions={'Success': 'Latch',
+                                                'Fail': 'Signal_Err'})
 
 
-            
-            smach.StateMachine.add('Unfold', Unfold_SM,
-                                transitions={'Success': 'Fold',
-                                             'Fail': 'Fold'})
+            smach.StateMachine.add('Latch', Joint_Pose_State("home"),
+                                transitions={'Success': 'Secure_Latch',
+                                             'Error': 'Fold'})
 
-            smach.StateMachine.add('Fold', Fold_SM,
-                                transitions={'Success': 'Mission_Success',
-                                             'Fail': 'Mission_Fail'})
-            """
+            smach.StateMachine.add('Secure_Latch', Grasp_Cmd_State("close"),
+                                transitions={'Success': 'Wait_to_resecure',
+                                             'Error': 'Signal_Err'})
+
+
+            smach.StateMachine.add('Wait_to_resecure', Wait_State(2),
+                                transitions={'Complete': 'Un_Secure_Latch'})
+
+            smach.StateMachine.add('Un_Secure_Latch', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'Un_latch',
+                                    'Error': 'Signal_Err'})
+
+            smach.StateMachine.add('Un_latch', Joint_Pose_State("folding/step_0"),
+                    transitions={'Success': 'Latch2',
+                                'Error': 'Latch2'})
+
+            smach.StateMachine.add('Latch2', Joint_Pose_State("home"),
+                    transitions={'Success': 'Secure_Latch2',
+                                'Error': 'Secure_Latch2'})
+
+            smach.StateMachine.add('Secure_Latch2', Grasp_Cmd_State("close"),
+                    transitions={'Success': 'Deactivate_Longeron_Cams',
+                                    'Error': 'Signal_Err'})
+
+            smach.StateMachine.add('Signal_Err', Activate_Led("red_led", self.pcs_node_state, self.pcs_node_cmd),
+                                transitions={'Success': 'Latch',
+                                             'Error': 'Mission_Fail'})
+
+            smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
+                               transitions={'Success': 'Mission_Success',
+                                             'Error': 'Mission_Success'})
+
 
 
 
@@ -72,9 +117,7 @@ class Left_PCS(PCS_SM):
             #                                 'Timeout': 'Mission_Fail'})
             
 
-            #smach.StateMachine.add('Deactivate_Longeron_Cams', Deactivate_Longeron_Cams("longeron_cams", self.pcs_node_state, self.pcs_node_cmd),
-            #                   transitions={'Success': 'Mission_Success',
-            #                                 'Error': 'Mission_Fail'})
+
             
 class Sim_PCS(PCS_SM):
     def __init__(self):

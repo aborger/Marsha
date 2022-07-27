@@ -191,6 +191,7 @@ class MarshaMoveInterface {
                     teensyCmdState.call(srv);
                     if (srv.response.message == "fail") {
                         res.done = false;
+                        throw std::runtime_error("Could not complete move.");
                         return true;
                     }
                     else {
@@ -203,6 +204,7 @@ class MarshaMoveInterface {
             }
             else {
                 res.done = false;
+                throw std::runtime_error("Could not plan move.");
                 return false;
             }
 
