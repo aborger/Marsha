@@ -24,7 +24,7 @@ Here are the contents:
    nodes/nodes
 
 .. toctree::
-   :caption: Launch Programs
+   :caption: Programs
    
    programs/programs
 
