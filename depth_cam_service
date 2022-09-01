@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+echo "Starting Mission..."
+
+source ~/catkin_ws/devel/setup.bash
+
+ROS_MASTER_URI=http://jet:11311
+
+export PATH=$PATH:~/.local/bin
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib 
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.6/pyrealsense2 
+ROS_HOSTNAME=marsha
+echo "Launching..."
+
+python3 /home/jet/catkin_ws/src/marsha/marsha_detection/nodes/record

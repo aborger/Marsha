@@ -190,8 +190,8 @@ class Ball_Status(smach.State):
     def execute(self, userdata):
         balls_remaining = rospy.get_param(self.balls_remaining_param)
 
-        if not self.check_other_arm:
-            make_checkpoint(balls_remaining=balls_remaining)
+        #if not self.check_other_arm:
+        #    make_checkpoint(balls_remaining=balls_remaining)
 
         if balls_remaining < 0:
             balls_remaining = 0
@@ -234,6 +234,22 @@ class Jetson_Sync(smach.State):
 
         # waits until other jetson is on the same state
         rospy.loginfo("(JET COMM): Waiting for Handshake...")
+
+        other_jet_init = False
+
+        while not other_jet_init:
+            try:
+                rospy.get_param(other_sync_param)
+                other_jet_init = True
+            except:
+                rospy.logwarn("Continuing to wait...")
+
+            rospy.sleep(self.poll_period)
+            time_elapsed += self.poll_period
+            if time_elapsed > self.timeout:
+                return 'Timeout'
+
+
         while rospy.get_param(other_sync_param) != self.sync_id:
             # debug
             #rospy.loginfo("ID: " + str(self.sync_id) + " other ID: " + str(rospy.get_param(other_sync_param)))
@@ -281,6 +297,23 @@ class Wait_For_Mission_Clock(smach.State):
 
         rospy.sleep(time_until)
         return 'Done'
+
+class Check_for_Spinup(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Spinup', 'no_spinup'])
+
+    def execute(self, userdata):
+        global mission_clock
+        spinup_time=307
+
+        time_since_te = rospy.get_time() - mission_clock['ros']
+        mission_time = mission_clock['mission'] + time_since_te
+        time_until_spinup = spinup_time - mission_time
+        if time_until_spinup < 0:
+          rospy.set_param('/mission_complete', True)
+          return 'Spinup'
+        else:
+          return 'no_spinup'
 
 class Wait_for_Throw_Window(smach.State):
     def __init__(self):
@@ -387,12 +420,17 @@ class Open_Gripper(Move_State):
 # should move to state machine
 class Pickup_1(Move_State):
     def execute(self, userdata):
-        grasp_cmd("half_closed")
-        joint_pose_cmd("pre_ball_1")
-        joint_pose_cmd("pick_ball_1")
-        grasp_cmd("close")
-        joint_pose_cmd("pre_ball_1")
-        joint_pose_cmd("folding/step_0")
+        try:
+            grasp_cmd("half_closed")
+            joint_pose_cmd("pre_ball_1")
+            joint_pose_cmd("pick_ball_1")
+            grasp_cmd("grasp_mount")
+            rospy.sleep(1)
+            joint_pose_cmd("pre_ball_1")
+            joint_pose_cmd("folding/step_1")
+        except Exception as e:
+            rospy.logwarn("Retrying move failed.")
+            return 'Error'
 
         rospy.sleep(1)
 
@@ -406,12 +444,15 @@ class Pickup_1(Move_State):
 # should move to state machine
 class Pickup_2(Move_State):
     def execute(self, userdata):
-        grasp_cmd("half_closed")
-        joint_pose_cmd("pre_ball_2")
-        joint_pose_cmd("pick_ball_2")
-        grasp_cmd("close")
-        joint_pose_cmd("pre_ball_2")
-        joint_pose_cmd("folding/step_0")
+        try:
+          grasp_cmd("half_closed")
+          joint_pose_cmd("pre_ball_2")
+          joint_pose_cmd("pick_ball_2")
+          grasp_cmd("close")
+          joint_pose_cmd("pre_ball_2")
+          joint_pose_cmd("folding/step_0")
+        except Exceptioin as e:
+          rospy.logwarn("Move Failed: " + str(e))
 
         rospy.sleep(1)
 
@@ -431,7 +472,7 @@ class Pickup_2(Move_State):
 #                      Maneuver State Machines                     #
 # ---------------------------------------------------------------- #
 
-NUM_FOLDING_STEPS = 5
+NUM_FOLDING_STEPS = 4
 
 # ================================================================ #
 
@@ -440,16 +481,37 @@ Unfold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 
 with Unfold_SM:
 
-    for i in range(0, NUM_FOLDING_STEPS):
-        smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
-                            transitions={'Success': 'step_' + str(i+1),
-                                        'Error': 'step_' + str(i)})
-balls_remaining
-    smach.StateMachine.add('step_' + str(NUM_FOLDING_STEPS), Joint_Pose_State("folding/step_" + str(NUM_FOLDING_STEPS)),
-                        transitions={'Success': 'Success',
-                                     'Error': 'Fail'})
+    smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
+                            transitions={'Success': 'step_1',
+                                        'Error': 'step_1'})
 
-    smach.StateMachine.add()
+    smach.StateMachine.add('step_1', Joint_Pose_State("folding/step_1"),
+                            transitions={'Success': 'close_gripper',
+                                        'Error': 'close_gripper'})
+
+
+    smach.StateMachine.add('close_gripper', Grasp_Cmd_State("close"),
+                        transitions={'Success': 'wait_to_continue',
+                                        'Error': 'step_2'})
+
+    smach.StateMachine.add('wait_to_continue', Wait_State(1),
+                    transitions={'Complete': 'step_2'})
+
+    smach.StateMachine.add('step_2', Joint_Pose_State("folding/step_2"),
+                            transitions={'Success': 'step_3',
+                                        'Error': 'step_3'})
+
+    smach.StateMachine.add('step_3', Joint_Pose_State("folding/step_3"),
+                            transitions={'Success': 'step_4',
+                                        'Error': 'step_4'})
+
+    smach.StateMachine.add('step_4', Joint_Pose_State("folding/step_4"),
+                            transitions={'Success': 'step_5',
+                                        'Error': 'step_5'})
+
+    smach.StateMachine.add('step_5', Joint_Pose_State("folding/step_5"),
+                            transitions={'Success': 'Success',
+                                        'Error': 'Fail'})
 
 
 # ================================================================ #
@@ -459,28 +521,47 @@ Fold_SM = smach.StateMachine(outcomes=["Success", "Fail"])
 with Fold_SM:
 
     smach.StateMachine.add('Close_Gripper', Grasp_Cmd_State("close"),
-                        transitions={'Success': 'step_' + str(NUM_FOLDING_STEPS),
-                                     'Error': 'Fail'})
+                        transitions={'Success': 'step_5',
+                                     'Error': 'step_5'})
 
-    for i in range(NUM_FOLDING_STEPS, 0, -1):
-        smach.StateMachine.add('step_' + str(i), Joint_Pose_State("folding/step_" + str(i)),
-                        transitions={'Success': 'step_' + str(i-1),
-                                     'Error': 'step_' + str(i)})
+    smach.StateMachine.add('step_5', Joint_Pose_State("folding/step_5"),
+                            transitions={'Success': 'step_4',
+                                        'Error': 'step_4'})
+
+    smach.StateMachine.add('step_4', Joint_Pose_State("folding/step_4"),
+                            transitions={'Success': 'step_3',
+                                        'Error': 'step_3'})
+
+    smach.StateMachine.add('step_3', Joint_Pose_State("folding/step_3"),
+                        transitions={'Success': 'step_2',
+                                    'Error': 'step_2'})
+
+    smach.StateMachine.add('step_2', Joint_Pose_State("folding/step_2"),
+                        transitions={'Success': 'step_1',
+                                    'Error': 'step_1'})
+
+    smach.StateMachine.add('step_1', Joint_Pose_State("folding/step_1"),
+                    transitions={'Success': 'open_gripper',
+                                'Error': 'open_gripper'})
+
+    smach.StateMachine.add('open_gripper', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'step_0',
+                                    'Error': 'step_0'})
 
     smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
-                        transitions={'Success': 'Success',
-                                     'Error': 'Fail'})
+                    transitions={'Success': 'Success',
+                                'Error': 'Success'})
 
 
 # ================================================================ #
 Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
 
 with Catch_SM:
-
+    """
     smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
                         transitions={'Success': 'Open_Gripper',
                                      'Error': 'Catch_Fail'})
-
+    """
     smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
                         transitions={'Success': 'Jetson_Sync_Pass',
                                      'Error': 'Catch_Fail'})
@@ -488,14 +569,26 @@ with Catch_SM:
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
                         transitions={'Ready': 'Ready_Catch',
                                      'Timeout': 'Catch_Fail'})
-
+    """
     smach.StateMachine.add('Ready_Catch', Joint_Pose_State("catch"),
                         transitions={'Success': 'Catch',
                                      'Error': 'Catch_Fail'})
+    """
+
+    smach.StateMachine.add('Ready_Catch', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'Catch',
+                                    'Error': 'Catch_Fail'})
 
     smach.StateMachine.add('Catch', Catch(),
-                        transitions={'Success': 'Catch_Success',
-                                     'Fail': 'Catch_Fail'})
+                        transitions={'Success': 'Success_Wait',
+                                     'Fail': 'Fail_Wait'})
+
+    smach.StateMachine.add('Success_Wait', Wait_State(5),
+                        transitions={'Complete': 'Catch_Success'})
+
+
+    smach.StateMachine.add('Fail_Wait', Wait_State(5),
+                        transitions={'Complete': 'Catch_Fail'})
 
 # ================================================================ #
 
@@ -530,6 +623,7 @@ Throw_SM = smach.StateMachine(outcomes=["Pass_Complete", "Throw_Success", "Throw
 
 with Throw_SM:
 
+    """
     smach.StateMachine.add('Pre_Throw', Joint_Pose_State("pre_throw"),
                         transitions={'Success': 'Wait_for_Throw_Window',
                                     'Error': 'Throw_Fail'})
@@ -538,7 +632,7 @@ with Throw_SM:
                         transitions={'Done': 'Jetson_Sync_Pass',
                                      'Out_Of_Windows': 'Throw_Fail'})
 
-    
+    """
     # Attempt to catch if this sync times out
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass"),
                         transitions={'Ready': 'Wait_to_Throw',
@@ -546,10 +640,16 @@ with Throw_SM:
     
     smach.StateMachine.add('Wait_to_Throw', Wait_State(1),
                         transitions={'Complete': 'Throw'})
-    
+    """
     smach.StateMachine.add('Throw', Async_Joint_Pose_State("throw"),
                         transitions={'Success': 'Wait_to_Release',
                                     'Error': 'Throw_Fail'})
+    """
+
+    smach.StateMachine.add('Throw', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'Wait_to_Release',
+                                'Error': 'Throw_Fail'})
+
 
     smach.StateMachine.add('Wait_to_Release', Wait_State(0.2),
                         transitions={'Complete': 'Release'})
@@ -561,7 +661,7 @@ with Throw_SM:
     smach.StateMachine.add('Reduce_Balls', Reduce_Balls(),
                         transitions={'Done': 'Check_Catch'})
     
-    smach.StateMachine.add('Check_Catch', Check_Catch(),
+    smach.StateMachine.add('Check_Catch', Check_Catch(timeout=30),
                         transitions={'Caught': 'Pass_Complete',
                                       'Missed': 'Throw_Success',
                                       'Timeout': 'Throw_Fail',
@@ -596,6 +696,40 @@ class PCS_Activate_State(PCS_State):
             return 'Success'
         else:
             return 'Error'
+
+class Blink_LED(PCS_State):
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.STATUS)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA or self.pcs_node_state(self.node_id) == PCSstate.DISABLED:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Success'
+        else:
+            return 'Error'
+
+class Check_RBF_Status(PCS_State):
+    def __init__(self, pcs_node_name=None, pcs_node_state=None, pcs_node_cmd=None, state_comm=None):
+        smach.State.__init__(self, outcomes=['Enabled', 'Disabled'])
+
+        self.read_state_comm = state_comm
+        self.pcs_node_state = pcs_node_state
+        self.pcs_node_cmd = pcs_node_cmd
+
+        self.pcs_nodes = rospy.get_param("/pcs_nodes")
+        self.node_id = self.pcs_nodes.index(pcs_node_name)
+
+    def execute(self, userdata):
+        self.pcs_node_cmd(self.node_id, PCScmd.ACTIVATE)
+
+        while self.pcs_node_state(self.node_id) == PCSstate.NA:
+            rospy.sleep(0.5)
+        
+        if self.pcs_node_state(self.node_id) == PCSstate.GOOD:
+            return 'Enabled'
+        else:
+            return 'Disabled'
 
 class PCS_Pulse_State(PCS_State):
     def execute(self, userdata):
@@ -691,4 +825,12 @@ class Deactivate_Depth_Cam(PCS_Deactivate_State):
     pass
 
 class Shutdown_Depth_Cam(PCS_Shutdown_State):
+    pass
+
+
+
+class Activate_Led(PCS_Activate_State):
+    pass
+
+class Deactivate_Led(PCS_Deactivate_State):
     pass

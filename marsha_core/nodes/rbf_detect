@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+import RPi.GPIO as GPIO
+import rospy
+
+RBF_PIN = 13
+
+ERROR_CHECK_TIME = 1000 # Wait x milliseconds to confirm TE activation
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(RBF_PIN, GPIO.IN)
+
+from marsha_msgs.srv import PayloadCmd
+from marsha_core.pcs_node import *
+
+def error_detected():
+    rospy.logerr("TE Error detected!")
+
+class Detector(PCSNode):
+    def __init__(self):
+        super(Detector, self).__init__("rbf_detector")
+
+
+
+    def wait_for_detect(self):
+
+        # Wait until it is good to go
+        while self.pcs_cmd(PCSstate.NA).cmd != PCScmd.ACTIVATE:
+            rospy.sleep(0.5)
+
+        # waits for 5 positive or 5 negative detections in a row
+        detections = 0
+        while detections > -5 and detections < 5:
+            print("detections: ", detections)
+            print("in: ", GPIO.input(RBF_PIN))
+            if GPIO.input(RBF_PIN):
+                if detections >= 0:
+                    detections += 1
+                else:
+                    detections = 0
+            else:
+                if detections <= 0:
+                    detections -= 1
+                else:
+                    detections = 0
+            rospy.sleep(0.25)
+        
+        # RBF pin connected
+        if detections > 0:
+            rospy.loginfo("FDI Connected")
+            self.pcs_cmd(PCSstate.GOOD)
+        else:
+            rospy.loginfo("FDI Not Connected")
+            self.pcs_cmd(PCSstate.DISABLED)
+
+
+    def cleanup(self):
+        GPIO.cleanup()
+        rospy.sleep(1)
+        self.pcs_cmd(PCSstate.NA)
+
+
+if __name__ == "__main__":
+    detector = Detector()
+    detector.wait_for_detect()
+    detector.cleanup()

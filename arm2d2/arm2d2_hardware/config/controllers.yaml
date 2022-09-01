@@ -1,4 +1,4 @@
-/left/arm2d2/controllers:
+/right/arm2d2/controllers:
   state:
     type: "joint_state_controller/JointStateController"
     publish_rate: 50

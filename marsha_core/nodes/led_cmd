@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import rospy
+import RPi.GPIO as GPIO
+import sys
+
+from marsha_msgs.srv import PayloadCmd
+from marsha_core.pcs_node import *
+
+GREEN_PIN = 19
+RED_PIN = 26
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(GREEN_PIN, GPIO.OUT)
+GPIO.setup(RED_PIN, GPIO.OUT)
+
+class Led(PCSNode):
+    def __init__(self, color, pin):
+        super(Led, self).__init__(color + "_led")
+        self.pin = pin
+
+    def run(self):
+        led_state = True
+        while not rospy.is_shutdown():
+            while self.pcs_cmd(PCSstate.NA).cmd != PCScmd.ACTIVATE and self.pcs_cmd(PCSstate.NA).cmd != PCScmd.STATUS:
+                rospy.loginfo("cmd: " + str(self.pcs_cmd(PCSstate.DISABLED).cmd))
+                rospy.loginfo("Waiting for cmd...")
+                GPIO.output(self.pin, 0)
+                rospy.sleep(0.5)
+
+            rospy.loginfo("Activated!")
+            if self.pcs_cmd(PCSstate.GOOD).cmd == PCScmd.ACTIVATE:
+                GPIO.output(self.pin, 1)
+            else:
+                GPIO.output(self.pin, led_state)
+                rospy.loginfo("state: " + str(led_state))
+                led_state = not led_state
+            rospy.sleep(1)
+
+        GPIO.output(self.pin, 0)
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    led = None
+    name = sys.argv[1]
+    if "green" in name:
+        led = Led("green", GREEN_PIN)
+    else:
+        led = Led("red", RED_PIN)
+
+    led.run()
+    GPIO.cleanup()
+    

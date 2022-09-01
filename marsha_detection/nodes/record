@@ -26,8 +26,16 @@ SIZE_REDUCTION = 6
 IMAGE_HEIGHT = int(720 / SIZE_REDUCTION) # original: 720
 IMAGE_WIDTH = int(1280 / SIZE_REDUCTION) # original: 1280
 CHANNELS = 3
+FPS = 20
+SIZE = (640, 480)
 
-RED_CB = (np.array([0, 0, 140]), np.array([60, 75, 255]))
+
+RECORD_DIR = '/home/jet/marsha/results/'
+record_num = str(time.time())
+BGR_RECORD_FILE = RECORD_DIR + 'bgr_depth_cam_'+record_num+'.avi'
+D_RECORD_FILE = RECORD_DIR + 'd_depth_cam_'+record_num+'.avi'
+# Note: BGR
+RED_CB = (np.array([0, 0, 40]), np.array([20, 5, 255]))
 YELLOW_CB = (np.array([20, 80, 80]), np.array([30, 255, 255]))
 
 CONV_SIZE = 5 # Note it will be double this value
@@ -121,7 +129,7 @@ class CamServer():
 
             c = max(contours, key = cv2.contourArea)
             area = cv2.contourArea(c)
-            if area > 100:
+            if area > 150:
                 x,y,w,h = cv2.boundingRect(c)
 
                 cx =  int(x + w/2)
@@ -140,7 +148,10 @@ class CamServer():
     def run(self):
         rospy.init_node('record_depth_cam')
         print('Running...')
-        while not rospy.is_shutdown():
+
+        bgr_recorder = cv2.VideoWriter(BGR_RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
+        detect_recorder = cv2.VideoWriter(D_RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
+        while not rospy.get_param("/mission_complete"):
             # Get frame
 
 
@@ -148,7 +159,8 @@ class CamServer():
             if ret == False:
                 print("error")
  
-            
+            bgr_recorder.write(bgr_frame)
+            print("shape:", bgr_frame.shape)
 
 
             color = (0, 255, 0)
@@ -176,9 +188,12 @@ class CamServer():
             key = cv2.waitKey(1)
             if key == 27:
                 break
-
+            detect_recorder.write(bgr_frame)
             self.frame_buffer = frame
 
+
+        bgr_recorder.release()
+        detect_recorder.release()
         self.rs.release()
         cv2.destroyAllWindows()
 

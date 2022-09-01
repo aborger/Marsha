@@ -16,9 +16,9 @@ from marsha_core.pcs_node import *
 # Flip the image by setting the flip_method (most common values: 0 and 2)
 # display_width and display_height determine the size of the window on the screen
 
-RECORD_DIR = '/home/aaron/.marsha/results/'
-RIGHT_RECORD_FILE = RECORD_DIR + "right_longeron_cam.avi"
-LEFT_RECORD_FILE = RECORD_DIR + "left_longeron_cam.avi"
+RECORD_DIR = '/home/jet/marsha/results/'
+RECORD_FILE = RECORD_DIR + "left_longeron_cam.avi"
+#LEFT_RECORD_FILE = RECORD_DIR + "left_longeron_cam.avi"
 FPS = 30
 SIZE = (1280, 720)
 
@@ -102,14 +102,13 @@ class Cam:
 class Recorder(PCSNode):
     def __init__(self):
         super(Recorder, self).__init__("longeron_cams")
-        self.r_cam = Cam(0)
-        self.l_cam = Cam(1)
+        self.cam = Cam(0)
 
         
 
         self.state = PCSstate.NA
 
-        if self.r_cam.test_cam() and self.l_cam.test_cam():
+        if self.cam.test_cam():
             self.state = PCSstate.GOOD
 
         else:
@@ -137,17 +136,13 @@ class Recorder(PCSNode):
         spin_rate = 100
         spin_cnt = 0
 
-        r_recorder = cv2.VideoWriter(RIGHT_RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
-        l_recorder = cv2.VideoWriter(LEFT_RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
+        recorder = cv2.VideoWriter(RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
 
         rospy.loginfo("Longeron Cams Recording...")
         while True:
-            if self.r_cam.running:
-                r_frame = self.r_cam.get_frame()
-                r_recorder.write(r_frame)
-            if self.l_cam.running:
-                l_frame = self.l_cam.get_frame()
-                l_recorder.write(l_frame)
+            if self.cam.running:
+                frame = self.cam.get_frame()
+                recorder.write(frame)
 
             spin_cnt += 1
 
@@ -159,8 +154,7 @@ class Recorder(PCSNode):
 
         rospy.loginfo("Deactivating longeron cams!")
         recorder.release()
-        self.r_cam.release()
-        self.l_cam.release()
+        self.cam.release()
 
 
 

@@ -4,3 +4,6 @@ pcs_nodes:
   - teensy_interface
   - telemetry
   - ai_agent
+  - green_led
+  - red_led
+  - rbf_detector

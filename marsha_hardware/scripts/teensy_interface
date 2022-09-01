@@ -20,10 +20,10 @@ from control_msgs.srv import QueryTrajectoryState
 
 # Contains command chmod -R 777 /dev/ttyTHS1
 # https://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
-os.system("sudo /home/aaron/unlock_serial.sh")
+os.system("sudo /home/jet/unlock_serial.sh")
 
-STEP_TOLERANCE = 20
-CMD_EXECUTION_ATTEMPTS = 20
+ANGLE_TOLERANCE = 10
+CMD_EXECUTION_ATTEMPTS = 30
 
 def deg_to_rad(degree):
     return degree / 180 * math.pi
@@ -146,8 +146,9 @@ class Interface():
     def execution_state_cb(self, msg):
         res = TriggerResponse()
         res.success = True
-        for joint_cmd, joint_enc in zip(self.step_cmd, self.enc_step):
-            if joint_cmd - joint_enc < 0 - STEP_TOLERANCE or joint_cmd - joint_enc > 0 + STEP_TOLERANCE:
+        deg_per_steps = rospy.get_param('stepper_config/deg_per_step')
+        for joint_cmd, joint_enc, deg_per_step in zip(self.step_cmd, self.enc_step, deg_per_steps):
+            if (joint_cmd - joint_enc) * deg_per_step < 0 - ANGLE_TOLERANCE or (joint_cmd - joint_enc) * deg_per_step > 0 + ANGLE_TOLERANCE:
                 res.success = False
                 if self.execution_checks > CMD_EXECUTION_ATTEMPTS:
                     rospy.logwarn("Not Executing! Step CMD: " + str(joint_cmd) + " Encoder step: " + str(joint_enc))
@@ -210,7 +211,7 @@ class Interface():
         state = self.controller_state(rospy.get_rostime())
         if state.acceleration[0] == 0.0:
             data = {"steps": self.step_cmd}
-            #print("cmd:" + str(self.step_cmd))
+            print("cmd:" + str(self.step_cmd))
             data_str = json.dumps(data) + '\n'
             data_bytes = data_str.encode('utf-8')
             try:
@@ -218,6 +219,7 @@ class Interface():
             except serial.serialutil.SerialException as e:
                 rospy.logwarn("Failed to write to teensy.")
                 print(e)
+    
             #rospy.loginfo("tx: " +  str(data_bytes))
 
 
@@ -225,7 +227,7 @@ class Interface():
         self.arduino.reset_input_buffer()
         rospy.loginfo("Running, If no data appears ensure the teensy is communicating through the same serial port.")
         while not rospy.is_shutdown():
-	    rospy.loginfo("Getting data...")
+	    #rospy.loginfo("Getting data...")
             if not self.calibrating:
                 if self.tx_cnt > self.tx_rate:
                     self.transmit_step()
@@ -254,7 +256,7 @@ class Interface():
                     try:
                         #string = self.arduino.read_until("}")
                         string = self.arduino.read_until("}")
-                        print(string)
+                        #print(string)
                         json_string = string.decode()
                         rx_dict = json.loads(json_string)
                         encoders = rx_dict["enc_feedback"]

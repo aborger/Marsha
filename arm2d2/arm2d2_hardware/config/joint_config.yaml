@@ -7,6 +7,7 @@ stepper_config:
     - joint_4
     - joint_5
     - gripper_joint
+
   deg_per_step:
   # current values are estimates
     - 0.0225 #0.09    # 360 / 4000

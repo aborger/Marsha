@@ -40,13 +40,15 @@ catkin_install_python(
         nodes/soft_robotics_telem
         nodes/telemetry_downlink
         nodes/record_longeron
+        nodes/led_cmd
+        nodes/rbf_detect
         scripts/motor.py
         scripts/throw
         scripts/follow_ball
         scripts/catch
         scripts/dumb_catch
         scripts/joint_radians
-        scripts/led_test
+
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
