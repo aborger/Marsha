@@ -14,19 +14,19 @@ Currently, the balls will be stacked after launching, this is because specifying
 
     rosrun marsha_gazebo reset no_grav
 
-Simulation with both arms:
+Simulation with both arms
 --------------------------
 ::
     roslaunch arm2d2 simulate.launch num_arms:=2
 
-Simulation with RVIZ control interface:
+Simulation with RVIZ control interface
 --------------------------
 ::
     roslaunch arm2d2 simulate.launch launch_rviz:=true
 
 RVIZ is a way to control the robot and see where it plans to move. Simply open the RVIZ window and drag the end effector marker to the desired position and then press plan and execute. The Gazebo simulated robot will move to this position and orientation, this works for the hardware robot as well. Individual joints can be controlled with RVIZ as well.
 
-Simulation with the top plate:
+Simulation with the top plate
 ------------------------
 ::
     roslaunch arm2d2 simulate.launch top_plate:=true
