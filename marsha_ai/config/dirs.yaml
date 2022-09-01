@@ -1,0 +1,7 @@
+training_dirs:
+  jet1:
+    log_dir: /home/aaron/catkin_ws/src/marsha/marsha_ai/training/logs/
+    model_dir: /home/aaron/catkin_ws/src/marsha/marsha_ai/training/models/
+  jet2:
+    log_dir: /home/jet/catkin_ws/src/marsha/marsha_ai/training/logs/
+    model_dir: /home/jet/catkin_ws/src/marsha/marsha_ai/training/models/

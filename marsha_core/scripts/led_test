@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import RPi.GPIO as GPIO
+import rospy
+
+GREEN_PIN = 13
+RED_PIN = 19
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(GREEN_PIN, GPIO.OUT)
+GPIO.setup(RED_PIN, GPIO.OUT)
+
+def main():
+    rospy.init_node("led_test")
+
+    while not rospy.is_shutdown():
+        GPIO.output(GREEN_PIN, 1)
+	print("on")
+        #GPIO.output(RED_PIN, 1)
+        rospy.sleep(1)
+	print("off")
+        GPIO.output(GREEN_PIN, 0)
+        #GPIO.output(RED_PIN, 0)
+        rospy.sleep(1)
+
+
+if __name__ == "__main__":
+    main()

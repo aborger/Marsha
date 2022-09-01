@@ -74,30 +74,38 @@ class CatchInterface(RosInterface):
 
         rospy.wait_for_service('/' + arm_ns + '/posture_cmd')
         self.posture_cmd = rospy.ServiceProxy('/' + arm_ns + '/posture_cmd', PostureCmd)
+        rospy.loginfo("1")
 
         rospy.wait_for_service('/' + arm_ns + '/plan_grasp')
         self.plan_grasp = rospy.ServiceProxy('/' + arm_ns + '/plan_grasp', PlanGrasp)
+        rospy.loginfo("2")
 
         rospy.wait_for_service('/' + arm_ns + '/get_pos')
         self.get_pos = rospy.ServiceProxy('/' + arm_ns + '/get_pos', GetPos)
 
+        rospy.loginfo("3")
         rospy.wait_for_service('/' + arm_ns + '/gripper/grasp_cmd')
         self.grasp_cmd = rospy.ServiceProxy('/' + arm_ns + '/gripper/grasp_cmd', MoveCmd)
 
+
+        rospy.loginfo("4")
         rospy.wait_for_service('/' + arm_ns + '/gripper/is_grasped')
         self.is_grasped = rospy.ServiceProxy('/' + arm_ns + '/gripper/is_grasped', Trigger)
         
-
+        rospy.loginfo("5")
         rospy.wait_for_service('/observe_trajectory')
         self.observe = rospy.ServiceProxy('/observe_trajectory', ObjectObservation)
 
+        rospy.loginfo("6")
         rospy.wait_for_service('/generate_grasp')
         self.generate_grasp = rospy.ServiceProxy('/generate_grasp', GenerateGrasp)
         rospy.loginfo("Services setup!")
 
+        rospy.loginfo("1=7")
         rospy.wait_for_service('/prediction_ready')
         self.prediction_ready = rospy.ServiceProxy('/prediction_ready', Trigger)
 
+        rospy.loginfo("8")
         rospy.wait_for_service('/predict_position')
         self.predict_position = rospy.ServiceProxy('/predict_position', PredictPosition)
 

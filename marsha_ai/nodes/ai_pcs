@@ -19,7 +19,7 @@ import gym
 import tensorflow as tf
 
 #MODEL_DIR = rospy.get_param("/training_dirs/jet2/model_dir")
-MODEL_PATH = "/home/jet/catkin_ws/src/marsha/marsha_ai/training/models/arm2d2/flight_model.zip"
+MODEL_PATH = "/home/aaron/catkin_ws/src/marsha/marsha_ai/training/models/flight_model.zip"
 
 
 class AI_Agent(SystemPCSNode):
@@ -39,8 +39,6 @@ class AI_Agent(SystemPCSNode):
 
     def run(self):
         # PCS waits until AI is loaded
-        while self.l_pcs_cmd(PCSstate.NA).cmd != PCScmd.PULSE_CHECK and self.r_pcs_cmd(PCSstate.NA).cmd != PCScmd.PULSE_CHECK:
-            rospy.sleep(1)
 
         self.l_pcs_cmd(PCSstate.GOOD)
         self.r_pcs_cmd(PCSstate.GOOD)

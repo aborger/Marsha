@@ -2,15 +2,24 @@
 
 
     <rosparam file="$(find marsha_core)/config/PCS.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/dirs.yaml" command="load"/>
+    <rosparam file="$(find marsha_ai)/config/trajectory_predictor.yaml" command="load"/>
+    <rosparam file="$(find marsha_detection)/config/measurement_parameters.yaml" command="load"/>
     
+
     <group ns="left">
+        <rosparam param="balls_remaining">2</rosparam>
         <node pkg="marsha_core" name="left_pcs" type="left_pcs" output="screen"/>
         <node pkg="marsha_core" name="te_detect" type="te_detect" output="screen"/>
         <node pkg="marsha_core" name="rbf_detect" type="rbf_detect" output="screen"/>
         <node pkg="marsha_core" name="green_led" type="led_cmd" output="screen"/>
         <node pkg="marsha_core" name="red_led" type="led_cmd" output="screen"/>
-        <node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>
-    
+        <!--<node pkg="marsha_core" name="record_longeron" type="record_longeron" output="screen"/>-->
     </group>
 
+    <!--
+    <node name="grasp_generator" pkg="marsha_ai" type="grasp_generator"/>
+    <node name="trajectory_predictor" pkg="marsha_ai" type="trajectory_predictor_kalman" launch-prefix="bash -c 'sleep 5; $0 $a'"/>
+    <node name="ai_pcs" pkg="marsha_ai" type="ai_pcs"/>
+    -->
 </launch>

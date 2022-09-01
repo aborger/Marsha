@@ -189,10 +189,10 @@ class Ball_Status(smach.State):
 
     def execute(self, userdata):
         balls_remaining = rospy.get_param(self.balls_remaining_param)
-
+        """
         if not self.check_other_arm:
             make_checkpoint(balls_remaining=balls_remaining)
-
+        """
         if balls_remaining < 0:
             balls_remaining = 0
             
@@ -238,7 +238,6 @@ class Jetson_Sync(smach.State):
         other_jet_init = False
 
         while not other_jet_init:
-            rospy.loginfo("Waiting for other jet to start mission...")
             try:
                 rospy.get_param(other_sync_param)
                 other_jet_init = True
@@ -299,6 +298,24 @@ class Wait_For_Mission_Clock(smach.State):
 
         rospy.sleep(time_until)
         return 'Done'
+
+class Check_for_Spinup(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['Spinup', 'no_spinup'])
+
+    def execute(self, userdata):
+        global mission_clock
+        spinup_time=307
+
+
+        time_since_te = rospy.get_time() - mission_clock['ros']
+        mission_time = mission_clock['mission'] + time_since_te
+        time_until_spinup = spinup_time - mission_time
+        if time_until_spinup < 0:
+          rospy.set_param('/mission_complete', True)
+          return 'Spinup'
+        else:
+          return 'no_spinup'
 
 class Wait_for_Throw_Window(smach.State):
     def __init__(self):
@@ -405,12 +422,17 @@ class Open_Gripper(Move_State):
 # should move to state machine
 class Pickup_1(Move_State):
     def execute(self, userdata):
-        grasp_cmd("half_closed")
-        joint_pose_cmd("pre_ball_1")
-        joint_pose_cmd("pick_ball_1")
-        grasp_cmd("close")
-        joint_pose_cmd("pre_ball_1")
-        joint_pose_cmd("folding/step_0")
+        try:
+            grasp_cmd("half_closed")
+            joint_pose_cmd("pre_ball_1")
+            joint_pose_cmd("pick_ball_1")
+            grasp_cmd("grasp_mount")
+            rospy.sleep(2)
+            joint_pose_cmd("pre_ball_1")
+            joint_pose_cmd("folding/step_1")
+        except Exception as e:
+            rospy.logwarn("Retrying move failed.")
+            return 'Error'
 
         rospy.sleep(1)
 
@@ -424,12 +446,17 @@ class Pickup_1(Move_State):
 # should move to state machine
 class Pickup_2(Move_State):
     def execute(self, userdata):
-        grasp_cmd("half_closed")
-        joint_pose_cmd("pre_ball_2")
-        joint_pose_cmd("pick_ball_2")
-        grasp_cmd("close")
-        joint_pose_cmd("pre_ball_2")
-        joint_pose_cmd("folding/step_0")
+        try:
+            grasp_cmd("half_closed")
+            joint_pose_cmd("pre_ball_2")
+            joint_pose_cmd("pick_ball_2")
+            grasp_cmd("grasp_mount")
+            rospy.sleep(1)
+            joint_pose_cmd("pre_ball_2")
+            joint_pose_cmd("folding/step_1")
+        except Exception as e:
+            rospy.logwarn("Retrying move failed.")
+            return 'Error'
 
         rospy.sleep(1)
 
@@ -510,27 +537,21 @@ with Fold_SM:
                                     'Error': 'step_1'})
 
     smach.StateMachine.add('step_1', Joint_Pose_State("folding/step_1"),
-                    transitions={'Success': 'open_gripper',
-                                'Error': 'open_gripper'})
-
-    smach.StateMachine.add('open_gripper', Grasp_Cmd_State("half_closed"),
-                    transitions={'Success': 'step_0',
-                                    'Error': 'step_0'})
-
-    smach.StateMachine.add('step_0', Joint_Pose_State("folding/step_0"),
                     transitions={'Success': 'Success',
-                                'Error': 'Success'})
+                                'Error': 'Fail'})
+
+
 
 
 # ================================================================ #
 Catch_SM = smach.StateMachine(outcomes=["Catch_Success", "Catch_Fail"])
 
 with Catch_SM:
-
+    """
     smach.StateMachine.add('Pre_Catch', Joint_Pose_State("pre_catch"),
                         transitions={'Success': 'Open_Gripper',
                                      'Error': 'Catch_Fail'})
-
+    """
     smach.StateMachine.add('Open_Gripper', Grasp_Cmd_State("open"),
                         transitions={'Success': 'Jetson_Sync_Pass',
                                      'Error': 'Catch_Fail'})
@@ -538,14 +559,26 @@ with Catch_SM:
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass", timeout=30),
                         transitions={'Ready': 'Ready_Catch',
                                      'Timeout': 'Catch_Fail'})
-
+    """
     smach.StateMachine.add('Ready_Catch', Joint_Pose_State("catch"),
                         transitions={'Success': 'Catch',
                                      'Error': 'Catch_Fail'})
+    """
+
+    smach.StateMachine.add('Ready_Catch', Grasp_Cmd_State("half_closed"),
+                    transitions={'Success': 'Catch',
+                                    'Error': 'Catch_Fail'})
 
     smach.StateMachine.add('Catch', Catch(),
-                        transitions={'Success': 'Catch_Success',
-                                     'Fail': 'Catch_Fail'})
+                        transitions={'Success': 'Success_Wait',
+                                     'Fail': 'Fail_Wait'})
+
+    smach.StateMachine.add('Success_Wait', Wait_State(5),
+                        transitions={'Complete': 'Catch_Success'})
+
+
+    smach.StateMachine.add('Fail_Wait', Wait_State(5),
+                        transitions={'Complete': 'Catch_Fail'})
 
 # ================================================================ #
 
@@ -566,7 +599,7 @@ with Reload_SM:
 
     smach.StateMachine.add('Pickup_2', Pickup_2(),
                         transitions={'Success': 'Unfold',
-                                     'Error': 'Unfold'})
+                                     'Error': 'Out_Of_Balls'})
 
     smach.StateMachine.add('Unfold', Unfold_SM,
                         transitions={'Success': 'Success',
@@ -580,14 +613,15 @@ Throw_SM = smach.StateMachine(outcomes=["Pass_Complete", "Throw_Success", "Throw
 
 with Throw_SM:
 
+    
     smach.StateMachine.add('Pre_Throw', Joint_Pose_State("pre_throw"),
-                        transitions={'Success': 'Wait_for_Throw_Window',
-                                    'Error': 'Throw_Fail'})
-
+                        transitions={'Success': 'Jetson_Sync_Pass',
+                                    'Error': 'Jetson_Sync_Pass'})
+    """
     smach.StateMachine.add('Wait_for_Throw_Window', Wait_for_Throw_Window(),
                         transitions={'Done': 'Jetson_Sync_Pass',
                                      'Out_Of_Windows': 'Throw_Fail'})
-
+    """
     
     # Attempt to catch if this sync times out
     smach.StateMachine.add('Jetson_Sync_Pass', Jetson_Sync("pass"),
@@ -597,9 +631,11 @@ with Throw_SM:
     smach.StateMachine.add('Wait_to_Throw', Wait_State(1),
                         transitions={'Complete': 'Throw'})
     
+    
     smach.StateMachine.add('Throw', Async_Joint_Pose_State("throw"),
                         transitions={'Success': 'Wait_to_Release',
-                                    'Error': 'Throw_Fail'})
+                                    'Error': 'Wait_to_Release'})
+    
 
     smach.StateMachine.add('Wait_to_Release', Wait_State(0.2),
                         transitions={'Complete': 'Release'})
@@ -611,10 +647,10 @@ with Throw_SM:
     smach.StateMachine.add('Reduce_Balls', Reduce_Balls(),
                         transitions={'Done': 'Check_Catch'})
     
-    smach.StateMachine.add('Check_Catch', Check_Catch(),
+    smach.StateMachine.add('Check_Catch', Check_Catch(timeout=30),
                         transitions={'Caught': 'Pass_Complete',
                                       'Missed': 'Throw_Success',
-                                      'Timeout': 'Throw_Fail',
+                                      'Timeout': 'Throw_Success',
                                       'Not_Catching': 'Throw_Fail'})
     
 
@@ -783,4 +819,7 @@ class Shutdown_Depth_Cam(PCS_Shutdown_State):
 
 
 class Activate_Led(PCS_Activate_State):
+    pass
+
+class Deactivate_Led(PCS_Deactivate_State):
     pass

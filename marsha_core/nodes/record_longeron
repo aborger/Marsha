@@ -139,7 +139,7 @@ class Recorder(PCSNode):
         recorder = cv2.VideoWriter(RECORD_FILE, cv2.VideoWriter_fourcc(*'XVID'), FPS, SIZE)
 
         rospy.loginfo("Longeron Cams Recording...")
-        while True:
+        while not rospy.is_shutdown():
             if self.cam.running:
                 frame = self.cam.get_frame()
                 recorder.write(frame)
