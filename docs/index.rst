@@ -24,6 +24,11 @@ Here are the contents:
    nodes/nodes
 
 .. toctree::
+   :caption: Launch Programs
+   
+   programs/programs
+
+.. toctree::
    :caption: Services
 
    services/services
