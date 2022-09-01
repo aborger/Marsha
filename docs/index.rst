@@ -6,29 +6,29 @@ Marsha Docs - Meta Artificial Intelligent Robotic Spacecraft Handy Arm
 
 .. note::
 
-   This project is under active development.
+   This project is under active development. Marsha name subject to change.
 
-Contents
+Getting Started
 --------
-
-Here are the contents:
+The following guides provide instructions to install marsha and begin with a demo of the basic functionality.
 
 .. toctree::
    :caption: Guides
 
    guides/install
+   guides/getting_started
 
+
+Component Documentation
+--------
 .. toctree::
-   :caption: Nodes
-
+   :caption: Component Documentation
    nodes/nodes
-
-.. toctree::
-   :caption: Programs
-   
    programs/programs
-
-.. toctree::
-   :caption: Services
-
    services/services
+
+
+API Documentation
+--------
+.. toctree::
+   :caption: API Documentation
