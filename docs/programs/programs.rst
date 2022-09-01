@@ -16,19 +16,19 @@ Currently, the balls will be stacked after launching, this is because specifying
 
 Simulation with both arms
 --------------------------
-::
+ ::
     roslaunch arm2d2 simulate.launch num_arms:=2
 
 Simulation with RVIZ control interface
 --------------------------
-::
+ ::
     roslaunch arm2d2 simulate.launch launch_rviz:=true
 
 RVIZ is a way to control the robot and see where it plans to move. Simply open the RVIZ window and drag the end effector marker to the desired position and then press plan and execute. The Gazebo simulated robot will move to this position and orientation, this works for the hardware robot as well. Individual joints can be controlled with RVIZ as well.
 
 Simulation with the top plate
 ------------------------
-::
+ ::
     roslaunch arm2d2 simulate.launch top_plate:=true
 
 Note: Collisions for top plate and surrounding obstacles are not simulated in Gazebo, but moveit avoids colliding with them. Collisions can be turned on by editing marsha/arm2d2/arm2d2_description/urdf/base.urdf.xacro. 
