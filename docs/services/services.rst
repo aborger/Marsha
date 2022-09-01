@@ -9,73 +9,83 @@ The command prompt syntax to call one of these services is as follows: ::
 
     rosservice call /<Arm Name>/<Service Name> <Command>
 
-<Arm Name> is replaced with either `left` or `right`.
-<Service Name> is replaced by the name of the service provided in the following documentation.
-<Command> is replaced by the service specific command.
+``<Arm Name>`` is replaced with either `left` or `right`.
+``<Service Name>`` is replaced by the name of the service provided in the following documentation.
+``<Command>`` is replaced by the service specific command.
 
-Example: ::
+Call Example: ::
+
     rosservice call /left/joint_pose_cmd pre_ball_1
 
 
 Pose Command Service
 --------------------
-Service Name: `pose_cmd`
+**Service Name: `pose_cmd`**
 
 Moves the arm to a preset position and orientation.
 
-Command:
+**Command:**
+
 Name of a pose specified in the preset poses file (marsha/arm2d2/arm2d2/config/poses.yaml).
 
 Call Example: ::
+
     rosservice call /left/pose_cmd pre_throw
 
 
 Async Pose Command Service
 --------------------------
-Service Name: `async_pose_cmd`
+**Service Name: `async_pose_cmd`**
 
 This is the same as pose command, but it does not wait until the arm has finished moving.
 
-Command:
+**Command:**
+
 Name of a pose specified in the preset poses file (marsha/arm2d2/arm2d2/config/poses.yaml).
 
 Call Example: ::
+
     rosservice call /left/async_pose_cmd pre_throw
 
 Joint Command Service
 ---------------------
-Service Name: `joint_pose_cmd`
+**Service Name: `joint_pose_cmd`**
 
 Moves the arm to a preset joint pose with specified angles for each joint.
 
-Command:
+**Command:**
+
 Name of a joint pose specified in the preset poses file (marsha/arm2d2/arm2d2/config/poses.yaml).
 
 Call Example: ::
+
     rosservice call /left/async_pose_cmd pre_ball_1
 
 
 Fold Command Service
 --------------------
-Service Name: `folding`
+**Service Name: `folding`**
 
 Folds or unfolds the arm. Folding is also configured in the preset poses file. It sequentially calls `rosservice call /left/joint_pose_cmd folding/step_i` for each step specified.
 
-Command:
-``fold`` or ``unfold``
+**Command:**
+
+``fold`` or ''unfold''
 
 Call Example: ::
+
     rosservice call /left/folding unfold
 
 
 Gripper Command Service
 -------------------------
-Service Name: `gripper/grasp_cmd`
+**Service Name: `gripper/grasp_cmd`**
 
 Opens and closes the gripper.
 Positions be configured in aborger/Marsha/tundra_gripper/config/poses.yaml
 
-Command:
+**Command:**
+
 ``open``, ``close``, ``half``, ``half_closed``
 
 Call Example: ::
@@ -83,7 +93,7 @@ Call Example: ::
 
 Grasp Check
 ----------------------
-Service Name: `gripper/is_grasped`
+**Service Name: `gripper/is_grasped`**
 
 Returns a boolean value representing if an object is grasped or not.
 
