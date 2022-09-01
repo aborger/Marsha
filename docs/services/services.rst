@@ -20,7 +20,7 @@ Call Example: ::
 
 Pose Command Service
 --------------------
-**Service Name: `pose_cmd` **
+**Service Name:** `pose_cmd`
 
 Moves the arm to a preset position and orientation.
 
@@ -35,7 +35,7 @@ Call Example: ::
 
 Async Pose Command Service
 --------------------------
-**Service Name: `async_pose_cmd` **
+**Service Name:** `async_pose_cmd`
 
 This is the same as pose command, but it does not wait until the arm has finished moving.
 
@@ -49,7 +49,7 @@ Call Example: ::
 
 Joint Command Service
 ---------------------
-**Service Name: `joint_pose_cmd` **
+**Service Name:** `joint_pose_cmd`
 
 Moves the arm to a preset joint pose with specified angles for each joint.
 
@@ -64,13 +64,13 @@ Call Example: ::
 
 Fold Command Service
 --------------------
-**Service Name: `folding` **
+**Service Name:** `folding`
 
 Folds or unfolds the arm. Folding is also configured in the preset poses file. It sequentially calls `rosservice call /left/joint_pose_cmd folding/step_i` for each step specified.
 
 **Command:**
 
-``fold`` or ''unfold''
+``fold`` or ``unfold``
 
 Call Example: ::
 
@@ -79,7 +79,7 @@ Call Example: ::
 
 Gripper Command Service
 -------------------------
-**Service Name: `gripper/grasp_cmd` **
+**Service Name:** `gripper/grasp_cmd`
 
 Opens and closes the gripper.
 Positions be configured in aborger/Marsha/tundra_gripper/config/poses.yaml
@@ -93,7 +93,7 @@ Call Example: ::
 
 Grasp Check
 ----------------------
-**Service Name: `gripper/is_grasped` **
+**Service Name:** `gripper/is_grasped`
 
 Returns a boolean value representing if an object is grasped or not.
 
