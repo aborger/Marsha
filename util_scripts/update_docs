@@ -8,6 +8,7 @@ FILES=$(git status --porcelain | sed s/^...//);
 
 git commit -a -m "Update Docs"
 
+
 git checkout Auxiliary-Platform
 
 for file in $FILES;
@@ -17,5 +18,32 @@ done
 
 git add .
 git commit -a -m "Update Docs"
+git push
+
+git checkout Embedded-Platform
+
+for file in $FILES;
+do
+    git checkout main -- $file
+done
+
+git add .
+git commit -a -m "Update Docs"
+git push
+
+git checkout Microcontroller-Platform
+
+for file in $FILES;
+do
+    git checkout main -- $file
+done
+
+git add .
+git commit -a -m "Update Docs"
+git push
+
+git checkout main
+git push
+
 
 
