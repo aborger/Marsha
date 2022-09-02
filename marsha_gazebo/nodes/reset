@@ -41,8 +41,14 @@ import time
 from std_srvs.srv import Trigger, TriggerResponse
 MODEL_NAME = "pickup_object"
 
-START_DIST = 1
-RANDOMNESS = 0.0001
+START_DIST = 0.2
+
+WORK_SPACE_DIM = 0.3
+DESIRED_VEL = 0.0254 # m/s = 1 in/sec
+VEL_STDV = 0.005
+
+ROBOT_POS = [0.085, 0.085, 0.079]
+
 
 # Not using any more, but dont want to delete just incase
 #delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
@@ -136,36 +142,64 @@ def reset(req):
 
 
 class l_dir:
-    def __init__(self, x=-0.15, y=-0.15, z=0.15, force=0.2):
-        self.x = x
-        self.y = y
-        self.z = z
-        if (x == START_DIST):
-            self.force = Vector3(-1 * force, 0, 0)
-        elif (x == -START_DIST):
-            self.force = Vector3(1 * force, 0, 0)
-        elif (y == START_DIST):
-            self.force = Vector3(0, -1 * force, 0)
-        elif (y == -START_DIST):
-            self.force = Vector3(0, 1 * force, 0)
-        else:
-            self.force = Vector3(0, 0, 1 * force)
+    def __init__(self, x=None, y=None, z=None):
+        self.pos = [x, y, z]
 
+        # definitely a better way to do this
+        if (self.pos[0] == START_DIST):
+            self.force_dir = [-1, 0, 0]
+        elif (self.pos[0] == -START_DIST):
+            self.force_dir = [1, 0, 0]
+        elif (self.pos[1] == START_DIST):
+            self.force_dir = [0, -1, 0]
+        elif (self.pos[1] == -START_DIST):
+            self.force_dir = [0, 1, 0]
+        else:
+            self.force_dir = [0, 0, 1]
+
+    
     def get_pose(self):
-        rand = np.random.normal(0, 0.05, size=(3,)) # randomness: 0.1
+        rand1 = np.random.uniform(low=-WORK_SPACE_DIM/2, high=WORK_SPACE_DIM/2) # rand1 isnt really used because it is in the x-direction which is the direction of motion
+        rand2 = np.random.uniform(low=0, high=WORK_SPACE_DIM)
+        rand3 = np.random.uniform(low=-WORK_SPACE_DIM/2, high=WORK_SPACE_DIM/2)
+
+
+        rand = np.append(rand1, rand2)
+        rand = np.append(rand, rand3)
+        print("rand:", rand)
+
         pose = Pose()
-        pose.position.x = self.x + rand[0]
-        pose.position.y = self.y + rand[1]
-        pose.position.z = self.z + rand[2]
+        pos_arr = [0, 0, 0]
+        for axis, pos in enumerate(self.pos):
+            if (pos != None): # ball moves in this direction and position is already set
+                pos_arr[axis] = pos
+            else: # axis == None
+                pos_arr[axis] = ROBOT_POS[axis] + rand[axis]
+
+        pose.position.x = pos_arr[0]
+        pose.position.y = pos_arr[1]
+        pose.position.z = pos_arr[2]
         return pose
 
     def get_randomized_force(self):
-        rand = np.random.normal(0, 0.001, size=(3,)) #randomness: 0.005 
-        force = self.force
-        force.x += rand[0]
-        force.y += rand[1]
-        force.z += rand[2]
+        rand_vel = np.random.normal(DESIRED_VEL, VEL_STDV)
+
+        # F = m*(v/t) = 0.011*(v/0.01)
+        motion_force = 0.011*(rand_vel/0.01)
+        rand = np.random.normal(0, 0.011*(VEL_STDV/0.01), size=(3,)) #randomness: 0.005 
+        force = Vector3()
+        force_arr = [0, 0, 0]
+        for axis, force_val in enumerate(self.force_dir):
+            if force_val == 0:
+                force_arr[axis] = rand[axis]
+            else:
+                force_arr[axis] = motion_force
+
+        force.x = force_arr[0]
+        force.y = force_arr[1]
+        force.z = force_arr[2]
         return force
+            
 
     def get_force(self):
         return self.force
@@ -177,10 +211,10 @@ ar3_launches = [l_dir(x=1), l_dir(x=-1), l_dir(y=1), l_dir(y=-1)]
 
 #arm2d2_launches = [l_dir(x=0.22, y=1, z=0.125)] #[l_dir(x=1, y=0.22, z=0.125), l_dir(x=-1, y=0.22, z=0.125), l_dir(x=-0.22, y=1, z=0.125), l_dir(x=-0.22, y=-1, z=0.125)]
 
-arm2d2_launches = [l_dir(x=START_DIST, y=0.3), l_dir(x=-1*START_DIST, y=0.3)] #, l_dir(x=1, y=0.45)]
+arm2d2_launches = [l_dir(x=-1*START_DIST)] #l_dir(x=START_DIST, y=0.3)] #, ] #, l_dir(x=1, y=0.45)]
 
 def launcher(data):
-    launches = ar3_launches
+    launches = arm2d2_launches
     l = random.choice(launches)
     pose = l.get_pose()
     twist = Twist()
@@ -195,8 +229,9 @@ def launcher(data):
     # Add velocity
     ref_point = Point(0, 0, 0)
     wrench = Wrench()
-    wrench.force = Vector3(0.5, 0, 0)
+    #wrench.force = Vector3(0.5, 0, 9)
     wrench.force = l.get_randomized_force()
+    print("wrench: ", wrench.force)
     
     # Testing in grav, move later
     #force = Vector3(-2, 0, 9)

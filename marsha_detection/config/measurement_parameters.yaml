@@ -7,7 +7,7 @@ detection_parameters:
   # The difference between the average measured position and estimated position the is considered good enough to predict the future position and velocity
   # If the position has converged by this much, the estimated velocity which cannot be measured has converged this much
   # a higher value allows the arm to start moving sooner, but with less accurate aim
-  sufficient_convergence: 0.05
+  sufficient_convergence: 0.07
 
   robot_base:
     x: 0.24

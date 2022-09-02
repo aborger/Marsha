@@ -11,9 +11,11 @@ gripper:
 
   hw:
     open:
-      6000
+      6300
     close:
-      0
-    half:
+      6200
+    half_closed:
       1000
+    grasp_mount:
+      -1000
     

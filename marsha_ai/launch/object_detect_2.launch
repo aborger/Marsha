@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+
+    <node name="object_location" pkg="marsha_gazebo" type="object_location"/>
+
+    <param name="pickup_object_description" command="$(find xacro)/xacro '$(find marsha_description)/urdf/sphere.urdf.xacro'
+        object_name:=pickup_object mass:=0.011 origin:='0 0 0' radius:=0.022"/>
+
+    <node name="spawn_pickup_1" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param pickup_object_description -x -0.25 -y -0.05 -z 0.07 -model pickup_object" respawn="false" output="screen"/>
+
+
+</launch>

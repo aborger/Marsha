@@ -33,7 +33,7 @@
     <parent link="gripper_link"/>
     <child link="palm"/>
   </joint>
-
+<!-- Removed for catch training
 <link name="ball_pusher">
   <visual>
     <origin xyz="0 -0.02 0" rpy="0 0 0"/>
@@ -55,7 +55,7 @@
   <child link="ball_pusher"/>
 </joint>
 
-
+-->
   <link name="actuator_1">
     <inertial>
       <origin xyz="0.005491083174233274 -0.03206197503178041 -0.0023745477788477826" rpy="0 0 0"/>
