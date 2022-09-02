@@ -1,0 +1,14 @@
+#!/bin/bash
+
+FILES=$(git status --porcelain | sed s/^...//);
+
+git commit -a -m "Update Docs"
+
+git checkout Auxiliary-Platform
+
+for file in $FILES;
+do
+    git checkout main -- $file
+done
+
+
