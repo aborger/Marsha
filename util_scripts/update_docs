@@ -1,4 +1,6 @@
 cd /home/cyborg/catkin_ws/src/marsha
 git checkout main
 
+echo $(git log -n 1 --pretty=%H)
+
 
