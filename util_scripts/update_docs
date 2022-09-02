@@ -1,6 +1,14 @@
-cd /home/cyborg/catkin_ws/src/marsha
-git checkout main
+#!/bin/bash
 
-echo $(git log -n 1 --pretty=%H)
+FILES=$(git status --porcelain | sed s/^...//);
+
+git commit -a -m "Update Docs"
+
+git checkout Auxiliary-Platform
+
+for file in $FILES;
+do
+    git checkout main -- file
+done
 
 
