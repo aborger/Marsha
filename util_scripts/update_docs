@@ -8,7 +8,7 @@ git checkout Auxiliary-Platform
 
 for file in $FILES;
 do
-    git checkout main -- file
+    git checkout main -- $file
 done
 
 
