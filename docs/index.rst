@@ -28,7 +28,7 @@ Three device platforms are used to for marsha development and operation:
      The Microcontroller implements a closed loop controller to move stepper motors with the position commands 
      as the setpoint and encoders as the feedback.
 
-   * Microcontroller Platform Wiki Coming Soon
+   * `Access Embedded Platform Wiki <https://aborger-marsha.readthedocs.io/en/microcontroller-platform/>`_
 
 
 .. note::
