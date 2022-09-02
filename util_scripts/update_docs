@@ -1,6 +1,4 @@
 cd /home/cyborg/catkin_ws/src/marsha
 git checkout main
 
-git commit -a -m "Update Docs"
-git push
-git branch checkout
+
