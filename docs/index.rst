@@ -3,9 +3,14 @@ Marsha Docs - Meta Artificial Intelligent Robotic Spacecraft Handy Arm
 
 **Marsha** stands for Meta Artificial intelligent Robotic Spacecraft Handy Arm.
 
-About Marsha
+Microcontroller Platform
 -------
 
+This is the documentation for the microcontroller platform.
+
+
+Device Platforms
+----------------
 
 Three device platforms are used to for marsha development and operation:
 
