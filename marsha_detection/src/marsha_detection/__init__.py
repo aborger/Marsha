@@ -1,1 +1,0 @@
-DETECTION_DIR = "/home/cyborg/catkin_ws/src/marsha/marsha_detection/ai/"

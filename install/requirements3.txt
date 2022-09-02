@@ -1,4 +1,0 @@
-numpy
-gym
-torch==1.9.0
-stable_baselines3

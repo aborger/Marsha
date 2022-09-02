@@ -1,8 +1,0 @@
-<launch>
-
-    <!-- This file allows for easily changing planning pipelines -->
-    <arg name="pipeline" default="ompl"/>
-
-    <include file="$(find arm2d2_moveit_config)/launch/$(arg pipeline)_planning_pipeline.launch.xml"/>
-
-</launch>

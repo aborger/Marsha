@@ -1,3 +1,0 @@
-hardware_interface:
-  loop_hz: 10
-  joint: joint_1

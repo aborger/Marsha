@@ -1,8 +1,0 @@
-<launch>
-    <machine name="jet1" address="jet" user="aaron" password="Rocksat1" env-loader="/home/aaron/catkin_ws/devel/env.sh"/>
-    <machine name="jet2" address="nnu-engineering" user="jet" password="Rocksat" env-loader="/home/jet/catkin_ws/devel/env.sh"/>
-    <machine name="satlab" address="nnu-satlab" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
-    <machine name="iMac1" address="satlab-iMac" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
-    <machine name="iMac2" address="satlab-iMac2" user="satlab" password="Rocksat" env-loader="/home/satlab/catkin_ws/devel/env.sh"/>
-    <machine name="marsha" address="marsha" user="jet" password="Rocksat" env-loader="/home/jet/catkin_ws/devel/env.sh"/>
-</launch>
