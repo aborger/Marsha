@@ -1,9 +1,11 @@
 #!/bin/bash
 
 cd /home/cyborg/catkin_ws/src/marsha
+
+git add .
+
 FILES=$(git status --porcelain | sed s/^...//);
 
-git commit -a
 git commit -a -m "Update Docs"
 
 git checkout Auxiliary-Platform
