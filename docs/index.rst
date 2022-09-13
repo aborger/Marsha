@@ -18,7 +18,7 @@ Three device platforms are used to for marsha development and operation:
 
    * The Auxiliary Platform is used to manually control the robot as well as program it.
 
-   * `Access Embedded Platform Wiki <https://aborger-marsha.readthedocs.io/en/auxiliary-platform/>`_
+   * `Access Auxiliary Platform Wiki <https://aborger-marsha.readthedocs.io/en/auxiliary-platform/>`_
 
 * Embedded Platform (Jetson Nano)
 
@@ -33,7 +33,7 @@ Three device platforms are used to for marsha development and operation:
      The Microcontroller implements a closed loop controller to move stepper motors with the position commands 
      as the setpoint and encoders as the feedback.
 
-   * `Access Embedded Platform Wiki <https://aborger-marsha.readthedocs.io/en/microcontroller-platform/>`_
+   * `Access Microcontroller Platform Wiki <https://aborger-marsha.readthedocs.io/en/microcontroller-platform/>`_
 
 
 .. note::
@@ -48,7 +48,7 @@ The following guides provide instructions to install marsha and begin with a dem
    :caption: Guides
 
    guides/install
-   guides/getting_started
+   guides/introduction
 
 
 Component Documentation
