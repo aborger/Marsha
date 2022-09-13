@@ -71,11 +71,13 @@ This algorithm learned what angle to catch the ball given its current position a
 
 The results of this flight were inconclusive at no fault of the artificial intelligence software, but due to complex project management problems.
 
-- `Read more about the artificial intelligence software for the 2022 flight.`: https://drive.google.com/file/d/16puG0EUAEeprjh0N5W_qU4mVsE8ddA2B/view?usp=sharing
+- `Read more about the artificial intelligence software for the 2022 flight.`_
 
 - `Read more about the results of the flight.`
 
 .. _`TD3 algorithm`: https://spinningup.openai.com/en/latest/algorithms/td3.html
+
+.. _`Read more about the artificial intelligence software for the 2022 flight.`: https://drive.google.com/file/d/16puG0EUAEeprjh0N5W_qU4mVsE8ddA2B/view?usp=sharing
 
 
 Marsha 2023
