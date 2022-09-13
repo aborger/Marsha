@@ -98,9 +98,8 @@ This algorithm is very fast and light weight so it will be able to detect and tr
 
 A `Transformer Model`_ will be trained as the TD3 actor network allowing the network to learn the dynamics of a subset of points in the 3D-point cloud. The key to the transformer is it can learn which points provide the most information and ignores the rest (This is my assumption, transformers are usually used for language processing not object tracking and predicting). The TD3 transformer model serves as the encoder in the `6-DOF GraspNet`_ `Variational Auto Encoder`_. Therefore, the output of the transformer model is the latent space for the grasp net which can then be decoded into the position and `quaternion`_ vectors representing the grasp.
 
-I'd like to conclude with some reassurance. I have included links for any complex topics to allow myself and anyone who would like to learn more or refresh their memory. However, each one of those topics incorporates multiple years worth of AI research that I read instead of paying attention in class and doing homework. You do not need to know what those topics are unless you are working directly with the AI. If you would like to learn these topic and don't know where to start, reach out to me.
+I'd like to conclude with some reassurance. I have included links for any complex topics to allow myself and anyone who would like to learn more or refresh their memory. However, each one of those topics incorporates multiple years worth of AI research that I read instead of paying attention in class and doing homework. You do not need to know what those topics are unless you are working directly with the AI. If you would like to learn these topic and don't know where to start, reach out to me (Aaron Borger).
 
-- Aaron Borger
 
 .. _`Space ROS`: https://www.openrobotics.org/blog/2022/2/2/rosinspace
 
