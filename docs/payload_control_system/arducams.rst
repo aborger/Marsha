@@ -1,5 +1,5 @@
 =============
-Arducams system
+Arducams
 =============
 
 .. contents:: Table of Contents
