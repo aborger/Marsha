@@ -67,8 +67,9 @@ Finally, if you use opencv on a device that has a GPU such as the Jetson Nano, m
 
 The following python script will return 0 if it is not using the gpu:
 
-```
-import cv2
-count = cv2.cuda.getCudaEnabledDeviceCount()
-print(count)
-```
+.. code-block:: python
+ import cv2
+ count = cv2.cuda.getCudaEnabledDeviceCount()
+ print(count)
+ 
+
