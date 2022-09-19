@@ -51,14 +51,19 @@ The following guides provide instructions to install marsha and begin with a dem
    guides/introduction
 
 
-Component Documentation
+Robotic Control Components Documentation
 --------
 .. toctree::
    :caption: Component Documentation
-   nodes/nodes
-   programs/programs
-   services/services
+   components/nodes
+   components/programs
+   components/services
 
+Payload Control System
+---------
+.. toctree::
+   :caption: Payload Control System Documentation
+   payload_control_system/arducams
 
 API Documentation
 --------
