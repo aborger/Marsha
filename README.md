@@ -14,4 +14,7 @@ This repository contains software to control the robotic arms from two different
 ## Current Progress
 This work is a work in progress so installation procedures have not been written yet. Documentation is currently being written and will be linked as soon as it is presentable. The software will be finalized by May 2022 as the payload is scheduled to launch in August 2022.
 
+## Documentation for Running
+[Marsha Docs](https://aborger-marsha.readthedocs.io/en/embedded-platform/components/programs.html)
+
 
